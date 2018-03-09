@@ -120,6 +120,8 @@ public class ActuatorCommand {
     /**
      * Audit method
      *
+     * @param principal principal to filter with
+     * @param type      to filter with
      * @return audit
      */
     @ShellMethod(key = "audit", value = "Display audit endpoint.")
@@ -183,6 +185,7 @@ public class ActuatorCommand {
     /**
      * Environment method
      *
+     * @param pattern pattern to filter with
      * @return env
      */
     @ShellMethod(key = "env", value = "Display env endpoint.")
@@ -243,6 +246,9 @@ public class ActuatorCommand {
     /**
      * Loggers method
      *
+     * @param action      action to make
+     * @param loggerName  logger name for get or configure
+     * @param loggerLevel logger level for configure
      * @return loggers
      */
     @ShellMethod(key = "loggers", value = "Display or configure loggers.")
@@ -277,6 +283,8 @@ public class ActuatorCommand {
     /**
      * Metrics method
      *
+     * @param name metrics name to display
+     * @param tags tags to filter with
      * @return metrics
      */
     @ShellMethod(key = "metrics", value = "Display metrics endpoint.")
