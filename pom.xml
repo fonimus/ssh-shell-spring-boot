@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>io.fonimus</groupId>
+	<artifactId>ssh-shell</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+
+	<name>Ssh Shell</name>
+	<description>Ssh shell for Spring Boot Shell</description>
+
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!--dependencies-->
+		<sshd.version>1.7.0</sshd.version>
+		<spring-boot.version>2.0.0.RELEASE</spring-boot.version>
+		<spring-shell.version>2.0.0.RELEASE</spring-shell.version>
+	</properties>
+
+	<modules>
+		<module>starter</module>
+		<module>sample</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-autoconfigure</artifactId>
+				<version>${spring-boot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-actuator</artifactId>
+				<version>${spring-boot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-configuration-processor</artifactId>
+				<version>${spring-boot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.sshd</groupId>
+				<artifactId>sshd-core</artifactId>
+				<version>${sshd.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.shell</groupId>
+				<artifactId>spring-shell-starter</artifactId>
+				<version>${spring-shell.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>

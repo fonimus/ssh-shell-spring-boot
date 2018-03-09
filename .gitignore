@@ -1,0 +1,8 @@
+# project
+target/
+
+# intellij
+.idea/*
+!.idea/runConfigurations
+*.iml
+spring-shell.log
