@@ -1,4 +1,4 @@
-package io.fonimus.ssh.shell;
+package com.github.fonimus.ssh.shell;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -13,13 +13,13 @@ or [reference documentation](https://docs.spring.io/spring-shell/docs/2.0.0.RELE
 
 ```xml
 <dependency>
-    <groupId>io.fonimus</groupId>
+    <groupId>com.github.fonimus</groupId>
     <artifactId>ssh-shell-starter</artifactId>
     <version>0.1.0</version>
 </dependency>
 ```
 
-**Note:**: auto configuration `io.fonimus.ssh.shell.SshShellAutoConfiguration` can be deactivated by property **ssh.shell.enable=false**
+**Note:**: auto configuration `SshShellAutoConfiguration` can be deactivated by property **ssh.shell.enable=false**
 
 ### Configuration
 

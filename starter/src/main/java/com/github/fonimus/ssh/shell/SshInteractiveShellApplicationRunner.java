@@ -1,4 +1,4 @@
-package io.fonimus.ssh.shell;
+package com.github.fonimus.ssh.shell;
 
 import org.jline.reader.LineReader;
 import org.jline.reader.Parser;

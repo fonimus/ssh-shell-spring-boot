@@ -1,4 +1,4 @@
-package io.fonimus.ssh.shell.sample;
+package com.github.fonimus.ssh.shell.sample;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

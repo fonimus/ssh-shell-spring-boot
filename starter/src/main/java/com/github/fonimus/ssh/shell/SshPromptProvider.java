@@ -1,4 +1,4 @@
-package io.fonimus.ssh.shell;
+package com.github.fonimus.ssh.shell;
 
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;

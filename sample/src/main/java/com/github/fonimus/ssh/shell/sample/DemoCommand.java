@@ -1,4 +1,4 @@
-package io.fonimus.ssh.shell.sample;
+package com.github.fonimus.ssh.shell.sample;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;

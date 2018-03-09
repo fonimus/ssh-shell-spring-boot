@@ -1,4 +1,4 @@
-package io.fonimus.ssh.shell;
+package com.github.fonimus.ssh.shell;
 
 import java.io.IOException;
 import java.util.UUID;

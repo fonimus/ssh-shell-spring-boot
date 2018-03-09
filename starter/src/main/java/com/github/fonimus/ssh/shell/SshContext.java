@@ -1,4 +1,4 @@
-package io.fonimus.ssh.shell;
+package com.github.fonimus.ssh.shell;
 
 import org.apache.sshd.server.ExitCallback;
 import org.jline.terminal.Terminal;

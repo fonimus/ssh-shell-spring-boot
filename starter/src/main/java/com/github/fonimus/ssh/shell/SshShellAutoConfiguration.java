@@ -1,4 +1,4 @@
-package io.fonimus.ssh.shell;
+package com.github.fonimus.ssh.shell;
 
 import org.apache.sshd.server.SshServer;
 import org.jline.terminal.Terminal;
@@ -17,14 +17,14 @@ import org.springframework.shell.jline.InteractiveShellApplicationRunner;
 import org.springframework.shell.jline.JLineShellAutoConfiguration;
 import org.springframework.shell.result.ThrowableResultHandler;
 
-import static io.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
+import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
 @Configuration
 @ConditionalOnClass(SshServer.class)
 @ConditionalOnProperty(name = SSH_SHELL_PREFIX + ".enable", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties({ SshShellProperties.class })
 @AutoConfigureAfter({ JLineShellAutoConfiguration.class, SpringShellAutoConfiguration.class })
-@ComponentScan(basePackages = { "io.fonimus.ssh.shell" })
+@ComponentScan(basePackages = { "com.github.fonimus.ssh.shell" })
 public class SshShellAutoConfiguration {
 
 	private static final ThreadLocal<Throwable> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);

@@ -1,8 +1,8 @@
-package io.fonimus.ssh.shell.commands.actuator;
+package com.github.fonimus.ssh.shell.commands.actuator;
 
 import java.util.Arrays;
 
-import io.fonimus.ssh.shell.SshShellProperties;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ import org.springframework.shell.standard.ShellOption;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static io.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
+import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
 /**
  * Actuator shell command
