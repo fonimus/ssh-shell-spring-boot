@@ -1,5 +1,9 @@
 # Ssh shell
 
+[![Build Status](https://travis-ci.org/fonimus/spring-boot-ssh-shell.svg?branch=master)](https://travis-ci.org/fonimus/spring-boot-ssh-shell)
+[![Code Coverage](https://codecov.io/gh/fonimus/spring-boot-ssh-shell/branch/master/graph/badge.svg)](https://codecov.io/gh/fonimus/spring-boot-ssh-shell)
+
+
 > Spring shell over ssh
 
 

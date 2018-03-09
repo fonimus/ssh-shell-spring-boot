@@ -51,71 +51,67 @@ public class ActuatorCommand {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @Autowired
-    @Lazy
     private AuditEventsEndpoint audit;
 
-    @Autowired
-    @Lazy
     private BeansEndpoint beans;
 
-    @Autowired
-    @Lazy
     private ConditionsReportEndpoint conditions;
 
-    @Autowired
-    @Lazy
     private ConfigurationPropertiesReportEndpoint configprops;
 
-    @Autowired
-    @Lazy
     private EnvironmentEndpoint env;
 
-    @Autowired
-    @Lazy
     private HealthEndpoint health;
 
-    @Autowired
-    @Lazy
     private HttpTraceEndpoint httptrace;
 
-    @Autowired
-    @Lazy
     private InfoEndpoint info;
 
-    @Autowired
-    @Lazy
     private LoggersEndpoint loggers;
 
-    @Autowired
-    @Lazy
     private MetricsEndpoint metrics;
 
-    @Autowired
-    @Lazy
     private MappingsEndpoint mappings;
 
-    @Autowired
-    @Lazy
     private ScheduledTasksEndpoint scheduledtasks;
 
     //	@Autowired
     //	@Lazy
     //	private SessionsEndpoint sessions;
 
-    @Autowired
-    @Lazy
     private ShutdownEndpoint shutdown;
 
-    @Autowired
-    @Lazy
     private ThreadDumpEndpoint threaddump;
 
-    @Autowired
     private Environment environment;
 
-    @Autowired
     private SshShellProperties properties;
+
+    public ActuatorCommand(Environment environment, SshShellProperties properties, @Lazy AuditEventsEndpoint audit,
+                           @Lazy BeansEndpoint beans, @Lazy ConditionsReportEndpoint conditions,
+                           @Lazy ConfigurationPropertiesReportEndpoint configprops, @Lazy EnvironmentEndpoint env,
+                           @Lazy HealthEndpoint health, @Lazy HttpTraceEndpoint httptrace, @Lazy InfoEndpoint info,
+                           @Lazy LoggersEndpoint loggers, @Lazy MetricsEndpoint metrics,
+                           @Lazy MappingsEndpoint mappings, @Lazy ScheduledTasksEndpoint scheduledtasks,
+                           @Lazy ShutdownEndpoint shutdown, @Lazy ThreadDumpEndpoint threaddump
+    ) {
+        this.audit = audit;
+        this.beans = beans;
+        this.conditions = conditions;
+        this.configprops = configprops;
+        this.env = env;
+        this.health = health;
+        this.httptrace = httptrace;
+        this.info = info;
+        this.loggers = loggers;
+        this.metrics = metrics;
+        this.mappings = mappings;
+        this.scheduledtasks = scheduledtasks;
+        this.shutdown = shutdown;
+        this.threaddump = threaddump;
+        this.environment = environment;
+        this.properties = properties;
+    }
 
     /**
      * Audit method
