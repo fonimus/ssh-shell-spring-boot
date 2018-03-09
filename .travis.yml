@@ -7,4 +7,4 @@ before_install:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - java -jar ~/codacy.jar -l Java -r starter/target/jacoco.exec
+  - java -jar ~/codacy.jar -l Java -r starter/target/site/jacoco/jacoco.xml

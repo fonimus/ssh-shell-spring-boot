@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/fonimus/spring-boot-ssh-shell.svg?branch=master)](https://travis-ci.org/fonimus/spring-boot-ssh-shell)
 [![Code Coverage](https://codecov.io/gh/fonimus/spring-boot-ssh-shell/branch/master/graph/badge.svg)](https://codecov.io/gh/fonimus/spring-boot-ssh-shell)
 [![Code Quality](https://api.codacy.com/project/badge/Grade/e695bc79f42c4c80a58f78ebef8c632b)](https://www.codacy.com/app/francois.onimus/spring-boot-ssh-shell?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fonimus/spring-boot-ssh-shell&amp;utm_campaign=Badge_Grade)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.fonimys/spring-boot-ssh-shell/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.fonimus/spring-boot-ssh-shell)
 
 > Spring shell over ssh
 
