@@ -3,13 +3,29 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.fonimus</groupId>
-    <artifactId>ssh-shell</artifactId>
+    <artifactId>ssh-shell-parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
     <name>Ssh Shell</name>
     <description>Ssh shell for Spring Boot Shell</description>
+    <url>https://github.com/fonimus/spring-boot-ssh-shell/</url>
+
+    <developers>
+        <developer>
+            <id>fonimus</id>
+            <email>francois.onimus@gmail.com</email>
+            <name>François Onimus</name>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/</url>
+        </license>
+    </licenses>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
