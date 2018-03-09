@@ -10,7 +10,8 @@
     ```bash
     java -jar sample/target/sample[-version].jar
     ```
-1 Connect to application via ssh (default password: pass)
+1. Connect to application via ssh (default password: pass)
+
     ```bash
     ssh -p user@localhost
     
