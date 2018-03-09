@@ -27,7 +27,7 @@ or [reference documentation](https://docs.spring.io/spring-shell/docs/2.0.0.RELE
 
 ### Configuration
 
-```properties
+```yaml
 ssh:
   shell:
     actuator:
@@ -53,7 +53,7 @@ will be available.
 
 Command availability is binded to endpoint activation.
 
-```properties
+```yaml
 # command is disabled because endpoint has been disabled 
 management:
   endpoint:
@@ -63,7 +63,7 @@ management:
 
 It can also be deactivated by putting command name is exclusion list.
 
-```properties
+```yaml
 ssh:
   shell:
     actuator:

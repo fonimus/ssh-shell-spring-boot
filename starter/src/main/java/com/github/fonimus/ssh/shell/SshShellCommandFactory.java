@@ -16,6 +16,8 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.context.annotation.Lazy;
@@ -30,117 +32,122 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SshShellCommandFactory
-		implements Command, Factory<Command>, ChannelSessionAware, Runnable {
+        implements Command, Factory<Command>, ChannelSessionAware, Runnable {
 
-	private static final ThreadLocal<SshContext> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
+    public static final Logger LOGGER = LoggerFactory.getLogger(SshShellCommandFactory.class);
 
-	private InputStream is;
+    private static final ThreadLocal<SshContext> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
 
-	private OutputStream os;
+    private InputStream is;
 
-	private ExitCallback ec;
+    private OutputStream os;
 
-	private Thread sshThread;
+    private ExitCallback ec;
 
-	private ChannelSession session;
+    private Thread sshThread;
 
-	private String terminalType;
+    private ChannelSession session;
 
-	private Banner shellBanner;
+    private String terminalType;
 
-	private PromptProvider promptProvider;
+    private Banner shellBanner;
 
-	private Shell shell;
+    private PromptProvider promptProvider;
 
-	private JLineShellAutoConfiguration.CompleterAdapter completerAdapter;
+    private Shell shell;
 
-	private Environment environment;
+    private JLineShellAutoConfiguration.CompleterAdapter completerAdapter;
 
-	private Terminal terminalDelegate;
+    private Environment environment;
 
-	public SshShellCommandFactory(Banner shellBanner, @Lazy PromptProvider promptProvider, Shell shell,
-			JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Environment environment,
-			@Qualifier(SshShellAutoConfiguration.TERMINAL_DELEGATE) Terminal terminalDelegate) {
-		this.shellBanner = shellBanner;
-		this.promptProvider = promptProvider;
-		this.shell = shell;
-		this.completerAdapter = completerAdapter;
-		this.environment = environment;
-		this.terminalDelegate = terminalDelegate;
-	}
+    private Terminal terminalDelegate;
 
-	@Override
-	public void start(org.apache.sshd.server.Environment env) {
-		terminalType = env.getEnv().get("TERM");
-		sshThread = new Thread(this, "ssh-session-" + System.nanoTime());
-		sshThread.start();
-	}
+    public SshShellCommandFactory(Banner shellBanner, @Lazy PromptProvider promptProvider, Shell shell,
+                                  JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Environment environment,
+                                  @Qualifier(SshShellAutoConfiguration.TERMINAL_DELEGATE) Terminal terminalDelegate) {
+        this.shellBanner = shellBanner;
+        this.promptProvider = promptProvider;
+        this.shell = shell;
+        this.completerAdapter = completerAdapter;
+        this.environment = environment;
+        this.terminalDelegate = terminalDelegate;
+    }
 
-	@Override
-	public void run() {
-		Terminal terminal;
-		try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); PrintStream ps = new PrintStream(baos, true, "utf-8")) {
-			terminal = TerminalBuilder.builder().system(false).type(terminalType).streams(is, os).build();
-			DefaultResultHandler resultHandler = new DefaultResultHandler();
-			resultHandler.setTerminal(terminal);
-			shellBanner.printBanner(environment, this.getClass(), ps);
-			resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
-			resultHandler.handleResult("Please type `help` to see available commands");
-			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();
-			InputProvider inputProvider = new InteractiveShellApplicationRunner.JLineInputProvider(reader, promptProvider);
-			THREAD_CONTEXT.set(new SshContext(terminal, ec, sshThread));
-			if (terminalDelegate instanceof SshShellTerminalDelegate) {
-				((SshShellTerminalDelegate) terminalDelegate).setDelegate(terminal);
-			}
-			shell.run(inputProvider);
-			quit(0);
-		} catch (IOException | RuntimeException e) {
-			// log ex
-			quit(1);
-		}
-	}
+    @Override
+    public void start(org.apache.sshd.server.Environment env) {
+        LOGGER.debug("[shell-command] start session {}", session.toString());
+        terminalType = env.getEnv().get("TERM");
+        sshThread = new Thread(this, "ssh-session-" + System.nanoTime());
+        sshThread.start();
+    }
 
-	private void quit(int exitCode) {
-		SshContext ctx = THREAD_CONTEXT.get();
-		if (ctx != null) {
-			ctx.getExitCallback().onExit(exitCode);
-		}
-	}
+    @Override
+    public void run() {
+        LOGGER.debug("[shell-command] run session {}", session.toString());
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             PrintStream ps = new PrintStream(baos, true, "utf-8");
+             Terminal terminal = TerminalBuilder.builder().system(false).type(terminalType).streams(is, os).build()) {
+            DefaultResultHandler resultHandler = new DefaultResultHandler();
+            resultHandler.setTerminal(terminal);
+            shellBanner.printBanner(environment, this.getClass(), ps);
+            resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
+            resultHandler.handleResult("Please type `help` to see available commands");
+            LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();
+            InputProvider inputProvider = new InteractiveShellApplicationRunner.JLineInputProvider(reader, promptProvider);
+            THREAD_CONTEXT.set(new SshContext(terminal, ec, sshThread));
+            if (terminalDelegate instanceof SshShellTerminalDelegate) {
+                ((SshShellTerminalDelegate) terminalDelegate).setDelegate(terminal);
+            }
+            shell.run(inputProvider);
+            quit(0);
+        } catch (IOException | RuntimeException e) {
+            // log ex
+            quit(1);
+        }
+    }
 
-	@Override
-	public void destroy() {
-		SshContext ctx = THREAD_CONTEXT.get();
-		if (ctx != null) {
-			ctx.getThread().interrupt();
-		}
-	}
+    private void quit(int exitCode) {
+        SshContext ctx = THREAD_CONTEXT.get();
+        if (ctx != null) {
+            ctx.getExitCallback().onExit(exitCode);
+        }
+    }
 
-	@Override
-	public void setErrorStream(OutputStream errOS) {
-	}
+    @Override
+    public void destroy() {
+        SshContext ctx = THREAD_CONTEXT.get();
+        if (ctx != null) {
+            ctx.getThread().interrupt();
+        }
+    }
 
-	@Override
-	public void setExitCallback(ExitCallback ec) {
-		this.ec = ec;
-	}
+    @Override
+    public void setErrorStream(OutputStream errOS) {
+        // not used
+    }
 
-	@Override
-	public void setInputStream(InputStream is) {
-		this.is = is;
-	}
+    @Override
+    public void setExitCallback(ExitCallback ec) {
+        this.ec = ec;
+    }
 
-	@Override
-	public void setOutputStream(OutputStream os) {
-		this.os = os;
-	}
+    @Override
+    public void setInputStream(InputStream is) {
+        this.is = is;
+    }
 
-	@Override
-	public void setChannelSession(ChannelSession session) {
-		this.session = session;
-	}
+    @Override
+    public void setOutputStream(OutputStream os) {
+        this.os = os;
+    }
 
-	@Override
-	public Command create() {
-		return this;
-	}
+    @Override
+    public void setChannelSession(ChannelSession session) {
+        this.session = session;
+    }
+
+    @Override
+    public Command create() {
+        return this;
+    }
 }

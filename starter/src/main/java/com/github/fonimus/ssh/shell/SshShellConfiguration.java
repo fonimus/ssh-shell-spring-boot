@@ -26,6 +26,9 @@ public class SshShellConfiguration {
 	@Autowired
 	private SshShellProperties properties;
 
+	@Autowired
+	private SshShellCommandFactory shellCommandFactory;
+
 	@PostConstruct
 	public void startServer() throws IOException {
 		sshServer().start();
@@ -35,9 +38,6 @@ public class SshShellConfiguration {
 	public void stopServer() throws IOException {
 		sshServer().stop();
 	}
-
-	@Autowired
-	private SshShellCommandFactory shellCommandFactory;
 
 	@Bean
 	public SshServer sshServer() {
@@ -51,7 +51,7 @@ public class SshShellConfiguration {
 			LOGGER.info(" --- Generating password for ssh connection: {}", password);
 		}
 		final String finalPassword = password;
-		server.setPasswordAuthenticator((username, pass, serverSession) -> username.equals("user") && pass.equals(finalPassword));
+		server.setPasswordAuthenticator((username, pass, serverSession) -> "user".equals(username) && pass.equals(finalPassword));
 		server.setPort(properties.getPort());
 		server.setShellFactory(() -> shellCommandFactory);
 		server.setCommandFactory(command -> shellCommandFactory);
