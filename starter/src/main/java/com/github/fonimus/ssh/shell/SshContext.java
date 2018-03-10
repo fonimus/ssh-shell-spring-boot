@@ -26,15 +26,7 @@ public class SshContext {
         return exitCallback;
     }
 
-    public void setExitCallback(ExitCallback exitCallback) {
-        this.exitCallback = exitCallback;
-    }
-
     public Thread getThread() {
         return thread;
-    }
-
-    public void setThread(Thread thread) {
-        this.thread = thread;
     }
 }

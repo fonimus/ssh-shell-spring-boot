@@ -2,8 +2,10 @@ package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.commands.actuator.ActuatorCommand;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.boot.actuate.scheduling.ScheduledTasksEndpoint;
+import org.springframework.boot.logging.LogLevel;
 
 import java.util.Collections;
 
@@ -99,6 +101,11 @@ public abstract class AbstractCommandTest extends AbstractTest {
     }
 
     @Test
+    void testConfigureLogger() {
+        cmd.loggers(ActuatorCommand.LoggerAction.conf, "test", LogLevel.DEBUG);
+    }
+
+    @Test
     void testMetrics() {
         assertEquals(metrics.listNames().getNames().size(),
                      ((MetricsEndpoint.ListNamesResponse) cmd.metrics(null, null).getObject()).getNames().size());
@@ -134,12 +141,17 @@ public abstract class AbstractCommandTest extends AbstractTest {
     }
 
     @Test
-    void testCommands() {
+    void testScheduled() {
         ScheduledTasksEndpoint.ScheduledTasksReport actual = cmd.scheduledtasks().getObject();
         ScheduledTasksEndpoint.ScheduledTasksReport expected = scheduledtasks.scheduledTasks();
         assertEquals(expected.getCron().size(), actual.getCron().size());
         assertEquals(expected.getFixedDelay().size(), actual.getFixedDelay().size());
         assertEquals(expected.getFixedRate().size(), actual.getFixedRate().size());
+    }
+
+    @Test
+    void testShutdown() {
+        assertThrows(NoSuchBeanDefinitionException.class, () -> cmd.shutdown());
     }
 
     @Test

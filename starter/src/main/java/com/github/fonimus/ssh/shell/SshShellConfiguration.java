@@ -1,19 +1,17 @@
 package com.github.fonimus.ssh.shell;
 
-import java.io.IOException;
-import java.util.UUID;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.pubkey.RejectAllPublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Ssh shell configuration
@@ -70,7 +68,8 @@ public class SshShellConfiguration {
             LOGGER.info(" --- Generating password for ssh connection: {}", password);
         }
         final String finalPassword = password;
-        server.setPasswordAuthenticator((username, pass, serverSession) -> "user".equals(username) && pass.equals(finalPassword));
+        server.setPasswordAuthenticator(
+                (username, pass, serverSession) -> "user".equals(username) && pass.equals(finalPassword));
         server.setPort(properties.getPort());
         server.setShellFactory(() -> shellCommandFactory);
         server.setCommandFactory(command -> shellCommandFactory);

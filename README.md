@@ -20,7 +20,7 @@ or [reference documentation](https://docs.spring.io/spring-shell/docs/2.0.0.RELE
 <dependency>
     <groupId>com.github.fonimus</groupId>
     <artifactId>spring-boot-ssh-shell-starter</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -55,7 +55,6 @@ will be available.
 Command availability is binded to endpoint activation.
 
 ```yaml
-# command is disabled because endpoint has been disabled 
 management:
   endpoint:
     threaddump:

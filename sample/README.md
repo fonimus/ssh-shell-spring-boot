@@ -28,7 +28,7 @@
     AVAILABLE COMMANDS
     
     Actuator Commands
-            audit: Display audit endpoint.
+          * audit: Display audit endpoint.
             beans: Display beans endpoint.
             conditions: Display conditions endpoint.
             configprops: Display configprops endpoint.
@@ -40,6 +40,7 @@
             mappings: Display mappings endpoint.
             metrics: Display metrics endpoint.
             scheduledtasks: Display scheduledtasks endpoint.
+            sessions: Display sessions endpoint.
             shutdown: Shutdown application.
           * threaddump: Display threaddump endpoint.
     
@@ -51,8 +52,8 @@
             stacktrace: Display the full stacktrace of the last error.
     
     Demo Command
-            test: Test command
-            testex: Test command ex
+            echo: Echo command
+            ex: Ex command
     
     Commands marked with (*) are currently unavailable.
     Type `help <command>` to learn more.

@@ -296,11 +296,9 @@ public class ActuatorCommand {
                 loggers.configureLogLevel(loggerName, loggerLevel);
                 return new PrettyJson<>("Logger named [" + loggerName + "] now configured to level [" + loggerLevel +
                                                 "]", false);
-            case list:
-                return new PrettyJson<>(loggers.loggers());
             default:
-                throw new IllegalArgumentException("Action not found: " + action + ". Available are: " + Arrays
-                        .toString(LoggerAction.values()));
+                // list
+                return new PrettyJson<>(loggers.loggers());
         }
     }
 
