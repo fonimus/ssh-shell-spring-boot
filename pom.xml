@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.fonimus</groupId>
-    <artifactId>ssh-shell-parent</artifactId>
+    <artifactId>spring-boot-ssh-shell-parent</artifactId>
     <version>0.1.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
