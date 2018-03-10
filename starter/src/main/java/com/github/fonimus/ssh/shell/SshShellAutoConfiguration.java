@@ -1,5 +1,6 @@
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.handler.PrettyJsonResultHandler;
 import org.apache.sshd.server.SshServer;
 import org.jline.reader.LineReader;
 import org.jline.reader.Parser;
@@ -8,6 +9,7 @@ import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.actuate.autoconfigure.session.SessionsEndpointAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,11 +29,16 @@ import org.springframework.shell.result.ThrowableResultHandler;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
+/**
+ * <p>Ssh shell auto configuration</p>
+ * <p>Can be disabled by property <b>ssh.shell.enable=false</b></p>
+ */
 @Configuration
 @ConditionalOnClass(SshServer.class)
 @ConditionalOnProperty(name = SSH_SHELL_PREFIX + ".enable", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties({SshShellProperties.class})
-@AutoConfigureAfter({JLineShellAutoConfiguration.class, SpringShellAutoConfiguration.class})
+@AutoConfigureAfter({JLineShellAutoConfiguration.class, SpringShellAutoConfiguration.class,
+        SessionsEndpointAutoConfiguration.class})
 @ComponentScan(basePackages = {"com.github.fonimus.ssh.shell"})
 public class SshShellAutoConfiguration {
 
@@ -42,6 +49,17 @@ public class SshShellAutoConfiguration {
     @Autowired
     public ConfigurableEnvironment environment;
 
+    @Bean
+    public PrettyJsonResultHandler prettyJsonResultHandler() {
+        return new PrettyJsonResultHandler();
+    }
+
+    /**
+     * Primary terminal which delegates with right session
+     *
+     * @param terminal jline terminal
+     * @return terminal
+     */
     @Bean(TERMINAL_DELEGATE)
     @Primary
     public Terminal terminal(Terminal terminal) {
@@ -49,13 +67,26 @@ public class SshShellAutoConfiguration {
         return new SshShellTerminalDelegate(terminal);
     }
 
+    /**
+     * Primary prompt provider
+     *
+     * @param properties ssh shell properties
+     * @return prompt provider
+     */
     @Bean
     @Primary
     public PromptProvider sshPromptProvider(SshShellProperties properties) {
         return () -> new AttributedString(properties.getPrompt().getText(),
-                AttributedStyle.DEFAULT.foreground(properties.getPrompt().getColor().getValue()));
+                                          AttributedStyle.DEFAULT.foreground(
+                                                  properties.getPrompt().getColor().getValue()));
     }
 
+    /**
+     * <p>Primary throwable result handler (overriding spring shell ones but extending it)</p>
+     * <p>Allow to get exception per ssh session</p>
+     *
+     * @return throwable result handler
+     */
     @Bean
     @Primary
     public ThrowableResultHandler throwableResultHandler() {
@@ -74,10 +105,22 @@ public class SshShellAutoConfiguration {
         };
     }
 
+    /**
+     * Primary shell application runner which answers true to {@link InteractiveShellApplicationRunner#isEnabled()}
+     *
+     * @param lineReader     line reader
+     * @param promptProvider prompt provider
+     * @param parser         parser
+     * @param shell          spring shell
+     * @param environment    spring environment
+     * @return shell application runner
+     */
     @Bean
     @Primary
     public InteractiveShellApplicationRunner sshInteractiveShellApplicationRunner(LineReader lineReader,
-                                                                                  PromptProvider promptProvider, Parser parser, Shell shell, Environment environment) {
+                                                                                  PromptProvider promptProvider,
+                                                                                  Parser parser, Shell shell,
+                                                                                  Environment environment) {
         return new InteractiveShellApplicationRunner(lineReader, promptProvider, parser, shell, environment) {
 
             @Override

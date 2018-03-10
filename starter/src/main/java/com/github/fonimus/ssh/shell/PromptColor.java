@@ -1,5 +1,8 @@
 package com.github.fonimus.ssh.shell;
 
+/**
+ * Map enum color to jline ones
+ */
 public enum PromptColor {
 
 	BLACK(0),

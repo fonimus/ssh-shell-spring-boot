@@ -11,14 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 @EnableScheduling
 public class DemoApplication {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DemoApplication.class);
-
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
-	}
-
-	@Scheduled(initialDelay = 0, fixedDelay = 60000)
-	public void log(){
-		LOGGER.info("In scheduled task..");
 	}
 }

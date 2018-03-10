@@ -1,12 +1,5 @@
 package com.github.fonimus.ssh.shell;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.server.ChannelSessionAware;
 import org.apache.sshd.server.Command;
@@ -30,6 +23,12 @@ import org.springframework.shell.jline.PromptProvider;
 import org.springframework.shell.result.DefaultResultHandler;
 import org.springframework.stereotype.Component;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * Ssh shell command factory implementation
+ */
 @Component
 public class SshShellCommandFactory
         implements Command, Factory<Command>, ChannelSessionAware, Runnable {
@@ -62,10 +61,21 @@ public class SshShellCommandFactory
 
     private Terminal terminalDelegate;
 
-    public SshShellCommandFactory(Banner shellBanner, @Lazy PromptProvider promptProvider, Shell shell,
-                                  JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Environment environment,
+    /**
+     * Constructor
+     *
+     * @param banner           shell banner
+     * @param promptProvider   prompt provider
+     * @param shell            spring shell
+     * @param completerAdapter completer adapter
+     * @param environment      spring environment
+     * @param terminalDelegate terminal delegate
+     */
+    public SshShellCommandFactory(Banner banner, @Lazy PromptProvider promptProvider, Shell shell,
+                                  JLineShellAutoConfiguration.CompleterAdapter completerAdapter,
+                                  Environment environment,
                                   @Qualifier(SshShellAutoConfiguration.TERMINAL_DELEGATE) Terminal terminalDelegate) {
-        this.shellBanner = shellBanner;
+        this.shellBanner = banner;
         this.promptProvider = promptProvider;
         this.shell = shell;
         this.completerAdapter = completerAdapter;
@@ -73,6 +83,11 @@ public class SshShellCommandFactory
         this.terminalDelegate = terminalDelegate;
     }
 
+    /**
+     * Start ssh session
+     *
+     * @param env ssh environment
+     */
     @Override
     public void start(org.apache.sshd.server.Environment env) {
         LOGGER.debug("[shell-command] start session {}", session.toString());
@@ -81,6 +96,9 @@ public class SshShellCommandFactory
         sshThread.start();
     }
 
+    /**
+     * Run ssh session
+     */
     @Override
     public void run() {
         LOGGER.debug("[shell-command] run session {}", session.toString());
@@ -93,15 +111,17 @@ public class SshShellCommandFactory
             resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
             resultHandler.handleResult("Please type `help` to see available commands");
             LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();
-            InputProvider inputProvider = new InteractiveShellApplicationRunner.JLineInputProvider(reader, promptProvider);
-            THREAD_CONTEXT.set(new SshContext(terminal, ec, sshThread));
+            InputProvider inputProvider = new InteractiveShellApplicationRunner.JLineInputProvider(reader,
+                                                                                                   promptProvider);
+            THREAD_CONTEXT.set(new SshContext(ec, sshThread));
             if (terminalDelegate instanceof SshShellTerminalDelegate) {
                 ((SshShellTerminalDelegate) terminalDelegate).setDelegate(terminal);
             }
             shell.run(inputProvider);
+            LOGGER.debug("[shell-command] end session {}", session.toString());
             quit(0);
         } catch (IOException | RuntimeException e) {
-            // log ex
+            LOGGER.error("[shell-command] exception in session {}", session.toString(), e);
             quit(1);
         }
     }

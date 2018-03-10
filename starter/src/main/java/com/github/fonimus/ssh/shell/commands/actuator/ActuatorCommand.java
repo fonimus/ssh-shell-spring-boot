@@ -1,10 +1,8 @@
 package com.github.fonimus.ssh.shell.commands.actuator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.fonimus.ssh.shell.handler.PrettyJson;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.actuate.audit.AuditEventsEndpoint;
 import org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpoint;
 import org.springframework.boot.actuate.beans.BeansEndpoint;
@@ -12,23 +10,27 @@ import org.springframework.boot.actuate.context.ShutdownEndpoint;
 import org.springframework.boot.actuate.context.properties.ConfigurationPropertiesReportEndpoint;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.env.EnvironmentEndpoint;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.boot.actuate.logging.LoggersEndpoint;
 import org.springframework.boot.actuate.management.ThreadDumpEndpoint;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.boot.actuate.scheduling.ScheduledTasksEndpoint;
+import org.springframework.boot.actuate.session.SessionsEndpoint;
 import org.springframework.boot.actuate.trace.http.HttpTraceEndpoint;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.logging.LogLevel;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.shell.Availability;
 import org.springframework.shell.standard.*;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
@@ -41,9 +43,11 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @ConditionalOnProperty(value = SSH_SHELL_PREFIX + ".actuator.enable", havingValue = "true", matchIfMissing = true)
 public class ActuatorCommand {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActuatorCommand.class);
+    private ApplicationContext applicationContext;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private Environment environment;
+
+    private SshShellProperties properties;
 
     private AuditEventsEndpoint audit;
 
@@ -67,28 +71,27 @@ public class ActuatorCommand {
 
     private MappingsEndpoint mappings;
 
-    private ScheduledTasksEndpoint scheduledtasks;
+    private SessionsEndpoint sessions;
 
-    //	@Autowired
-    //	@Lazy
-    //	private SessionsEndpoint sessions;
+    private ScheduledTasksEndpoint scheduledtasks;
 
     private ShutdownEndpoint shutdown;
 
     private ThreadDumpEndpoint threaddump;
 
-    private Environment environment;
-
-    private SshShellProperties properties;
-
-    public ActuatorCommand(Environment environment, SshShellProperties properties, @Lazy AuditEventsEndpoint audit,
-                           @Lazy BeansEndpoint beans, @Lazy ConditionsReportEndpoint conditions,
+    public ActuatorCommand(ApplicationContext applicationContext, Environment environment,
+                           SshShellProperties properties,
+                           @Lazy AuditEventsEndpoint audit, @Lazy BeansEndpoint beans,
+                           @Lazy ConditionsReportEndpoint conditions,
                            @Lazy ConfigurationPropertiesReportEndpoint configprops, @Lazy EnvironmentEndpoint env,
                            @Lazy HealthEndpoint health, @Lazy HttpTraceEndpoint httptrace, @Lazy InfoEndpoint info,
                            @Lazy LoggersEndpoint loggers, @Lazy MetricsEndpoint metrics,
-                           @Lazy MappingsEndpoint mappings, @Lazy ScheduledTasksEndpoint scheduledtasks,
-                           @Lazy ShutdownEndpoint shutdown, @Lazy ThreadDumpEndpoint threaddump
-    ) {
+                           @Lazy MappingsEndpoint mappings, @Lazy SessionsEndpoint sessions,
+                           @Lazy ScheduledTasksEndpoint scheduledtasks,
+                           @Lazy ShutdownEndpoint shutdown, @Lazy ThreadDumpEndpoint threaddump) {
+        this.applicationContext = applicationContext;
+        this.environment = environment;
+        this.properties = properties;
         this.audit = audit;
         this.beans = beans;
         this.conditions = conditions;
@@ -100,11 +103,10 @@ public class ActuatorCommand {
         this.loggers = loggers;
         this.metrics = metrics;
         this.mappings = mappings;
+        this.sessions = sessions;
         this.scheduledtasks = scheduledtasks;
         this.shutdown = shutdown;
         this.threaddump = threaddump;
-        this.environment = environment;
-        this.properties = properties;
     }
 
     /**
@@ -116,15 +118,20 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "audit", value = "Display audit endpoint.")
     @ShellMethodAvailability("auditAvailability")
-    public Object audit(
-            @ShellOption(value = {"-p", "--principal"}, defaultValue = ShellOption.NULL, help = "Principal to filter on") String principal,
-            @ShellOption(value = {"-t", "--type"}, defaultValue = ShellOption.NULL, help = "Type to filter on") String type
+    public PrettyJson<AuditEventsEndpoint.AuditEventsDescriptor> audit(
+            @ShellOption(value = {"-p", "--principal"}, defaultValue = ShellOption.NULL, help = "Principal to filter " +
+                    "on") String principal,
+            @ShellOption(value = {"-t", "--type"}, defaultValue = ShellOption.NULL, help = "Type to filter on")
+                    String type
     ) {
-        return prettify(audit.events(principal, null, null));
+        return new PrettyJson<>(audit.events(principal, null, null));
     }
 
-    private Availability auditAvailability() {
-        return availability("audit");
+    /**
+     * @return whether `audit` command is available
+     */
+    public Availability auditAvailability() {
+        return availability("audit", AuditEventsEndpoint.class);
     }
 
     /**
@@ -134,12 +141,15 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "beans", value = "Display beans endpoint.")
     @ShellMethodAvailability("beansAvailability")
-    public Object beans() {
-        return prettify(beans.beans());
+    public PrettyJson<BeansEndpoint.ApplicationBeans> beans() {
+        return new PrettyJson<>(beans.beans());
     }
 
-    private Availability beansAvailability() {
-        return availability("beans");
+    /**
+     * @return whether `beans` command is available
+     */
+    public Availability beansAvailability() {
+        return availability("beans", BeansEndpoint.class);
     }
 
     /**
@@ -149,12 +159,15 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "conditions", value = "Display conditions endpoint.")
     @ShellMethodAvailability("conditionsAvailability")
-    public Object conditions() {
-        return prettify(conditions.applicationConditionEvaluation());
+    public PrettyJson<ConditionsReportEndpoint.ApplicationConditionEvaluation> conditions() {
+        return new PrettyJson<>(conditions.applicationConditionEvaluation());
     }
 
-    private Availability conditionsAvailability() {
-        return availability("conditions");
+    /**
+     * @return whether `conditions` command is available
+     */
+    public Availability conditionsAvailability() {
+        return availability("conditions", ConditionsReportEndpoint.class);
     }
 
     /**
@@ -164,12 +177,15 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "configprops", value = "Display configprops endpoint.")
     @ShellMethodAvailability("configpropsAvailability")
-    public Object configprops() {
-        return prettify(configprops.configurationProperties());
+    public PrettyJson<ConfigurationPropertiesReportEndpoint.ApplicationConfigurationProperties> configprops() {
+        return new PrettyJson<>(configprops.configurationProperties());
     }
 
-    private Availability configpropsAvailability() {
-        return availability("configprops");
+    /**
+     * @return whether `configprops` command is available
+     */
+    public Availability configpropsAvailability() {
+        return availability("configprops", ConfigurationPropertiesReportEndpoint.class);
     }
 
     /**
@@ -180,12 +196,17 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "env", value = "Display env endpoint.")
     @ShellMethodAvailability("envAvailability")
-    public Object env(@ShellOption(value = {"-p", "--pattern"}, defaultValue = ShellOption.NULL, help = "Pattern to filter on") String pattern) {
-        return prettify(env.environment(pattern));
+    public PrettyJson<EnvironmentEndpoint.EnvironmentDescriptor> env(
+            @ShellOption(value = {"-p", "--pattern"}, defaultValue = ShellOption.NULL, help = "Pattern " +
+                    "to filter on") String pattern) {
+        return new PrettyJson<>(env.environment(pattern));
     }
 
-    private Availability envAvailability() {
-        return availability("env");
+    /**
+     * @return whether `env` command is available
+     */
+    public Availability envAvailability() {
+        return availability("env", EnvironmentEndpoint.class);
     }
 
     /**
@@ -195,12 +216,15 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "health", value = "Display health endpoint.")
     @ShellMethodAvailability("healthAvailability")
-    public Object health() {
-        return prettify(health.health());
+    public PrettyJson<Health> health() {
+        return new PrettyJson<>(health.health());
     }
 
-    private Availability healthAvailability() {
-        return availability("health");
+    /**
+     * @return whether `health` command is available
+     */
+    public Availability healthAvailability() {
+        return availability("health", HealthEndpoint.class);
     }
 
     /**
@@ -210,12 +234,15 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "httptrace", value = "Display httptrace endpoint.")
     @ShellMethodAvailability("httptraceAvailability")
-    public Object httptrace() {
-        return prettify(httptrace.traces());
+    public PrettyJson<HttpTraceEndpoint.HttpTraceDescriptor> httptrace() {
+        return new PrettyJson<>(httptrace.traces());
     }
 
-    private Availability httptraceAvailability() {
-        return availability("httptrace");
+    /**
+     * @return whether `httptrace` command is available
+     */
+    public Availability httptraceAvailability() {
+        return availability("httptrace", HttpTraceEndpoint.class);
     }
 
     /**
@@ -225,12 +252,15 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "info", value = "Display info endpoint.")
     @ShellMethodAvailability("infoAvailability")
-    public Object info() {
-        return prettify(info.info());
+    public PrettyJson<Map<String, Object>> info() {
+        return new PrettyJson<>(info.info());
     }
 
-    private Availability infoAvailability() {
-        return availability("info");
+    /**
+     * @return whether `info` command is available
+     */
+    public Availability infoAvailability() {
+        return availability("info", InfoEndpoint.class);
     }
 
     /**
@@ -243,10 +273,13 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "loggers", value = "Display or configure loggers.")
     @ShellMethodAvailability("loggersAvailability")
-    public Object loggers(
-            @ShellOption(value = {"-a", "--action"}, help = "Action to perform", defaultValue = "list") LoggerAction action,
-            @ShellOption(value = {"-n", "--name"}, help = "Logger name for configuration or display", defaultValue = ShellOption.NULL) String loggerName,
-            @ShellOption(value = {"-l", "--level"}, help = "Logger level for configuration", defaultValue = ShellOption.NULL) LogLevel loggerLevel
+    public PrettyJson loggers(
+            @ShellOption(value = {"-a", "--action"}, help = "Action to perform", defaultValue = "list") LoggerAction
+                    action,
+            @ShellOption(value = {"-n", "--name"}, help = "Logger name for configuration or display", defaultValue =
+                    ShellOption.NULL) String loggerName,
+            @ShellOption(value = {"-l", "--level"}, help = "Logger level for configuration", defaultValue =
+                    ShellOption.NULL) LogLevel loggerLevel
     ) {
         if ((action == LoggerAction.get || action == LoggerAction.conf) && loggerName == null) {
             throw new IllegalArgumentException("Logger name is mandatory for '" + action + "' action");
@@ -254,20 +287,28 @@ public class ActuatorCommand {
         switch (action) {
             case get:
                 LoggersEndpoint.LoggerLevels levels = loggers.loggerLevels(loggerName);
-                return "Logger named [" + loggerName + "] : [configured: " + levels.getConfiguredLevel() + ", effective: " + levels.getEffectiveLevel() + "]";
+                return new PrettyJson<>("Logger named [" + loggerName + "] : [configured: " + levels
+                        .getConfiguredLevel() + ", effective: " + levels.getEffectiveLevel() + "]", false);
             case conf:
                 if (loggerLevel == null) {
                     throw new IllegalArgumentException("Logger level is mandatory for '" + action + "' action");
                 }
                 loggers.configureLogLevel(loggerName, loggerLevel);
-                return "Logger named [" + loggerName + "] now configured to level [" + loggerLevel + "]";
+                return new PrettyJson<>("Logger named [" + loggerName + "] now configured to level [" + loggerLevel +
+                                                "]", false);
+            case list:
+                return new PrettyJson<>(loggers.loggers());
             default:
-                return prettify(loggers.loggers());
+                throw new IllegalArgumentException("Action not found: " + action + ". Available are: " + Arrays
+                        .toString(LoggerAction.values()));
         }
     }
 
-    private Availability loggersAvailability() {
-        return availability("loggers");
+    /**
+     * @return whether `loggers` command is available
+     */
+    public Availability loggersAvailability() {
+        return availability("loggers", LoggersEndpoint.class);
     }
 
     /**
@@ -279,23 +320,29 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "metrics", value = "Display metrics endpoint.")
     @ShellMethodAvailability("metricsAvailability")
-    public Object metrics(
-            @ShellOption(value = {"-n", "--name"}, help = "Metric name to get", defaultValue = ShellOption.NULL) String name,
-            @ShellOption(value = {"-t", "--tags"}, help = "Tags (key=value, separated by coma)", defaultValue = ShellOption.NULL) String tags
+    public PrettyJson metrics(
+            @ShellOption(value = {"-n", "--name"}, help = "Metric name to get", defaultValue = ShellOption.NULL)
+                    String name,
+            @ShellOption(value = {"-t", "--tags"}, help = "Tags (key=value, separated by coma)", defaultValue =
+                    ShellOption.NULL) String tags
     ) {
         if (name != null) {
-            MetricsEndpoint.MetricResponse result = metrics.metric(name, tags != null ? Arrays.asList(tags.split(",")) : null);
+            MetricsEndpoint.MetricResponse result = metrics.metric(name, tags != null ? Arrays.asList(tags.split(",")
+            ) : null);
             if (result == null) {
                 String tagsStr = tags != null ? " and tags: " + tags : "";
                 throw new IllegalArgumentException("No result for metrics name: " + name + tagsStr);
             }
-            return prettify(result);
+            return new PrettyJson<>(result);
         }
-        return prettify(metrics.listNames());
+        return new PrettyJson<>(metrics.listNames());
     }
 
-    private Availability metricsAvailability() {
-        return availability("metrics");
+    /**
+     * @return whether `metrics` command is available
+     */
+    public Availability metricsAvailability() {
+        return availability("metrics", MetricsEndpoint.class);
     }
 
     /**
@@ -305,12 +352,33 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "mappings", value = "Display mappings endpoint.")
     @ShellMethodAvailability("mappingsAvailability")
-    public Object mappings() {
-        return prettify(mappings.mappings());
+    public PrettyJson<MappingsEndpoint.ApplicationMappings> mappings() {
+        return new PrettyJson<>(mappings.mappings());
     }
 
-    private Availability mappingsAvailability() {
-        return availability("mappings");
+    /**
+     * @return whether `mappings` command is available
+     */
+    public Availability mappingsAvailability() {
+        return availability("mappings", MappingsEndpoint.class);
+    }
+
+    /**
+     * Sessions method
+     *
+     * @return sessions
+     */
+    @ShellMethod(key = "sessions", value = "Display sessions endpoint.")
+    @ShellMethodAvailability("sessionsAvailability")
+    public PrettyJson<SessionsEndpoint.SessionsReport> sessions() {
+        return new PrettyJson<>(sessions.sessionsForUsername(null));
+    }
+
+    /**
+     * @return whether `sessions` command is available
+     */
+    public Availability sessionsAvailability() {
+        return availability("sessions", SessionsEndpoint.class);
     }
 
     /**
@@ -320,28 +388,16 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "scheduledtasks", value = "Display scheduledtasks endpoint.")
     @ShellMethodAvailability("scheduledtasksAvailability")
-    public Object scheduledtasks() {
-        return prettify(scheduledtasks.scheduledTasks());
+    public PrettyJson<ScheduledTasksEndpoint.ScheduledTasksReport> scheduledtasks() {
+        return new PrettyJson<>(scheduledtasks.scheduledTasks());
     }
 
-    private Availability scheduledtasksAvailability() {
-        return availability("scheduledtasks");
+    /**
+     * @return whether `scheduledtasks` command is available
+     */
+    public Availability scheduledtasksAvailability() {
+        return availability("scheduledtasks", ScheduledTasksEndpoint.class);
     }
-
-    //	/**
-    //	 * Sessions method
-    //	 *
-    //	 * @return sessions
-    //	 */
-    //	@ShellMethod(key = "sessions", value = "Display sessions endpoint.")
-    //	@ShellMethodAvailability("sessionsAvailability")
-    //	public Object sessions() {
-    //		return prettify(sessions.sessionsForUsername(null));
-    //	}
-    //
-    //	private Availability sessionsAvailability() {
-    //		return availability("sessions");
-    //	}
 
     /**
      * Shutdown method
@@ -352,8 +408,11 @@ public class ActuatorCommand {
         shutdown.shutdown();
     }
 
-    private Availability shutdownAvailability() {
-        return availability("shutdown", false);
+    /**
+     * @return whether `shutdown` command is available
+     */
+    public Availability shutdownAvailability() {
+        return availability("shutdown", ShutdownEndpoint.class, false);
     }
 
     /**
@@ -363,36 +422,36 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "threaddump", value = "Display threaddump endpoint.")
     @ShellMethodAvailability("threaddumpAvailability")
-    public Object threaddump() {
-        return prettify(threaddump.threadDump());
+    public PrettyJson<ThreadDumpEndpoint.ThreadDumpDescriptor> threaddump() {
+        return new PrettyJson<>(threaddump.threadDump());
     }
 
-    private Availability threaddumpAvailability() {
-        return availability("threaddump");
+    /**
+     * @return whether `threaddump` command is available
+     */
+    public Availability threaddumpAvailability() {
+        return availability("threaddump", ThreadDumpEndpoint.class);
     }
 
-    private Availability availability(String name) {
-        return availability(name, true);
-    }
-
-    private Availability availability(String name, boolean defaultValue) {
+    private Availability availability(String name, Class<?> clazz, boolean defaultValue) {
         String property = "management.endpoint." + name + ".enabled";
         if (!environment.getProperty(property, Boolean.TYPE, defaultValue)) {
-            return Availability.unavailable("endpoint '" + name + "' deactivated (please check property '" + property + "')");
+            return Availability.unavailable("endpoint '" + name + "' deactivated (please check property '" + property
+                                                    + "')");
         } else if (properties.getActuator().getExcludes().contains(name)) {
             return Availability.unavailable("command is present in exclusion (please check property '" +
-                    SshShellProperties.SSH_SHELL_PREFIX + ".actuator.excludes')");
+                                                    SSH_SHELL_PREFIX + ".actuator.excludes')");
+        }
+        try {
+            applicationContext.getBean(clazz);
+        } catch (NoSuchBeanDefinitionException e) {
+            return Availability.unavailable(clazz.getName() + " not in application context");
         }
         return Availability.available();
     }
 
-    private Object prettify(Object object) {
-        try {
-            return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            LOGGER.warn("Unable to prettify object: {}", object);
-            return object;
-        }
+    private Availability availability(String name, Class<?> clazz) {
+        return availability(name, clazz, true);
     }
 
     public enum LoggerAction {

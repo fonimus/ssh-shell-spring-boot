@@ -1,6 +1,6 @@
 # Usage
 
-1. Build sample application
+1. Build sample application, or get jar from maven repository
 
     ```bash
     mvn clean install [-DskipTests]

@@ -1,10 +1,10 @@
 package com.github.fonimus.ssh.shell;
 
 import org.jline.terminal.Terminal;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SshShellTerminalDelegateTest {
 
