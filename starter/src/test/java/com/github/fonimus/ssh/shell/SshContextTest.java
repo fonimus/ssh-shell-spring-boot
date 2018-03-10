@@ -8,8 +8,10 @@ public class SshContextTest {
 
     @Test
     void test() {
-        SshContext ctx = new SshContext(null, null);
+        SshContext ctx = new SshContext(null, null, null, null);
         assertNull(ctx.getExitCallback());
         assertNull(ctx.getThread());
+        assertNull(ctx.getTerminal());
+        assertNull(ctx.getLineReader());
     }
 }

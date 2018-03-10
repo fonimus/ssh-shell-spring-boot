@@ -1,5 +1,9 @@
 package com.github.fonimus.ssh.shell;
 
+import org.jline.terminal.*;
+import org.jline.utils.InfoCmp;
+import org.jline.utils.NonBlockingReader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,13 +11,7 @@ import java.io.PrintWriter;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
-import org.jline.terminal.Attributes;
-import org.jline.terminal.Cursor;
-import org.jline.terminal.MouseEvent;
-import org.jline.terminal.Size;
-import org.jline.terminal.Terminal;
-import org.jline.utils.InfoCmp;
-import org.jline.utils.NonBlockingReader;
+import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 
 /**
  * <p>Shell terminal delegate</p>
@@ -21,8 +19,6 @@ import org.jline.utils.NonBlockingReader;
  */
 public class SshShellTerminalDelegate
         implements Terminal {
-
-    private static final ThreadLocal<Terminal> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
 
     private Terminal delegate;
 
@@ -36,23 +32,14 @@ public class SshShellTerminalDelegate
     }
 
     private Terminal delegate() {
-        Terminal current = THREAD_CONTEXT.get();
-        if (current != null) {
-            return current;
+        SshContext current = SSH_THREAD_CONTEXT.get();
+        if (current != null && current.getTerminal() != null) {
+            return current.getTerminal();
         }
         if (delegate == null) {
             throw new IllegalStateException("Cannot find terminal");
         }
         return delegate;
-    }
-
-    /**
-     * Set terminal in thread context
-     *
-     * @param delegate current terminal to set
-     */
-    public void setDelegate(Terminal delegate) {
-        THREAD_CONTEXT.set(delegate);
     }
 
     @Override

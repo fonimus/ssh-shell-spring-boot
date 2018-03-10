@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
+import static com.github.fonimus.ssh.shell.SshShellUtils.confirm;
 
 /**
  * Actuator shell command
@@ -402,8 +403,13 @@ public class ActuatorCommand {
      */
     @ShellMethod(key = "shutdown", value = "Shutdown application.")
     @ShellMethodAvailability("shutdownAvailability")
-    public void shutdown() {
-        shutdown.shutdown();
+    public String shutdown() {
+        if (confirm("Are you sure you want to shutdown application ? [y/N]")) {
+            shutdown.shutdown();
+            return "Shutting down application";
+        } else {
+            return "Aborting shutdown";
+        }
     }
 
     /**

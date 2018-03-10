@@ -11,7 +11,6 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
@@ -33,9 +32,8 @@ import java.nio.charset.StandardCharsets;
 public class SshShellCommandFactory
         implements Command, Factory<Command>, ChannelSessionAware, Runnable {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(SshShellCommandFactory.class);
-
-    private static final ThreadLocal<SshContext> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
+    public static final ThreadLocal<SshContext> SSH_THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SshShellCommandFactory.class);
 
     private InputStream is;
 
@@ -59,8 +57,6 @@ public class SshShellCommandFactory
 
     private Environment environment;
 
-    private Terminal terminalDelegate;
-
     /**
      * Constructor
      *
@@ -69,18 +65,15 @@ public class SshShellCommandFactory
      * @param shell            spring shell
      * @param completerAdapter completer adapter
      * @param environment      spring environment
-     * @param terminalDelegate terminal delegate
      */
     public SshShellCommandFactory(Banner banner, @Lazy PromptProvider promptProvider, Shell shell,
                                   JLineShellAutoConfiguration.CompleterAdapter completerAdapter,
-                                  Environment environment,
-                                  @Qualifier(SshShellAutoConfiguration.TERMINAL_DELEGATE) Terminal terminalDelegate) {
+                                  Environment environment) {
         this.shellBanner = banner;
         this.promptProvider = promptProvider;
         this.shell = shell;
         this.completerAdapter = completerAdapter;
         this.environment = environment;
-        this.terminalDelegate = terminalDelegate;
     }
 
     /**
@@ -113,10 +106,7 @@ public class SshShellCommandFactory
             LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();
             InputProvider inputProvider = new InteractiveShellApplicationRunner.JLineInputProvider(reader,
                                                                                                    promptProvider);
-            THREAD_CONTEXT.set(new SshContext(ec, sshThread));
-            if (terminalDelegate instanceof SshShellTerminalDelegate) {
-                ((SshShellTerminalDelegate) terminalDelegate).setDelegate(terminal);
-            }
+            SSH_THREAD_CONTEXT.set(new SshContext(ec, sshThread, terminal, reader));
             shell.run(inputProvider);
             LOGGER.debug("[shell-command] end session {}", session.toString());
             quit(0);
@@ -127,7 +117,7 @@ public class SshShellCommandFactory
     }
 
     private void quit(int exitCode) {
-        SshContext ctx = THREAD_CONTEXT.get();
+        SshContext ctx = SSH_THREAD_CONTEXT.get();
         if (ctx != null) {
             ctx.getExitCallback().onExit(exitCode);
         }
@@ -135,7 +125,7 @@ public class SshShellCommandFactory
 
     @Override
     public void destroy() {
-        SshContext ctx = THREAD_CONTEXT.get();
+        SshContext ctx = SSH_THREAD_CONTEXT.get();
         if (ctx != null) {
             ctx.getThread().interrupt();
         }

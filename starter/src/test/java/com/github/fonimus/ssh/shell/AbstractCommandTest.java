@@ -1,15 +1,22 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.commands.actuator.ActuatorCommand;
+import org.jline.reader.LineReader;
+import org.jline.reader.ParsedLine;
+import org.jline.terminal.Terminal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.boot.actuate.scheduling.ScheduledTasksEndpoint;
 import org.springframework.boot.logging.LogLevel;
 
+import java.io.PrintWriter;
 import java.util.Collections;
 
+import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public abstract class AbstractCommandTest extends AbstractTest {
 
@@ -150,8 +157,26 @@ public abstract class AbstractCommandTest extends AbstractTest {
     }
 
     @Test
-    void testShutdown() {
+    void testShutdownNo() throws Exception {
+        setCtx("n");
+        assertEquals("Aborting shutdown", cmd.shutdown());
+    }
+
+    @Test
+    void testShutdownYes() throws Exception {
+        setCtx("y");
         assertThrows(NoSuchBeanDefinitionException.class, () -> cmd.shutdown());
+    }
+
+    private void setCtx(String response) throws Exception {
+        LineReader lr = mock(LineReader.class);
+        Terminal t = mock(Terminal.class);
+        when(lr.getTerminal()).thenReturn(t);
+        when(t.writer()).thenReturn(new PrintWriter("target/rh.tmp"));
+        ParsedLine pl = mock(ParsedLine.class);
+        when(pl.line()).thenReturn(response);
+        when(lr.getParsedLine()).thenReturn(pl);
+        SSH_THREAD_CONTEXT.set(new SshContext(null, null, t, lr));
     }
 
     @Test

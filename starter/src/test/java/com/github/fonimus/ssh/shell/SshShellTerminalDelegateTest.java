@@ -5,8 +5,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class SshShellTerminalDelegateTest {
 
     public static final String NAME = "name";
@@ -16,9 +14,12 @@ public class SshShellTerminalDelegateTest {
     @BeforeAll
     static void prepare() throws Exception {
         Terminal terminal = Mockito.mock(Terminal.class);
-        Mockito.when(terminal.getName()).thenReturn(NAME);
         del = new SshShellTerminalDelegate(terminal);
-        assertEquals(NAME, del.getName());
+    }
+
+    @Test
+    public void getName() throws Exception {
+        del.getName();
     }
 
     @Test
