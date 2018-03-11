@@ -6,5 +6,4 @@ before_install:
   - wget -O ~/codacy.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
   - java -jar ~/codacy.jar -l Java -r starter/target/site/jacoco/jacoco.xml
