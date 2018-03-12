@@ -13,6 +13,7 @@ import org.springframework.boot.logging.LogLevel;
 import java.io.PrintWriter;
 import java.util.Collections;
 
+import static com.github.fonimus.ssh.shell.SshHelperTest.*;
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -182,5 +183,26 @@ public abstract class AbstractCommandTest extends AbstractTest {
     @Test
     void testThreadDump() {
         assertEquals(threaddump.threadDump().getThreads().size(), cmd.threaddump().getObject().getThreads().size());
+    }
+
+    @Test
+    void testSshCallInfoCommand() {
+        call(properties, (is, os) -> {
+            write(os, "info");
+            verifyResponse(is, "{ }");
+        });
+    }
+
+    @Test
+    void testSshCallExitCommand() {
+        call(properties, (is, os) -> write(os, "exit"));
+    }
+
+    @Test
+    void testSshCallExceptionCommand() {
+        call(properties, (is, os) -> {
+            write(os, "unknownCommand");
+            verifyResponse(is, "No command found for");
+        });
     }
 }

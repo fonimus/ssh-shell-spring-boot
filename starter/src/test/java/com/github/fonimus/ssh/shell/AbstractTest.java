@@ -17,10 +17,14 @@ import org.springframework.boot.actuate.scheduling.ScheduledTasksEndpoint;
 import org.springframework.boot.actuate.session.SessionsEndpoint;
 import org.springframework.boot.actuate.trace.http.HttpTraceEndpoint;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 
 public abstract class AbstractTest {
+
+    @Autowired
+    protected ApplicationContext context;
 
     @Autowired
     protected Environment environment;

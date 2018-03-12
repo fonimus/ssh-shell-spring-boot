@@ -1,17 +1,15 @@
 package com.github.fonimus.ssh.shell;
 
 import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.RejectAllPublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * Ssh shell configuration
@@ -19,16 +17,18 @@ import java.util.UUID;
 @Configuration
 public class SshShellConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SshShellConfiguration.class);
-
     private SshShellProperties properties;
 
     private SshShellCommandFactory shellCommandFactory;
 
+    private PasswordAuthenticator passwordAuthenticator;
+
     public SshShellConfiguration(SshShellProperties properties,
-                                 SshShellCommandFactory shellCommandFactory) {
+                                 SshShellCommandFactory shellCommandFactory,
+                                 PasswordAuthenticator passwordAuthenticator) {
         this.properties = properties;
         this.shellCommandFactory = shellCommandFactory;
+        this.passwordAuthenticator = passwordAuthenticator;
     }
 
     /**
@@ -62,14 +62,7 @@ public class SshShellConfiguration {
         server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(properties.getHostKeyFile()));
         server.setPublickeyAuthenticator(RejectAllPublickeyAuthenticator.INSTANCE);
         server.setHost(properties.getHost());
-        String password = properties.getPassword();
-        if (password == null) {
-            password = UUID.randomUUID().toString();
-            LOGGER.info(" --- Generating password for ssh connection: {}", password);
-        }
-        final String finalPassword = password;
-        server.setPasswordAuthenticator(
-                (username, pass, serverSession) -> "user".equals(username) && pass.equals(finalPassword));
+        server.setPasswordAuthenticator(passwordAuthenticator);
         server.setPort(properties.getPort());
         server.setShellFactory(() -> shellCommandFactory);
         server.setCommandFactory(command -> shellCommandFactory);

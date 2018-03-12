@@ -72,6 +72,30 @@ ssh:
       - ...
 ``` 
 
+## Custom authentication
+
+Instead of setting user and password (or using generated one), you can implement your own `PasswordAuthenticator`.
+
+Auto configuration will create default implementation only if there is not an existing one in the spring context.
+
+Example:
+
+```java
+import org.apache.sshd.server.auth.password.PasswordAuthenticator;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class CustomPasswordConfiguration {
+
+    @Bean
+    public PasswordAuthenticator passwordAuthenticator() {
+        return (user, pass, serverSession) -> user.equals(pass);
+    }
+
+}
+```
+
 ## Sample
 
 [Check sample for more details](./sample)

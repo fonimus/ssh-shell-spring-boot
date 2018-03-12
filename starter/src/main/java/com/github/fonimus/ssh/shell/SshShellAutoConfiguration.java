@@ -2,16 +2,20 @@ package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.handler.PrettyJsonResultHandler;
 import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.jline.reader.LineReader;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.actuate.autoconfigure.session.SessionsEndpointAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +30,8 @@ import org.springframework.shell.jline.InteractiveShellApplicationRunner;
 import org.springframework.shell.jline.JLineShellAutoConfiguration;
 import org.springframework.shell.jline.PromptProvider;
 import org.springframework.shell.result.ThrowableResultHandler;
+
+import java.util.UUID;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
@@ -42,6 +48,8 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @ComponentScan(basePackages = {"com.github.fonimus.ssh.shell"})
 public class SshShellAutoConfiguration {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SshShellAutoConfiguration.class);
+
     public static final String TERMINAL_DELEGATE = "terminalDelegate";
 
     private static final ThreadLocal<Throwable> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
@@ -52,6 +60,19 @@ public class SshShellAutoConfiguration {
     @Bean
     public PrettyJsonResultHandler prettyJsonResultHandler() {
         return new PrettyJsonResultHandler();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PasswordAuthenticator passwordAuthenticator(SshShellProperties properties) {
+        String password = properties.getPassword();
+        if (password == null) {
+            password = UUID.randomUUID().toString();
+            LOGGER.info(" --- Generating password for ssh connection: {}", password);
+        }
+        final String finalPassword = password;
+        final String finalUser = properties.getUser();
+        return (username, pass, serverSession) -> username.equals(finalUser) && pass.equals(finalPassword);
     }
 
     /**

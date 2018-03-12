@@ -29,6 +29,10 @@ public class SshHelperTest {
         call(properties.getUser(), properties.getPassword(), properties.getHost(), properties.getPort(), executor);
     }
 
+    public static void call(String user, String pass, SshShellProperties properties, Executor executor) {
+        call(user, pass, properties.getHost(), properties.getPort(), executor);
+    }
+
     public static void call(String user, String pass, String host, int port, Executor executor) {
         try {
             JSch jsch = new JSch();
