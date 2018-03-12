@@ -2,7 +2,6 @@ package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.handler.PrettyJsonResultHandler;
 import org.apache.sshd.server.SshServer;
-import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.jline.reader.LineReader;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
@@ -64,7 +63,7 @@ public class SshShellAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public PasswordAuthenticator passwordAuthenticator(SshShellProperties properties) {
+    public SshShellAuthenticationProvider passwordAuthenticator(SshShellProperties properties) {
         String password = properties.getPassword();
         if (password == null) {
             password = UUID.randomUUID().toString();

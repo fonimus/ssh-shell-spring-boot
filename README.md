@@ -74,14 +74,15 @@ ssh:
 
 ## Custom authentication
 
-Instead of setting user and password (or using generated one), you can implement your own `PasswordAuthenticator`.
+Instead of setting user and password (or using generated one), you can implement your own `SshShellAuthenticationProvider`.
 
 Auto configuration will create default implementation only if there is not an existing one in the spring context.
 
 Example:
 
 ```java
-import org.apache.sshd.server.auth.password.PasswordAuthenticator;
+import com.github.fonimus.ssh.shell.SshShellAuthenticationProvider;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -89,7 +90,7 @@ import org.springframework.context.annotation.Configuration;
 public class CustomPasswordConfiguration {
 
     @Bean
-    public PasswordAuthenticator passwordAuthenticator() {
+    public SshShellAuthenticationProvider passwordAuthenticator() {
         return (user, pass, serverSession) -> user.equals(pass);
     }
 
