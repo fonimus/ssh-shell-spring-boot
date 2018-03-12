@@ -400,13 +400,15 @@ public class ActuatorCommand {
 
     /**
      * Shutdown method
+     *
+     * @return shutdown message
      */
     @ShellMethod(key = "shutdown", value = "Shutdown application.")
     @ShellMethodAvailability("shutdownAvailability")
     public String shutdown() {
         if (confirm("Are you sure you want to shutdown application ? [y/N]")) {
             shutdown.shutdown();
-            return "Shutting down application";
+            return "Shutting down application...";
         } else {
             return "Aborting shutdown";
         }

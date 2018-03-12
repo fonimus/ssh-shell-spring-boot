@@ -1,11 +1,11 @@
 package com.github.fonimus.ssh.shell;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
@@ -27,6 +27,8 @@ public class SshShellProperties {
     private String user = "user";
 
     private String password;
+
+    private AuthenticationType authentication = AuthenticationType.simple;
 
     private File hostKeyFile = new File(System.getProperty("java.io.tmpdir"), "hostKey.ser");
 
@@ -74,6 +76,14 @@ public class SshShellProperties {
         this.password = password;
     }
 
+    public AuthenticationType getAuthentication() {
+        return authentication;
+    }
+
+    public void setAuthentication(AuthenticationType authentication) {
+        this.authentication = authentication;
+    }
+
     public File getHostKeyFile() {
         return hostKeyFile;
     }
@@ -88,6 +98,10 @@ public class SshShellProperties {
 
     public Actuator getActuator() {
         return actuator;
+    }
+
+    public enum AuthenticationType {
+        simple, security
     }
 
     /**
