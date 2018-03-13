@@ -97,6 +97,40 @@ public class CustomPasswordConfiguration {
 }
 ```
 
+## User interaction
+
+### Read input
+
+```java
+import com.github.fonimus.ssh.shell.SshShellUtils;
+import org.springframework.shell.standard.ShellMethod;
+
+@ShellMethod("Welcome command")
+public String welcome() {
+    String name = SshShellUtils.read("What's your name ?");
+    return "Hello, '" + name + "' !";
+}
+```
+
+### Confirmation
+
+Util `confirm` method displays confirmation message and returns `true` 
+if response equals ignore case confirmation words.
+
+Default confirmation words are **[`y`, `yes`]**:
+
+You can specify if it is case sensitive and provide your own confirmation words.
+
+```java
+import com.github.fonimus.ssh.shell.SshShellUtils;
+import org.springframework.shell.standard.ShellMethod;
+
+@ShellMethod("Confirmation command")
+public String conf() {
+    return SshShellUtils.confirm("Are you sure ?" [, true|false] [, "oui", "si", ...]) ? "Great ! Let's do it !" : "Such a shame ...";
+}
+```
+
 ## Sample
 
 [Check sample for more details](./sample)

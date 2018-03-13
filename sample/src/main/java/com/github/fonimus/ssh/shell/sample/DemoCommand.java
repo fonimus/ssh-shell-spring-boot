@@ -1,5 +1,6 @@
 package com.github.fonimus.ssh.shell.sample;
 
+import com.github.fonimus.ssh.shell.SshShellUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,6 +34,27 @@ public class DemoCommand {
     @ShellMethod("Ex command")
     public void ex() {
         throw new IllegalStateException("Test exception message");
+    }
+
+    /**
+     * Interaction example command
+     *
+     * @return welcome message
+     */
+    @ShellMethod("Welcome command")
+    public String welcome() {
+        String name = SshShellUtils.read("What's your name ?");
+        return "Hello, '" + name + "' !";
+    }
+
+    /**
+     * Confirmation example command
+     *
+     * @return welcome message
+     */
+    @ShellMethod("Confirmation command")
+    public String conf() {
+        return SshShellUtils.confirm("Are you sure ?") ? "Great ! Let's do it !" : "Such a shame ...";
     }
 
 

@@ -15,13 +15,25 @@ public class SshShellUtils {
      * @return whether it has been confirmed
      */
     public static boolean confirm(String message, String... confirmWords) {
+        return confirm(message, false, confirmWords);
+    }
+
+    /**
+     * @param message       confirmation message
+     * @param caseSensitive should be case sensitive or not
+     * @param confirmWords  (optional) confirmation words, default are {@link SshShellUtils#DEFAULT_CONFIRM_WORDS}
+     * @return whether it has been confirmed
+     */
+    public static boolean confirm(String message, boolean caseSensitive, String... confirmWords) {
         String response = read(message);
         String[] confirm = DEFAULT_CONFIRM_WORDS;
         if (confirmWords != null && confirmWords.length > 0) {
             confirm = confirmWords;
         }
         for (String c : confirm) {
-            if (c.equalsIgnoreCase(response)) {
+            if (caseSensitive && c.equals(response)) {
+                return true;
+            } else if (!caseSensitive && c.equalsIgnoreCase(response)) {
                 return true;
             }
         }

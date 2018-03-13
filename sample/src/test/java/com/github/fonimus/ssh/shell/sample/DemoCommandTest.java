@@ -16,7 +16,7 @@ public class DemoCommandTest {
     }
 
     @Test
-    void testCommandTest() {
+    void testCommandEcho() {
         assertEquals("message", cmd.echo("message"));
     }
 
