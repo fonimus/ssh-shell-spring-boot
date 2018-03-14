@@ -28,6 +28,8 @@ or [reference documentation](https://docs.spring.io/spring-shell/docs/2.0.0.RELE
 
 ### Configuration
 
+Please check class: [SshShellProperties.java](./starter/src/main/java/com/github/fonimus/ssh/shell/SshShellProperties.java)
+
 ```yaml
 ssh:
   shell:
@@ -35,6 +37,11 @@ ssh:
       enable: true
       # empty by default
       excludes: 
+    # 'simple' or 'security'
+    authentication: simple
+    # if authentication set to 'security' the AuthenticationProvider bean name
+    # if not specified and only one AuthenticationProvider bean is present in the context, it will be used 
+    auth-provider-bean-name: 
     enable: true
     host: 127.0.0.1
     host-key-file: <java.io.tmpdir>/hostKey.ser
@@ -46,6 +53,10 @@ ssh:
       color: white
       text: 'shell>'
 ```
+
+* Add `spring-boot-starter-actuator` dependency to get actuator commands
+
+* Add `spring-boot-starter-security` dependency to configure `authentication=security` with *AuthenticationProvider*
 
 ## Actuator commands
 
@@ -90,7 +101,7 @@ import org.springframework.context.annotation.Configuration;
 public class CustomPasswordConfiguration {
 
     @Bean
-    public SshShellAuthenticationProvider passwordAuthenticator() {
+    public SshShellAuthenticationProvider sshShellAuthenticationProvider() {
         return (user, pass, serverSession) -> user.equals(pass);
     }
 
@@ -131,6 +142,8 @@ public String conf() {
 }
 ```
 
-## Sample
+## Samples
 
-[Check sample for more details](./sample)
+* [Basic sample](./samples/basic), no actuator, no security, no sessions
+
+* [Complete sample](./samples/complete), actuator, security and sessions dependencies and configurations

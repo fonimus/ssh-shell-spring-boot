@@ -48,7 +48,8 @@
 
     <modules>
         <module>starter</module>
-        <module>sample</module>
+        <module>samples/basic</module>
+        <module>samples/complete</module>
     </modules>
 
     <profiles>

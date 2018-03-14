@@ -69,7 +69,7 @@ public class SshHelperTest {
             fail("Got interrupted exception while waiting");
         }
         try {
-            await().atMost(Duration.TWO_SECONDS).until(() -> {
+            await().atMost(Duration.FIVE_SECONDS).until(() -> {
                 while (true) {
                     sb.append((char) pis.read());
                     String s = sb.toString();

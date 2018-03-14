@@ -5,6 +5,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
@@ -17,6 +18,7 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 public class SshShellProperties {
 
     public static final String SSH_SHELL_PREFIX = "ssh.shell";
+    public static final String ACTUATOR_ROLE = "ACTUATOR";
 
     private boolean enable = true;
 
@@ -29,6 +31,8 @@ public class SshShellProperties {
     private String password;
 
     private AuthenticationType authentication = AuthenticationType.simple;
+
+    private String authProviderBeanName;
 
     private File hostKeyFile = new File(System.getProperty("java.io.tmpdir"), "hostKey.ser");
 
@@ -84,6 +88,14 @@ public class SshShellProperties {
         this.authentication = authentication;
     }
 
+    public String getAuthProviderBeanName() {
+        return authProviderBeanName;
+    }
+
+    public void setAuthProviderBeanName(String authProviderBeanName) {
+        this.authProviderBeanName = authProviderBeanName;
+    }
+
     public File getHostKeyFile() {
         return hostKeyFile;
     }
@@ -137,6 +149,8 @@ public class SshShellProperties {
 
         private boolean enable = true;
 
+        private List<String> authorizedRoles = Arrays.asList(ACTUATOR_ROLE);
+
         private List<String> excludes = new ArrayList<>();
 
         public boolean isEnable() {
@@ -145,6 +159,14 @@ public class SshShellProperties {
 
         public void setEnable(boolean enable) {
             this.enable = enable;
+        }
+
+        public List<String> getAuthorizedRoles() {
+            return authorizedRoles;
+        }
+
+        public void setAuthorizedRoles(List<String> authorizedRoles) {
+            this.authorizedRoles = authorizedRoles;
         }
 
         public List<String> getExcludes() {

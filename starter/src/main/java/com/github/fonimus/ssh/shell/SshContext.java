@@ -4,6 +4,8 @@ import org.apache.sshd.server.ExitCallback;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
+import java.util.List;
+
 /**
  * Ssh context to hold terminal, exit callback and thread per thread
  */
@@ -14,7 +16,10 @@ public class SshContext {
     private Thread thread;
 
     private final LineReader lineReader;
+
     private Terminal terminal;
+
+    private List<String> authorities;
 
     /**
      * Constructor
@@ -23,12 +28,15 @@ public class SshContext {
      * @param thread       ssh thread session
      * @param terminal     ssh terminal
      * @param lineReader   ssh line reader
+     * @param authorities  (optional) spring authorities of current session
      */
-    public SshContext(ExitCallback exitCallback, Thread thread, Terminal terminal, LineReader lineReader) {
+    public SshContext(ExitCallback exitCallback, Thread thread, Terminal terminal, LineReader lineReader,
+                      List<String> authorities) {
         this.exitCallback = exitCallback;
         this.thread = thread;
         this.terminal = terminal;
         this.lineReader = lineReader;
+        this.authorities = authorities;
     }
 
     public ExitCallback getExitCallback() {
@@ -45,5 +53,9 @@ public class SshContext {
 
     public LineReader getLineReader() {
         return lineReader;
+    }
+
+    public List<String> getAuthorities() {
+        return authorities;
     }
 }

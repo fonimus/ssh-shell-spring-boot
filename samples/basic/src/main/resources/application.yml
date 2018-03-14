@@ -1,0 +1,19 @@
+ssh:
+  shell:
+    prompt:
+      color: cyan
+      text: 'basic::>'
+    password: pass
+
+logging:
+  level:
+    com.github.fonimus: debug
+
+info:
+  build:
+    groupId: ${project.artifactId}
+    artifactId: ${project.groupId}
+    version: ${project.version}
+  dependencies:
+    spring-boot: ${spring-boot.version}
+    spring-shell: ${spring-shell.version}

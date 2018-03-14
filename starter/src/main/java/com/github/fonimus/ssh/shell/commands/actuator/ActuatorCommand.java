@@ -1,5 +1,6 @@
 package com.github.fonimus.ssh.shell.commands.actuator;
 
+import com.github.fonimus.ssh.shell.SshShellCommandFactory;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.handler.PrettyJson;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -30,6 +31,7 @@ import org.springframework.shell.Availability;
 import org.springframework.shell.standard.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
@@ -439,7 +441,34 @@ public class ActuatorCommand {
         return availability("threaddump", ThreadDumpEndpoint.class);
     }
 
+    private static boolean checkAuthorities(List<String> authorizedRoles, List<String> authorities) {
+        if (authorities == null) {
+            return true;
+        }
+        for (String authority : authorities) {
+            String check = authority;
+            if (check.startsWith("ROLE_")) {
+                check = check.substring(5);
+            }
+            if (authorizedRoles.contains(check)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Availability availability(String name, Class<?> clazz) {
+        return availability(name, clazz, true);
+    }
+
     private Availability availability(String name, Class<?> clazz, boolean defaultValue) {
+        if (!name.equals("info")) {
+            List<String> authorities = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthorities();
+            if (!checkAuthorities(properties.getActuator().getAuthorizedRoles(), authorities)) {
+                return Availability.unavailable("actuator commands are forbidden for current user");
+            }
+        }
         String property = "management.endpoint." + name + ".enabled";
         if (!environment.getProperty(property, Boolean.TYPE, defaultValue)) {
             return Availability.unavailable("endpoint '" + name + "' deactivated (please check property '" + property
@@ -451,13 +480,9 @@ public class ActuatorCommand {
         try {
             applicationContext.getBean(clazz);
         } catch (NoSuchBeanDefinitionException e) {
-            return Availability.unavailable(clazz.getName() + " not in application context");
+            return Availability.unavailable(clazz.getName() + " is not in application context");
         }
         return Availability.available();
-    }
-
-    private Availability availability(String name, Class<?> clazz) {
-        return availability(name, clazz, true);
     }
 
     public enum LoggerAction {

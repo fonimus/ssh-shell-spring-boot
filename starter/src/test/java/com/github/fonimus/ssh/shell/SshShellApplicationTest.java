@@ -18,9 +18,11 @@ public class SshShellApplicationTest extends AbstractCommandTest {
 
     @Test
     void testCommandAvailability() {
+        setActuatorRole();
+
         super.commonCommandAvailability();
+
         assertFalse(cmd.httptraceAvailability().isAvailable());
-        // assertFalse(cmd.sessionsAvailability().isAvailable());
     }
 
     @Override

@@ -1,0 +1,35 @@
+ssh:
+  shell:
+    actuator:
+      excludes:
+      - audit
+    prompt:
+      color: cyan
+      text: 'complete::>'
+    password: pass
+    authentication: security
+    auth-provider-bean-name: customAuthManager
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    shutdown:
+      enabled: true
+    threaddump:
+      enabled: false
+
+logging:
+  level:
+    com.github.fonimus: debug
+
+info:
+  build:
+    groupId: ${project.artifactId}
+    artifactId: ${project.groupId}
+    version: ${project.version}
+  dependencies:
+    spring-boot: ${spring-boot.version}
+    spring-shell: ${spring-shell.version}

@@ -23,6 +23,8 @@ public class SshShellApplicationExclusionsTest extends AbstractTest {
 
     @Test
     void testCommandAvailability() {
+        setActuatorRole();
+
         assertTrue(cmd.auditAvailability().isAvailable());
         assertFalse(cmd.infoAvailability().isAvailable());
         assertFalse(cmd.beansAvailability().isAvailable());

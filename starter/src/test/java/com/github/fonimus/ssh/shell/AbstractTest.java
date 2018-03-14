@@ -1,6 +1,7 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.commands.actuator.ActuatorCommand;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEventsEndpoint;
 import org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpoint;
@@ -20,6 +21,8 @@ import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
+
+import java.util.Collections;
 
 public abstract class AbstractTest {
 
@@ -81,4 +84,18 @@ public abstract class AbstractTest {
 
     @Autowired
     protected ThreadDumpEndpoint threaddump;
+
+    protected void setRole(String role) {
+        SshShellCommandFactory.SSH_THREAD_CONTEXT.set(
+                new SshContext(null, null, null, null, Collections.singletonList(role)));
+    }
+
+    protected void setActuatorRole() {
+        setRole("ACTUATOR");
+    }
+
+    @AfterEach
+    protected void afterEach() {
+        SshShellCommandFactory.SSH_THREAD_CONTEXT.remove();
+    }
 }

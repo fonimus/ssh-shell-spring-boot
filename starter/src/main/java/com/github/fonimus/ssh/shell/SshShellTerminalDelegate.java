@@ -1,6 +1,7 @@
 package com.github.fonimus.ssh.shell;
 
 import org.jline.terminal.*;
+import org.jline.terminal.impl.AbstractPosixTerminal;
 import org.jline.utils.InfoCmp;
 import org.jline.utils.NonBlockingReader;
 
@@ -64,7 +65,11 @@ public class SshShellTerminalDelegate
 
     @Override
     public PrintWriter writer() {
-        return delegate().writer();
+        Terminal d = delegate();
+        if (d instanceof AbstractPosixTerminal) {
+            d.writer().println();
+        }
+        return d.writer();
     }
 
     @Override

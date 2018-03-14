@@ -1,5 +1,6 @@
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.server.ChannelSessionAware;
 import org.apache.sshd.server.Command;
@@ -24,6 +25,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static com.github.fonimus.ssh.shell.SshShellProperties.ACTUATOR_ROLE;
 
 /**
  * Ssh shell command factory implementation
@@ -106,7 +112,13 @@ public class SshShellCommandFactory
             LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();
             InputProvider inputProvider = new InteractiveShellApplicationRunner.JLineInputProvider(reader,
                                                                                                    promptProvider);
-            SSH_THREAD_CONTEXT.set(new SshContext(ec, sshThread, terminal, reader));
+            List<String> authorities = Collections.singletonList(ACTUATOR_ROLE);
+            Object authoritiesFromSession = session.getSession().getIoSession().getAttribute(
+                    SshShellSecurityAuthenticationProvider.AUTHORITIES_ATTRIBUTE);
+            if (authoritiesFromSession != null) {
+                authorities = Arrays.asList(((String) authoritiesFromSession).split(","));
+            }
+            SSH_THREAD_CONTEXT.set(new SshContext(ec, sshThread, terminal, reader, authorities));
             shell.run(inputProvider);
             LOGGER.debug("[shell-command] end session {}", session.toString());
             quit(0);

@@ -22,19 +22,21 @@ import static org.mockito.Mockito.when;
 public abstract class AbstractCommandTest extends AbstractTest {
 
     void commonCommandAvailability() {
-        assertTrue(cmd.auditAvailability().isAvailable());
-        assertTrue(cmd.beansAvailability().isAvailable());
-        assertTrue(cmd.conditionsAvailability().isAvailable());
-        assertTrue(cmd.configpropsAvailability().isAvailable());
-        assertTrue(cmd.envAvailability().isAvailable());
-        assertTrue(cmd.healthAvailability().isAvailable());
-        assertTrue(cmd.infoAvailability().isAvailable());
-        assertTrue(cmd.loggersAvailability().isAvailable());
-        assertTrue(cmd.metricsAvailability().isAvailable());
-        assertTrue(cmd.mappingsAvailability().isAvailable());
-        assertTrue(cmd.scheduledtasksAvailability().isAvailable());
-        assertFalse(cmd.shutdownAvailability().isAvailable());
-        assertTrue(cmd.threaddumpAvailability().isAvailable());
+        assertAll(
+                () -> assertTrue(cmd.auditAvailability().isAvailable()),
+                () -> assertTrue(cmd.beansAvailability().isAvailable()),
+                () -> assertTrue(cmd.conditionsAvailability().isAvailable()),
+                () -> assertTrue(cmd.configpropsAvailability().isAvailable()),
+                () -> assertTrue(cmd.envAvailability().isAvailable()),
+                () -> assertTrue(cmd.healthAvailability().isAvailable()),
+                () -> assertTrue(cmd.infoAvailability().isAvailable()),
+                () -> assertTrue(cmd.loggersAvailability().isAvailable()),
+                () -> assertTrue(cmd.metricsAvailability().isAvailable()),
+                () -> assertTrue(cmd.mappingsAvailability().isAvailable()),
+                () -> assertTrue(cmd.scheduledtasksAvailability().isAvailable()),
+                () -> assertFalse(cmd.shutdownAvailability().isAvailable()),
+                () -> assertTrue(cmd.threaddumpAvailability().isAvailable())
+        );
     }
 
     @Test
@@ -177,7 +179,7 @@ public abstract class AbstractCommandTest extends AbstractTest {
         ParsedLine pl = mock(ParsedLine.class);
         when(pl.line()).thenReturn(response);
         when(lr.getParsedLine()).thenReturn(pl);
-        SSH_THREAD_CONTEXT.set(new SshContext(null, null, t, lr));
+        SSH_THREAD_CONTEXT.set(new SshContext(null, null, t, lr, null));
     }
 
     @Test
@@ -190,19 +192,6 @@ public abstract class AbstractCommandTest extends AbstractTest {
         call(properties, (is, os) -> {
             write(os, "info");
             verifyResponse(is, "{ }");
-        });
-    }
-
-    @Test
-    void testSshCallExitCommand() {
-        call(properties, (is, os) -> write(os, "exit"));
-    }
-
-    @Test
-    void testSshCallExceptionCommand() {
-        call(properties, (is, os) -> {
-            write(os, "unknownCommand");
-            verifyResponse(is, "No command found for");
         });
     }
 }
