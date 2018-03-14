@@ -463,7 +463,7 @@ public class ActuatorCommand {
     }
 
     private Availability availability(String name, Class<?> clazz, boolean defaultValue) {
-        if (!name.equals("info")) {
+        if (!"info".equals(name)) {
             List<String> authorities = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthorities();
             if (!checkAuthorities(properties.getActuator().getAuthorizedRoles(), authorities)) {
                 return Availability.unavailable("actuator commands are forbidden for current user");
