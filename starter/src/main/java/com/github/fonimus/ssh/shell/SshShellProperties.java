@@ -1,12 +1,12 @@
 package com.github.fonimus.ssh.shell;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
@@ -17,165 +17,166 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @Validated
 public class SshShellProperties {
 
-    public static final String SSH_SHELL_PREFIX = "ssh.shell";
-    public static final String ACTUATOR_ROLE = "ACTUATOR";
+	public static final String SSH_SHELL_PREFIX = "ssh.shell";
 
-    private boolean enable = true;
+	public static final String ACTUATOR_ROLE = "ACTUATOR";
 
-    private String host = "127.0.0.1";
+	private final Prompt prompt = new Prompt();
 
-    private int port = 2222;
+	private final Actuator actuator = new Actuator();
 
-    private String user = "user";
+	private boolean enable = true;
 
-    private String password;
+	private String host = "127.0.0.1";
 
-    private AuthenticationType authentication = AuthenticationType.simple;
+	private int port = 2222;
 
-    private String authProviderBeanName;
+	private String user = "user";
 
-    private File hostKeyFile = new File(System.getProperty("java.io.tmpdir"), "hostKey.ser");
+	private String password;
 
-    private final Prompt prompt = new Prompt();
+	private AuthenticationType authentication = AuthenticationType.simple;
 
-    private final Actuator actuator = new Actuator();
+	private String authProviderBeanName;
 
-    public boolean isEnable() {
-        return enable;
-    }
+	private File hostKeyFile = new File(System.getProperty("java.io.tmpdir"), "hostKey.ser");
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-    }
+	public boolean isEnable() {
+		return enable;
+	}
 
-    public String getHost() {
-        return host;
-    }
+	public void setEnable(boolean enable) {
+		this.enable = enable;
+	}
 
-    public void setHost(String host) {
-        this.host = host;
-    }
+	public String getHost() {
+		return host;
+	}
 
-    public int getPort() {
-        return port;
-    }
+	public void setHost(String host) {
+		this.host = host;
+	}
 
-    public void setPort(int port) {
-        this.port = port;
-    }
+	public int getPort() {
+		return port;
+	}
 
-    public String getUser() {
-        return user;
-    }
+	public void setPort(int port) {
+		this.port = port;
+	}
 
-    public void setUser(String user) {
-        this.user = user;
-    }
+	public String getUser() {
+		return user;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public void setUser(String user) {
+		this.user = user;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public AuthenticationType getAuthentication() {
-        return authentication;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public void setAuthentication(AuthenticationType authentication) {
-        this.authentication = authentication;
-    }
+	public AuthenticationType getAuthentication() {
+		return authentication;
+	}
 
-    public String getAuthProviderBeanName() {
-        return authProviderBeanName;
-    }
+	public void setAuthentication(AuthenticationType authentication) {
+		this.authentication = authentication;
+	}
 
-    public void setAuthProviderBeanName(String authProviderBeanName) {
-        this.authProviderBeanName = authProviderBeanName;
-    }
+	public String getAuthProviderBeanName() {
+		return authProviderBeanName;
+	}
 
-    public File getHostKeyFile() {
-        return hostKeyFile;
-    }
+	public void setAuthProviderBeanName(String authProviderBeanName) {
+		this.authProviderBeanName = authProviderBeanName;
+	}
 
-    public void setHostKeyFile(File hostKeyFile) {
-        this.hostKeyFile = hostKeyFile;
-    }
+	public File getHostKeyFile() {
+		return hostKeyFile;
+	}
 
-    public Prompt getPrompt() {
-        return prompt;
-    }
+	public void setHostKeyFile(File hostKeyFile) {
+		this.hostKeyFile = hostKeyFile;
+	}
 
-    public Actuator getActuator() {
-        return actuator;
-    }
+	public Prompt getPrompt() {
+		return prompt;
+	}
 
-    public enum AuthenticationType {
-        simple, security
-    }
+	public Actuator getActuator() {
+		return actuator;
+	}
 
-    /**
-     * Prompt configuration
-     */
-    public static class Prompt {
+	public enum AuthenticationType {
+		simple, security
+	}
 
-        private String text = "shell>";
+	/**
+	 * Prompt configuration
+	 */
+	public static class Prompt {
 
-        private PromptColor color = PromptColor.WHITE;
+		private String text = "shell>";
 
-        public String getText() {
-            return text;
-        }
+		private PromptColor color = PromptColor.WHITE;
 
-        public void setText(String text) {
-            this.text = text;
-        }
+		public String getText() {
+			return text;
+		}
 
-        public PromptColor getColor() {
-            return color;
-        }
+		public void setText(String text) {
+			this.text = text;
+		}
 
-        public void setColor(PromptColor color) {
-            this.color = color;
-        }
-    }
+		public PromptColor getColor() {
+			return color;
+		}
 
-    /**
-     * Actuator configuration
-     */
-    public static class Actuator {
+		public void setColor(PromptColor color) {
+			this.color = color;
+		}
+	}
 
-        private boolean enable = true;
+	/**
+	 * Actuator configuration
+	 */
+	public static class Actuator {
 
-        private List<String> authorizedRoles = Arrays.asList(ACTUATOR_ROLE);
+		private boolean enable = true;
 
-        private List<String> excludes = new ArrayList<>();
+		private List<String> authorizedRoles = Arrays.asList(ACTUATOR_ROLE);
 
-        public boolean isEnable() {
-            return enable;
-        }
+		private List<String> excludes = new ArrayList<>();
 
-        public void setEnable(boolean enable) {
-            this.enable = enable;
-        }
+		public boolean isEnable() {
+			return enable;
+		}
 
-        public List<String> getAuthorizedRoles() {
-            return authorizedRoles;
-        }
+		public void setEnable(boolean enable) {
+			this.enable = enable;
+		}
 
-        public void setAuthorizedRoles(List<String> authorizedRoles) {
-            this.authorizedRoles = authorizedRoles;
-        }
+		public List<String> getAuthorizedRoles() {
+			return authorizedRoles;
+		}
 
-        public List<String> getExcludes() {
-            return excludes;
-        }
+		public void setAuthorizedRoles(List<String> authorizedRoles) {
+			this.authorizedRoles = authorizedRoles;
+		}
 
-        public void setExcludes(List<String> excludes) {
-            this.excludes = excludes;
-        }
-    }
+		public List<String> getExcludes() {
+			return excludes;
+		}
+
+		public void setExcludes(List<String> excludes) {
+			this.excludes = excludes;
+		}
+	}
 
 }

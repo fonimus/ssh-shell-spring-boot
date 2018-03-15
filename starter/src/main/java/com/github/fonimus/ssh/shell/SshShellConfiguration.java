@@ -1,15 +1,18 @@
 package com.github.fonimus.ssh.shell;
 
+import java.io.IOException;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.RejectAllPublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.IOException;
 
 /**
  * Ssh shell configuration
@@ -17,56 +20,59 @@ import java.io.IOException;
 @Configuration
 public class SshShellConfiguration {
 
-    private SshShellProperties properties;
+	private static final Logger LOGGER = LoggerFactory.getLogger(SshShellConfiguration.class);
 
-    private SshShellCommandFactory shellCommandFactory;
+	private SshShellProperties properties;
 
-    private PasswordAuthenticator passwordAuthenticator;
+	private SshShellCommandFactory shellCommandFactory;
 
-    public SshShellConfiguration(SshShellProperties properties,
-                                 SshShellCommandFactory shellCommandFactory,
-                                 PasswordAuthenticator passwordAuthenticator) {
-        this.properties = properties;
-        this.shellCommandFactory = shellCommandFactory;
-        this.passwordAuthenticator = passwordAuthenticator;
-    }
+	private PasswordAuthenticator passwordAuthenticator;
 
-    /**
-     * Start ssh server
-     *
-     * @throws IOException in case of error
-     */
-    @PostConstruct
-    public void startServer() throws IOException {
-        sshServer().start();
-    }
+	public SshShellConfiguration(SshShellProperties properties,
+			SshShellCommandFactory shellCommandFactory,
+			PasswordAuthenticator passwordAuthenticator) {
+		this.properties = properties;
+		this.shellCommandFactory = shellCommandFactory;
+		this.passwordAuthenticator = passwordAuthenticator;
+	}
 
-    /**
-     * Stop ssh server
-     *
-     * @throws IOException in case of error
-     */
-    @PreDestroy
-    public void stopServer() throws IOException {
-        sshServer().stop();
-    }
+	/**
+	 * Start ssh server
+	 *
+	 * @throws IOException in case of error
+	 */
+	@PostConstruct
+	public void startServer() throws IOException {
+		sshServer().start();
+		LOGGER.info("Ssh server started [{}:{}]", properties.getHost(), properties.getPort());
+	}
 
-    /**
-     * Construct ssh server thanks to ssh shell properties
-     *
-     * @return ssh server
-     */
-    @Bean
-    public SshServer sshServer() {
-        SshServer server = SshServer.setUpDefaultServer();
-        server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(properties.getHostKeyFile()));
-        server.setPublickeyAuthenticator(RejectAllPublickeyAuthenticator.INSTANCE);
-        server.setHost(properties.getHost());
-        server.setPasswordAuthenticator(passwordAuthenticator);
-        server.setPort(properties.getPort());
-        server.setShellFactory(() -> shellCommandFactory);
-        server.setCommandFactory(command -> shellCommandFactory);
-        return server;
-    }
+	/**
+	 * Stop ssh server
+	 *
+	 * @throws IOException in case of error
+	 */
+	@PreDestroy
+	public void stopServer() throws IOException {
+		sshServer().stop();
+	}
+
+	/**
+	 * Construct ssh server thanks to ssh shell properties
+	 *
+	 * @return ssh server
+	 */
+	@Bean
+	public SshServer sshServer() {
+		SshServer server = SshServer.setUpDefaultServer();
+		server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(properties.getHostKeyFile()));
+		server.setPublickeyAuthenticator(RejectAllPublickeyAuthenticator.INSTANCE);
+		server.setHost(properties.getHost());
+		server.setPasswordAuthenticator(passwordAuthenticator);
+		server.setPort(properties.getPort());
+		server.setShellFactory(() -> shellCommandFactory);
+		server.setCommandFactory(command -> shellCommandFactory);
+		return server;
+	}
 
 }

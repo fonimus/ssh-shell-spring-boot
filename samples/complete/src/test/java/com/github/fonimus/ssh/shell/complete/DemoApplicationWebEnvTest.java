@@ -5,8 +5,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@SpringBootTest(properties = {"ssh.shell.port=2345"})
+@SpringBootTest(properties = { "ssh.shell.port=2345" })
 @ExtendWith(SpringExtension.class)
 @DirtiesContext
-public class DemoApplicationWebEnvTest extends AbstractDemoApplicationTest {
+public class DemoApplicationWebEnvTest
+		extends AbstractDemoApplicationTest {
+
 }

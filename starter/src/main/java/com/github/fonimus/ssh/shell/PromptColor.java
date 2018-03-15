@@ -21,7 +21,7 @@ public enum PromptColor {
 		this.value = value;
 	}
 
-	public int getValue() {
+	public int toJlineAttributedStyle() {
 		return value;
 	}
 }

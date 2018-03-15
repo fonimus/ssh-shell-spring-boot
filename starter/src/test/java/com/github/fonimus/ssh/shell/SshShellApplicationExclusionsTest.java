@@ -11,23 +11,24 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
-        classes = SshShellApplicationExclusionsTest.class, properties = {"ssh.shell.port=2344",
-        "ssh.shell.actuator.excludes[0]=info", "ssh.shell.actuator.excludes[1]=beans",
-        "ssh.shell.user=user", "ssh.shell.host=127.0.0.1", "ssh.shell.actuator.enable=true",
-        "ssh.shell.prompt.text=test>", "ssh.shell.prompt.color=red",
-        "ssh.shell.hostKeyFile=target/test.tmp", "ssh.shell.enable=true"})
+		classes = SshShellApplicationExclusionsTest.class, properties = { "ssh.shell.port=2344",
+		"ssh.shell.actuator.excludes[0]=info", "ssh.shell.actuator.excludes[1]=beans",
+		"ssh.shell.user=user", "ssh.shell.host=127.0.0.1", "ssh.shell.actuator.enable=true",
+		"ssh.shell.prompt.text=test>", "ssh.shell.prompt.color=red",
+		"ssh.shell.hostKeyFile=target/test.tmp", "ssh.shell.enable=true" })
 @ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext
-public class SshShellApplicationExclusionsTest extends AbstractTest {
+public class SshShellApplicationExclusionsTest
+		extends AbstractTest {
 
-    @Test
-    void testCommandAvailability() {
-        setActuatorRole();
+	@Test
+	void testCommandAvailability() {
+		setActuatorRole();
 
-        assertTrue(cmd.auditAvailability().isAvailable());
-        assertFalse(cmd.infoAvailability().isAvailable());
-        assertFalse(cmd.beansAvailability().isAvailable());
-        assertTrue(cmd.configpropsAvailability().isAvailable());
-    }
+		assertTrue(cmd.auditAvailability().isAvailable());
+		assertFalse(cmd.infoAvailability().isAvailable());
+		assertFalse(cmd.beansAvailability().isAvailable());
+		assertTrue(cmd.configpropsAvailability().isAvailable());
+	}
 }

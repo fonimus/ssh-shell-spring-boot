@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DirtiesContext
 public class DemoApplicationWebTest {
 
-    @Autowired
-    private DemoCommand demo;
+	@Autowired
+	private DemoCommand demo;
 
-    @Test
-    void testApplicationStartup() {
-        assertEquals("message", demo.echo("message"));
-    }
+	@Test
+	void testApplicationStartup() {
+		assertEquals("message", demo.echo("message", null));
+	}
 }

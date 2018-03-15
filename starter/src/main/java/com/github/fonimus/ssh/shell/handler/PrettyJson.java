@@ -5,23 +5,24 @@ package com.github.fonimus.ssh.shell.handler;
  */
 public class PrettyJson<T> {
 
-    private T object;
-    private boolean prettify = true;
+	private T object;
 
-    public PrettyJson(T object) {
-        this.object = object;
-    }
+	private boolean prettify = true;
 
-    public PrettyJson(T object, boolean prettify) {
-        this.object = object;
-        this.prettify = prettify;
-    }
+	public PrettyJson(T object) {
+		this.object = object;
+	}
 
-    public T getObject() {
-        return object;
-    }
+	public PrettyJson(T object, boolean prettify) {
+		this.object = object;
+		this.prettify = prettify;
+	}
 
-    public boolean isPrettify() {
-        return prettify;
-    }
+	public T getObject() {
+		return object;
+	}
+
+	public boolean isPrettify() {
+		return prettify;
+	}
 }

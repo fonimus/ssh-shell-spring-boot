@@ -6,13 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class SshContextTest {
 
-    @Test
-    void test() {
-        SshContext ctx = new SshContext(null, null, null, null, null);
-        assertNull(ctx.getExitCallback());
-        assertNull(ctx.getThread());
-        assertNull(ctx.getTerminal());
-        assertNull(ctx.getLineReader());
-        assertNull(ctx.getAuthorities());
-    }
+	@Test
+	void test() {
+		SshContext ctx = new SshContext(null, null, null, null, null);
+		assertNull(ctx.getExitCallback());
+		assertNull(ctx.getThread());
+		assertNull(ctx.getTerminal());
+		assertNull(ctx.getLineReader());
+		assertNull(ctx.getAuthorities());
+	}
 }
