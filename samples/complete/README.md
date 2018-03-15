@@ -52,6 +52,7 @@
             stacktrace: Display the full stacktrace of the last error.
     
     Demo Command
+          * admin: Admin command
             conf: Confirmation command
             echo: Echo command
             ex: Ex command
@@ -59,5 +60,7 @@
     
     Commands marked with (*) are currently unavailable.
     Type `help <command>` to learn more.
-
+    
+    
+    complete::>
     ```

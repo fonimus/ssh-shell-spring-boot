@@ -10,9 +10,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
 
-import com.github.fonimus.ssh.shell.SshShellUtils;
-
-import static com.github.fonimus.ssh.shell.SshShellUtils.checkAuthorities;
+import com.github.fonimus.ssh.shell.SshShellHelper;
 
 /**
  * Demo command for example
@@ -20,7 +18,13 @@ import static com.github.fonimus.ssh.shell.SshShellUtils.checkAuthorities;
 @ShellComponent
 public class DemoCommand {
 
+	private final SshShellHelper helper;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemoCommand.class);
+
+	public DemoCommand(SshShellHelper helper) {
+		this.helper = helper;
+	}
 
 	/**
 	 * Echo command
@@ -50,7 +54,7 @@ public class DemoCommand {
 	 */
 	@ShellMethod("Welcome command")
 	public String welcome() {
-		String name = SshShellUtils.read("What's your name ?");
+		String name = helper.read("What's your name ?");
 		return "Hello, '" + name + "' !";
 	}
 
@@ -61,7 +65,7 @@ public class DemoCommand {
 	 */
 	@ShellMethod("Confirmation command")
 	public String conf() {
-		return SshShellUtils.confirm("Are you sure ?") ? "Great ! Let's do it !" : "Such a shame ...";
+		return helper.confirm("Are you sure ?") ? "Great ! Let's do it !" : "Such a shame ...";
 	}
 
 	/**
@@ -76,7 +80,7 @@ public class DemoCommand {
 	}
 
 	public Availability adminAvailability() {
-		if (!checkAuthorities(Collections.singletonList("ADMIN"))) {
+		if (!helper.checkAuthorities(Collections.singletonList("ADMIN"))) {
 			return Availability.unavailable("admin command is only for an admin users !");
 		}
 		return Availability.available();

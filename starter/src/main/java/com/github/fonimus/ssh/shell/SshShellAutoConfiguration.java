@@ -62,6 +62,11 @@ public class SshShellAutoConfiguration {
 	}
 
 	@Bean
+	public SshShellHelper sshShellHelper(SshShellProperties properties) {
+		return new SshShellHelper(properties.getConfirmationWords());
+	}
+
+	@Bean
 	@ConditionalOnMissingBean
 	@ConditionalOnClass(name = "org.springframework.security.authentication.AuthenticationManager")
 	@ConditionalOnProperty(value = SSH_SHELL_PREFIX + ".authentication", havingValue = "security")

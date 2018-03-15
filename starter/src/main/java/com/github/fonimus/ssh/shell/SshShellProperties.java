@@ -41,6 +41,8 @@ public class SshShellProperties {
 
 	private File hostKeyFile = new File(System.getProperty("java.io.tmpdir"), "hostKey.ser");
 
+	private List<String> confirmationWords;
+
 	public boolean isEnable() {
 		return enable;
 	}
@@ -103,6 +105,14 @@ public class SshShellProperties {
 
 	public void setHostKeyFile(File hostKeyFile) {
 		this.hostKeyFile = hostKeyFile;
+	}
+
+	public List<String> getConfirmationWords() {
+		return confirmationWords;
+	}
+
+	public void setConfirmationWords(List<String> confirmationWords) {
+		this.confirmationWords = confirmationWords;
 	}
 
 	public Prompt getPrompt() {

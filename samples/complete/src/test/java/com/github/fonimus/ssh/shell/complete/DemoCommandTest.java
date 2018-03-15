@@ -4,13 +4,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.github.fonimus.ssh.shell.SshShellHelper;
+
 public class DemoCommandTest {
 
 	private static DemoCommand cmd;
 
 	@BeforeAll
 	static void prepare() {
-		cmd = new DemoCommand();
+		cmd = new DemoCommand(new SshShellHelper(null));
 	}
 
 	@Test

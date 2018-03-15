@@ -28,7 +28,7 @@ or [reference documentation](https://docs.spring.io/spring-shell/docs/2.0.0.RELE
 
 ### Configuration
 
-Please check class: [SshShellProperties.java](./starter/src/main/java/com/github/fonimus/ssh/shell/SshShellProperties.java)
+Please check class: [SshShellProperties.java](./starter/src/main/java/com/github/fonimus/ssh/shell/SshShellProperties.java) for more information
 
 ```yaml
 ssh:
@@ -36,12 +36,17 @@ ssh:
     actuator:
       enable: true
       # empty by default
-      excludes: 
+      excludes:
+      - ...
     # 'simple' or 'security'
     authentication: simple
     # if authentication set to 'security' the AuthenticationProvider bean name
     # if not specified and only one AuthenticationProvider bean is present in the context, it will be used 
-    auth-provider-bean-name: 
+    auth-provider-bean-name:
+    # for ssh helper 'confirm' method
+    confirmation-words:
+    - y    
+    - yes    
     enable: true
     host: 127.0.0.1
     host-key-file: <java.io.tmpdir>/hostKey.ser
@@ -50,13 +55,14 @@ ssh:
     port: 2222
     user: user
     prompt:
+      # in enum: com.github.fonimus.ssh.shell.PromptColor
       color: white
       text: 'shell>'
 ```
 
 * Add `spring-boot-starter-actuator` dependency to get actuator commands
 
-* Add `spring-boot-starter-security` dependency to configure `authentication=security` with *AuthenticationProvider*
+* Add `spring-boot-starter-security` dependency to configure `ssh.shell.authentication=security` with *AuthenticationProvider*
 
 ## Actuator commands
 
@@ -108,55 +114,49 @@ public class CustomPasswordConfiguration {
 }
 ```
 
-## Role check
+## Helper
 
-If you are using *AuthenticationProvider* thanks to property `ssh.shell.authentication=security`, you can check that connected user has right authorities for command.
-The easiest way of doing it is thanks to `ShellMethodAvailability` functionality. Example:
+A `com.github.fonimus.ssh.shell.SshShellHelper` bean is provided in context to help for additional functionalities.
+
+You can either autowire it or inject it in constructor:
 
 ```java
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
+import com.github.fonimus.ssh.shell.SshShellHelper;
 
 @ShellComponent
 public class DemoCommand {
-
-	@ShellMethod("Admin command")
-	@ShellMethodAvailability("adminAvailability")
-	public String admin() {
-		return "Finally an administrator !!";
-	}
-
-	public Availability adminAvailability() {
-		if (!checkAuthorities(Collections.singletonList("ADMIN"))) {
-			return Availability.unavailable("admin command is only for an admin users !");
-		}
-		return Availability.available();
+	
+	@Autowired
+	private SshShellHelper helper;
+	
+	// or
+	
+	public DemoCommand(SshShellHelper helper){
+		this.helper = helper;
 	}
 }
 ```
 
-## User interaction
+### User interaction
 
-### Read input
+#### Read input
 
 ```java
-import com.github.fonimus.ssh.shell.SshShellUtils;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-
 @ShellComponent
 public class DemoCommand {
+	
+	@Autowired
+	private SshShellHelper helper;
 
     @ShellMethod("Welcome command")
     public String welcome() {
-        String name = SshShellUtils.read("What's your name ?");
+        String name = helper.read("What's your name ?");
         return "Hello, '" + name + "' !";
     }
 }
 ```
 
-### Confirmation
+#### Confirmation
 
 Util `confirm` method displays confirmation message and returns `true` 
 if response equals ignore case confirmation words.
@@ -166,17 +166,43 @@ Default confirmation words are **[`y`, `yes`]**:
 You can specify if it is case sensitive and provide your own confirmation words.
 
 ```java
-import com.github.fonimus.ssh.shell.SshShellUtils;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-
 @ShellComponent
 public class DemoCommand {
+	
+	@Autowired
+	private SshShellHelper helper;
 
     @ShellMethod("Confirmation command")
     public String conf() {
-        return SshShellUtils.confirm("Are you sure ?" [, true|false] [, "oui", "si", ...]) ? "Great ! Let's do it !" : "Such a shame ...";
+        return helper.confirm("Are you sure ?" [, true|false] [, "oui", "si", ...]) ? "Great ! Let's do it !" : "Such a shame ...";
     }
+}
+```
+
+### Role check
+
+If you are using *AuthenticationProvider* thanks to property `ssh.shell.authentication=security`, you can check that connected user has right authorities for command.
+The easiest way of doing it is thanks to `ShellMethodAvailability` functionality. Example:
+
+```java
+@ShellComponent
+public class DemoCommand {
+	
+	@Autowired
+	private SshShellHelper helper;
+
+	@ShellMethod("Admin command")
+	@ShellMethodAvailability("adminAvailability")
+	public String admin() {
+		return "Finally an administrator !!";
+	}
+
+	public Availability adminAvailability() {
+		if (!helper.checkAuthorities(Collections.singletonList("ADMIN"))) {
+			return Availability.unavailable("admin command is only for an admin users !");
+		}
+		return Availability.available();
+	}
 }
 ```
 

@@ -23,7 +23,7 @@ import org.jline.reader.ParsedLine;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import org.jline.utils.AttributedString;
+import org.jline.terminal.impl.AbstractPosixTerminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
@@ -83,8 +83,7 @@ public class SshShellCommandFactory
 	 * @param environment      spring environment
 	 */
 	public SshShellCommandFactory(Banner banner, @Lazy PromptProvider promptProvider, Shell shell,
-			JLineShellAutoConfiguration.CompleterAdapter completerAdapter,
-			Environment environment) {
+			JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Environment environment) {
 		this.shellBanner = banner;
 		this.promptProvider = promptProvider;
 		this.shell = shell;
@@ -99,7 +98,7 @@ public class SshShellCommandFactory
 	 */
 	@Override
 	public void start(org.apache.sshd.server.Environment env) {
-		LOGGER.debug("start       : {}", session.toString());
+		LOGGER.debug("start     : {}", session.toString());
 		terminalType = env.getEnv().get("TERM");
 		sshThread = new Thread(this, "ssh-session-" + System.nanoTime());
 		sshThread.start();
@@ -120,19 +119,21 @@ public class SshShellCommandFactory
 			resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
 			resultHandler.handleResult("Please type `help` to see available commands");
 			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();
-			List<String> authorities = Collections.singletonList(ACTUATOR_ROLE);
 			Object authoritiesFromSession = session.getSession().getIoSession().getAttribute(
 					SshShellSecurityAuthenticationProvider.AUTHORITIES_ATTRIBUTE);
+			List<String> authorities = Collections.singletonList(ACTUATOR_ROLE);
 			if (authoritiesFromSession != null) {
 				authorities = Arrays.asList(((String) authoritiesFromSession).split(","));
 			}
 			SSH_THREAD_CONTEXT.set(new SshContext(ec, sshThread, terminal, reader, authorities));
 			shell.run(() -> {
 				try {
-					AttributedString prompt = promptProvider.getPrompt();
-					reader.readLine(prompt.toAnsi(reader.getTerminal()));
+					reader.readLine(promptProvider.getPrompt().toAnsi(reader.getTerminal()));
+					if (terminal instanceof AbstractPosixTerminal) {
+						reader.getTerminal().writer().println();
+					}
 				} catch (EndOfFileException e) {
-					LOGGER.debug("interrupted : {}", session.toString());
+					LOGGER.debug("interrupt : {}", session.toString());
 					quit(0);
 					return null;
 				} catch (UserInterruptException e) {
@@ -140,10 +141,10 @@ public class SshShellCommandFactory
 				}
 				return new ParsedInput(reader.getParsedLine());
 			});
-			LOGGER.debug("end         : {}", session.toString());
+			LOGGER.debug("end       : {}", session.toString());
 			quit(0);
 		} catch (IOException | RuntimeException e) {
-			LOGGER.error("exception   : {}", session.toString(), e);
+			LOGGER.error("exception : {}", session.toString(), e);
 			quit(1);
 		}
 	}

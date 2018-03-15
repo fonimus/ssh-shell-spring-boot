@@ -12,7 +12,6 @@ import org.jline.terminal.Cursor;
 import org.jline.terminal.MouseEvent;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
-import org.jline.terminal.impl.AbstractPosixTerminal;
 import org.jline.utils.InfoCmp;
 import org.jline.utils.NonBlockingReader;
 
@@ -69,11 +68,7 @@ public class SshShellTerminalDelegate
 
 	@Override
 	public PrintWriter writer() {
-		Terminal d = delegate();
-		if (d instanceof AbstractPosixTerminal) {
-			d.writer().println();
-		}
-		return d.writer();
+		return delegate().writer();
 	}
 
 	@Override

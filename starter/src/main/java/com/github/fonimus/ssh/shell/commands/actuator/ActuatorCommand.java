@@ -36,12 +36,11 @@ import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.ShellOption;
 
 import com.github.fonimus.ssh.shell.SshShellCommandFactory;
+import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.handler.PrettyJson;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
-import static com.github.fonimus.ssh.shell.SshShellUtils.checkAuthorities;
-import static com.github.fonimus.ssh.shell.SshShellUtils.confirm;
 
 /**
  * Actuator shell command
@@ -57,6 +56,8 @@ public class ActuatorCommand {
 	private Environment environment;
 
 	private SshShellProperties properties;
+
+	private SshShellHelper helper;
 
 	private AuditEventsEndpoint audit;
 
@@ -88,7 +89,7 @@ public class ActuatorCommand {
 
 	private ThreadDumpEndpoint threaddump;
 
-	public ActuatorCommand(ApplicationContext applicationContext, Environment environment, SshShellProperties properties,
+	public ActuatorCommand(ApplicationContext applicationContext, Environment environment, SshShellProperties properties, SshShellHelper helper,
 			@Lazy AuditEventsEndpoint audit, @Lazy BeansEndpoint beans, @Lazy ConditionsReportEndpoint conditions,
 			@Lazy ConfigurationPropertiesReportEndpoint configprops, @Lazy EnvironmentEndpoint env, @Lazy HealthEndpoint health,
 			@Lazy HttpTraceEndpoint httptrace, @Lazy InfoEndpoint info, @Lazy LoggersEndpoint loggers, @Lazy MetricsEndpoint metrics,
@@ -97,6 +98,7 @@ public class ActuatorCommand {
 		this.applicationContext = applicationContext;
 		this.environment = environment;
 		this.properties = properties;
+		this.helper = helper;
 		this.audit = audit;
 		this.beans = beans;
 		this.conditions = conditions;
@@ -401,7 +403,7 @@ public class ActuatorCommand {
 	@ShellMethod(key = "shutdown", value = "Shutdown application.")
 	@ShellMethodAvailability("shutdownAvailability")
 	public String shutdown() {
-		if (confirm("Are you sure you want to shutdown application ? [y/N]")) {
+		if (helper.confirm("Are you sure you want to shutdown application ? [y/N]")) {
 			shutdown.shutdown();
 			return "Shutting down application...";
 		} else {
@@ -441,7 +443,7 @@ public class ActuatorCommand {
 	private Availability availability(String name, Class<?> clazz, boolean defaultValue) {
 		if (!"info".equals(name)) {
 			List<String> authorities = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthorities();
-			if (!checkAuthorities(properties.getActuator().getAuthorizedRoles(), authorities,
+			if (!helper.checkAuthorities(properties.getActuator().getAuthorizedRoles(), authorities,
 					properties.getAuthentication() == SshShellProperties.AuthenticationType.simple)) {
 				return Availability.unavailable("actuator commands are forbidden for current user");
 			}
