@@ -1,12 +1,18 @@
 package com.github.fonimus.ssh.shell.complete;
 
+import java.util.Collections;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
 
 import com.github.fonimus.ssh.shell.SshShellUtils;
+
+import static com.github.fonimus.ssh.shell.SshShellUtils.checkAuthorities;
 
 /**
  * Demo command for example
@@ -56,6 +62,24 @@ public class DemoCommand {
 	@ShellMethod("Confirmation command")
 	public String conf() {
 		return SshShellUtils.confirm("Are you sure ?") ? "Great ! Let's do it !" : "Such a shame ...";
+	}
+
+	/**
+	 * Admin only example command
+	 *
+	 * @return welcome message
+	 */
+	@ShellMethod("Admin command")
+	@ShellMethodAvailability("adminAvailability")
+	public String admin() {
+		return "Finally an administrator !!";
+	}
+
+	public Availability adminAvailability() {
+		if (!checkAuthorities(Collections.singletonList("ADMIN"))) {
+			return Availability.unavailable("admin command is only for an admin users !");
+		}
+		return Availability.available();
 	}
 
 	/**

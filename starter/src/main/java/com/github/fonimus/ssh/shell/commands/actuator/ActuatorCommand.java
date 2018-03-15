@@ -40,6 +40,7 @@ import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.handler.PrettyJson;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
+import static com.github.fonimus.ssh.shell.SshShellUtils.checkAuthorities;
 import static com.github.fonimus.ssh.shell.SshShellUtils.confirm;
 
 /**
@@ -87,16 +88,12 @@ public class ActuatorCommand {
 
 	private ThreadDumpEndpoint threaddump;
 
-	public ActuatorCommand(ApplicationContext applicationContext, Environment environment,
-			SshShellProperties properties,
-			@Lazy AuditEventsEndpoint audit, @Lazy BeansEndpoint beans,
-			@Lazy ConditionsReportEndpoint conditions,
-			@Lazy ConfigurationPropertiesReportEndpoint configprops, @Lazy EnvironmentEndpoint env,
-			@Lazy HealthEndpoint health, @Lazy HttpTraceEndpoint httptrace, @Lazy InfoEndpoint info,
-			@Lazy LoggersEndpoint loggers, @Lazy MetricsEndpoint metrics,
-			@Lazy MappingsEndpoint mappings, @Lazy SessionsEndpoint sessions,
-			@Lazy ScheduledTasksEndpoint scheduledtasks,
-			@Lazy ShutdownEndpoint shutdown, @Lazy ThreadDumpEndpoint threaddump) {
+	public ActuatorCommand(ApplicationContext applicationContext, Environment environment, SshShellProperties properties,
+			@Lazy AuditEventsEndpoint audit, @Lazy BeansEndpoint beans, @Lazy ConditionsReportEndpoint conditions,
+			@Lazy ConfigurationPropertiesReportEndpoint configprops, @Lazy EnvironmentEndpoint env, @Lazy HealthEndpoint health,
+			@Lazy HttpTraceEndpoint httptrace, @Lazy InfoEndpoint info, @Lazy LoggersEndpoint loggers, @Lazy MetricsEndpoint metrics,
+			@Lazy MappingsEndpoint mappings, @Lazy SessionsEndpoint sessions, @Lazy ScheduledTasksEndpoint scheduledtasks, @Lazy ShutdownEndpoint shutdown,
+			@Lazy ThreadDumpEndpoint threaddump) {
 		this.applicationContext = applicationContext;
 		this.environment = environment;
 		this.properties = properties;
@@ -117,23 +114,6 @@ public class ActuatorCommand {
 		this.threaddump = threaddump;
 	}
 
-	private static boolean checkAuthorities(List<String> authorizedRoles, List<String> authorities) {
-		if (authorities == null) {
-			return true;
-		}
-		for (String authority : authorities) {
-			String check = authority;
-			if (check.startsWith("ROLE_")) {
-				check = check.substring(5);
-			}
-			if (authorizedRoles.contains(check)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	/**
 	 * Audit method
 	 *
@@ -144,12 +124,9 @@ public class ActuatorCommand {
 	@ShellMethod(key = "audit", value = "Display audit endpoint.")
 	@ShellMethodAvailability("auditAvailability")
 	public PrettyJson<AuditEventsEndpoint.AuditEventsDescriptor> audit(
-			@ShellOption(value = { "-p", "--principal" }, defaultValue = ShellOption.NULL, help = "Principal to filter " +
-					"on") String principal,
-			@ShellOption(value = { "-t", "--type" }, defaultValue = ShellOption.NULL, help = "Type to filter on")
-					String type
-	) {
-		return new PrettyJson<>(audit.events(principal, null, null));
+			@ShellOption(value = { "-p", "--principal" }, defaultValue = ShellOption.NULL, help = "Principal to filter on") String principal,
+			@ShellOption(value = { "-t", "--type" }, defaultValue = ShellOption.NULL, help = "Type to filter on") String type) {
+		return new PrettyJson<>(audit.events(principal, null, type));
 	}
 
 	/**
@@ -299,13 +276,9 @@ public class ActuatorCommand {
 	@ShellMethod(key = "loggers", value = "Display or configure loggers.")
 	@ShellMethodAvailability("loggersAvailability")
 	public PrettyJson loggers(
-			@ShellOption(value = { "-a", "--action" }, help = "Action to perform", defaultValue = "list") LoggerAction
-					action,
-			@ShellOption(value = { "-n", "--name" }, help = "Logger name for configuration or display", defaultValue =
-					ShellOption.NULL) String loggerName,
-			@ShellOption(value = { "-l", "--level" }, help = "Logger level for configuration", defaultValue =
-					ShellOption.NULL) LogLevel loggerLevel
-	) {
+			@ShellOption(value = { "-a", "--action" }, help = "Action to perform", defaultValue = "list") LoggerAction action,
+			@ShellOption(value = { "-n", "--name" }, help = "Logger name for configuration or display", defaultValue = ShellOption.NULL) String loggerName,
+			@ShellOption(value = { "-l", "--level" }, help = "Logger level for configuration", defaultValue = ShellOption.NULL) LogLevel loggerLevel) {
 		if ((action == LoggerAction.get || action == LoggerAction.conf) && loggerName == null) {
 			throw new IllegalArgumentException("Logger name is mandatory for '" + action + "' action");
 		}
@@ -344,10 +317,8 @@ public class ActuatorCommand {
 	@ShellMethod(key = "metrics", value = "Display metrics endpoint.")
 	@ShellMethodAvailability("metricsAvailability")
 	public PrettyJson metrics(
-			@ShellOption(value = { "-n", "--name" }, help = "Metric name to get", defaultValue = ShellOption.NULL)
-					String name,
-			@ShellOption(value = { "-t", "--tags" }, help = "Tags (key=value, separated by coma)", defaultValue =
-					ShellOption.NULL) String tags
+			@ShellOption(value = { "-n", "--name" }, help = "Metric name to get", defaultValue = ShellOption.NULL) String name,
+			@ShellOption(value = { "-t", "--tags" }, help = "Tags (key=value, separated by coma)", defaultValue = ShellOption.NULL) String tags
 	) {
 		if (name != null) {
 			MetricsEndpoint.MetricResponse result = metrics.metric(name, tags != null ? Arrays.asList(tags.split(",")
@@ -470,7 +441,8 @@ public class ActuatorCommand {
 	private Availability availability(String name, Class<?> clazz, boolean defaultValue) {
 		if (!"info".equals(name)) {
 			List<String> authorities = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthorities();
-			if (!checkAuthorities(properties.getActuator().getAuthorizedRoles(), authorities)) {
+			if (!checkAuthorities(properties.getActuator().getAuthorizedRoles(), authorities,
+					properties.getAuthentication() == SshShellProperties.AuthenticationType.simple)) {
 				return Availability.unavailable("actuator commands are forbidden for current user");
 			}
 		}

@@ -108,18 +108,51 @@ public class CustomPasswordConfiguration {
 }
 ```
 
+## Role check
+
+If you are using *AuthenticationProvider* thanks to property `ssh.shell.authentication=security`, you can check that connected user has right authorities for command.
+The easiest way of doing it is thanks to `ShellMethodAvailability` functionality. Example:
+
+```java
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
+
+@ShellComponent
+public class DemoCommand {
+
+	@ShellMethod("Admin command")
+	@ShellMethodAvailability("adminAvailability")
+	public String admin() {
+		return "Finally an administrator !!";
+	}
+
+	public Availability adminAvailability() {
+		if (!checkAuthorities(Collections.singletonList("ADMIN"))) {
+			return Availability.unavailable("admin command is only for an admin users !");
+		}
+		return Availability.available();
+	}
+}
+```
+
 ## User interaction
 
 ### Read input
 
 ```java
 import com.github.fonimus.ssh.shell.SshShellUtils;
+import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
-@ShellMethod("Welcome command")
-public String welcome() {
-    String name = SshShellUtils.read("What's your name ?");
-    return "Hello, '" + name + "' !";
+@ShellComponent
+public class DemoCommand {
+
+    @ShellMethod("Welcome command")
+    public String welcome() {
+        String name = SshShellUtils.read("What's your name ?");
+        return "Hello, '" + name + "' !";
+    }
 }
 ```
 
@@ -134,11 +167,16 @@ You can specify if it is case sensitive and provide your own confirmation words.
 
 ```java
 import com.github.fonimus.ssh.shell.SshShellUtils;
+import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
-@ShellMethod("Confirmation command")
-public String conf() {
-    return SshShellUtils.confirm("Are you sure ?" [, true|false] [, "oui", "si", ...]) ? "Great ! Let's do it !" : "Such a shame ...";
+@ShellComponent
+public class DemoCommand {
+
+    @ShellMethod("Confirmation command")
+    public String conf() {
+        return SshShellUtils.confirm("Are you sure ?" [, true|false] [, "oui", "si", ...]) ? "Great ! Let's do it !" : "Such a shame ...";
+    }
 }
 ```
 
