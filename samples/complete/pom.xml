@@ -33,14 +33,6 @@
 			<artifactId>spring-boot-ssh-shell-starter</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.session</groupId>
-			<artifactId>spring-session-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-		</dependency>
 		<!--tests-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

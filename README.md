@@ -210,4 +210,4 @@ public class DemoCommand {
 
 * [Basic sample](./samples/basic), no actuator, no security, no sessions
 
-* [Complete sample](./samples/complete), actuator, security and sessions dependencies and configurations
+* [Complete sample](./samples/complete), actuator, security dependencies and configurations

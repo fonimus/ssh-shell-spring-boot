@@ -40,7 +40,7 @@
             mappings: Display mappings endpoint.
             metrics: Display metrics endpoint.
             scheduledtasks: Display scheduledtasks endpoint.
-            sessions: Display sessions endpoint.
+          * sessions: Display sessions endpoint.
             shutdown: Shutdown application.
           * threaddump: Display threaddump endpoint.
     

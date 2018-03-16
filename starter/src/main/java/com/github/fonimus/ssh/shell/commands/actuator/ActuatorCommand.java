@@ -81,8 +81,6 @@ public class ActuatorCommand {
 
 	private MappingsEndpoint mappings;
 
-	private SessionsEndpoint sessions;
-
 	private ScheduledTasksEndpoint scheduledtasks;
 
 	private ShutdownEndpoint shutdown;
@@ -93,7 +91,7 @@ public class ActuatorCommand {
 			@Lazy AuditEventsEndpoint audit, @Lazy BeansEndpoint beans, @Lazy ConditionsReportEndpoint conditions,
 			@Lazy ConfigurationPropertiesReportEndpoint configprops, @Lazy EnvironmentEndpoint env, @Lazy HealthEndpoint health,
 			@Lazy HttpTraceEndpoint httptrace, @Lazy InfoEndpoint info, @Lazy LoggersEndpoint loggers, @Lazy MetricsEndpoint metrics,
-			@Lazy MappingsEndpoint mappings, @Lazy SessionsEndpoint sessions, @Lazy ScheduledTasksEndpoint scheduledtasks, @Lazy ShutdownEndpoint shutdown,
+			@Lazy MappingsEndpoint mappings, @Lazy ScheduledTasksEndpoint scheduledtasks, @Lazy ShutdownEndpoint shutdown,
 			@Lazy ThreadDumpEndpoint threaddump) {
 		this.applicationContext = applicationContext;
 		this.environment = environment;
@@ -110,7 +108,6 @@ public class ActuatorCommand {
 		this.loggers = loggers;
 		this.metrics = metrics;
 		this.mappings = mappings;
-		this.sessions = sessions;
 		this.scheduledtasks = scheduledtasks;
 		this.shutdown = shutdown;
 		this.threaddump = threaddump;
@@ -367,7 +364,7 @@ public class ActuatorCommand {
 	@ShellMethod(key = "sessions", value = "Display sessions endpoint.")
 	@ShellMethodAvailability("sessionsAvailability")
 	public PrettyJson<SessionsEndpoint.SessionsReport> sessions() {
-		return new PrettyJson<>(sessions.sessionsForUsername(null));
+		return new PrettyJson<>(applicationContext.getBean(SessionsEndpoint.class).sessionsForUsername(null));
 	}
 
 	/**
