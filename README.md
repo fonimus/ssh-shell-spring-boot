@@ -148,11 +148,11 @@ public class DemoCommand {
 	@Autowired
 	private SshShellHelper helper;
 
-    @ShellMethod("Welcome command")
-    public String welcome() {
-        String name = helper.read("What's your name ?");
-        return "Hello, '" + name + "' !";
-    }
+	@ShellMethod("Welcome command")	
+	public String welcome() {
+	    String name = helper.read("What's your name ?");
+	    return "Hello, '" + name + "' !";
+	}
 }
 ```
 
@@ -172,10 +172,10 @@ public class DemoCommand {
 	@Autowired
 	private SshShellHelper helper;
 
-    @ShellMethod("Confirmation command")
-    public String conf() {
-        return helper.confirm("Are you sure ?" [, true|false] [, "oui", "si", ...]) ? "Great ! Let's do it !" : "Such a shame ...";
-    }
+	@ShellMethod("Confirmation command")
+	public String conf() {
+	    return helper.confirm("Are you sure ?" [, true|false] [, "oui", "si", ...]) ? "Great ! Let's do it !" : "Such a shame ...";
+	}
 }
 ```
 

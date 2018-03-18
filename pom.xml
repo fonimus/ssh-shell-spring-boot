@@ -9,7 +9,7 @@
 
 	<packaging>pom</packaging>
 
-	<name>Ssh Shell</name>
+	<name>Spring boot ssh shell</name>
 	<description>Ssh shell for Spring Boot Shell</description>
 	<url>https://github.com/fonimus/spring-boot-ssh-shell/</url>
 

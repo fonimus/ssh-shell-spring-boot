@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>spring-boot-ssh-shell-complete-sample</artifactId>
-	<name>Ssh shell complete sample</name>
+	<name>Spring boot ssh shell complete sample</name>
 
 	<dependencies>
 		<dependency>
