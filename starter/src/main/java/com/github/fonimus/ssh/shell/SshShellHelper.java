@@ -57,14 +57,25 @@ public class SshShellHelper {
 	}
 
 	/**
+	 * Read from terminal
+	 *
+	 * @return response read from terminal
+	 */
+	public String read() {
+		return read(null);
+	}
+
+	/**
 	 * Print confirmation message and get response
 	 *
 	 * @param message message to print
-	 * @return response
+	 * @return response read from terminal
 	 */
 	public String read(String message) {
 		LineReader lr = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getLineReader();
-		lr.getTerminal().writer().println(message);
+		if(message != null) {
+			lr.getTerminal().writer().println(message);
+		}
 		lr.readLine();
 		if (lr.getTerminal() instanceof AbstractPosixTerminal) {
 			lr.getTerminal().writer().println();
