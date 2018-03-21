@@ -20,7 +20,7 @@ or [reference documentation](https://docs.spring.io/spring-shell/docs/2.0.0.RELE
 <dependency>
     <groupId>com.github.fonimus</groupId>
     <artifactId>spring-boot-ssh-shell-starter</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -138,6 +138,26 @@ public class DemoCommand {
 ```
 
 ### User interaction
+
+#### Print output
+
+```java
+@ShellComponent
+public class DemoCommand {
+	
+	@Autowired
+	private SshShellHelper helper;
+
+	@ShellMethod("Print command")	
+	public String print() {
+		boolean success = ...
+	    helper.print("Some message");
+	    helper.print("Some black message", PromptColor.BLACK);
+	    helper.printSuccess("Some success message");
+	    return success ? helper.getSuccess("Some returned success message") : helper.getColored("Some returned blue message", PromptColor.BLUE);
+	}
+}
+```
 
 #### Read input
 

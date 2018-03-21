@@ -38,8 +38,6 @@ class SshShellHelperTest {
 
 	private static PrintWriter writer;
 
-	private static NonBlockingReader reader;
-
 	@BeforeEach
 	public void each() {
 		h = new SshShellHelper();
@@ -48,7 +46,7 @@ class SshShellHelperTest {
 		ter = mock(Terminal.class);
 		writer = mock(PrintWriter.class);
 		when(ter.writer()).thenReturn(writer);
-		reader = mock(NonBlockingReader.class);
+		NonBlockingReader reader = mock(NonBlockingReader.class);
 		when(ter.reader()).thenReturn(reader);
 		when(lr.getTerminal()).thenReturn(ter);
 		SshContext ctx = new SshContext(null, null, ter, lr, auth);
