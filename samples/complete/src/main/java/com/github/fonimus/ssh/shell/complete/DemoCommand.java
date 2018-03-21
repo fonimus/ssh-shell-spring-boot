@@ -54,6 +54,7 @@ public class DemoCommand {
 	 */
 	@ShellMethod("Welcome command")
 	public String welcome() {
+		helper.printInfo("You are now in the welcome command");
 		String name = helper.read("What's your name ?");
 		return "Hello, '" + name + "' !";
 	}

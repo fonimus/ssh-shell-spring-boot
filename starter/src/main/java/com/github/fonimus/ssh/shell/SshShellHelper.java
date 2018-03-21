@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.jline.reader.LineReader;
 import org.jline.terminal.impl.AbstractPosixTerminal;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 
 /**
  * Ssh shell helper for user interactions and authorities check
@@ -68,6 +70,116 @@ public class SshShellHelper {
 			lr.getTerminal().writer().println();
 		}
 		return lr.getParsedLine().line();
+	}
+
+	/**
+	 * Color message with color {@link PromptColor#GREEN}
+	 *
+	 * @param message message to return
+	 * @return colored message
+	 */
+	public String getSuccess(String message) {
+		return getColored(message, PromptColor.GREEN);
+	}
+
+	/**
+	 * Color message with color {@link PromptColor#CYAN}
+	 *
+	 * @param message message to return
+	 * @return colored message
+	 */
+	public String getInfo(String message) {
+		return getColored(message, PromptColor.CYAN);
+	}
+
+	/**
+	 * Color message with color {@link PromptColor#YELLOW}
+	 *
+	 * @param message message to return
+	 * @return colored message
+	 */
+	public String getWarning(String message) {
+		return getColored(message, PromptColor.YELLOW);
+	}
+
+	/**
+	 * Color message with color {@link PromptColor#RED}
+	 *
+	 * @param message message to return
+	 * @return colored message
+	 */
+	public String getError(String message) {
+		return getColored(message, PromptColor.RED);
+	}
+
+	/**
+	 * Color message with given color
+	 *
+	 * @param message message to return
+	 * @param color   color to print
+	 * @return colored message
+	 */
+	public String getColored(String message, PromptColor color) {
+		return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
+	}
+
+	/**
+	 * Print message with color {@link PromptColor#GREEN}
+	 *
+	 * @param message message to print
+	 */
+	public void printSuccess(String message) {
+		print(message, PromptColor.GREEN);
+	}
+
+	/**
+	 * Print message with color {@link PromptColor#CYAN}
+	 *
+	 * @param message message to print
+	 */
+	public void printInfo(String message) {
+		print(message, PromptColor.CYAN);
+	}
+
+	/**
+	 * Print message with color {@link PromptColor#YELLOW}
+	 *
+	 * @param message message to print
+	 */
+	public void printWarning(String message) {
+		print(message, PromptColor.YELLOW);
+	}
+
+	/**
+	 * Print message with color {@link PromptColor#RED}
+	 *
+	 * @param message message to print
+	 */
+	public void printError(String message) {
+		print(message, PromptColor.RED);
+	}
+
+	/**
+	 * Print in the console
+	 *
+	 * @param message message to print
+	 */
+	public void print(String message) {
+		print(message, null);
+	}
+
+	/**
+	 * Print in the console
+	 *
+	 * @param message message to print
+	 * @param color   (optional) prompt color
+	 */
+	public void print(String message, PromptColor color) {
+		String toPrint = message;
+		if (color != null) {
+			toPrint = getColored(message, color);
+		}
+		SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getLineReader().getTerminal().writer().println(toPrint);
 	}
 
 	/**

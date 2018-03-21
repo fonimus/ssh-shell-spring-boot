@@ -18,6 +18,7 @@ public class DemoCommand {
 	 * Echo command
 	 *
 	 * @param message message to print
+	 * @param color   color for the message
 	 * @return message
 	 */
 	@ShellMethod("Echo command")
