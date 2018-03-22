@@ -13,6 +13,6 @@ public class SshContextTest {
 		assertNull(ctx.getThread());
 		assertNull(ctx.getTerminal());
 		assertNull(ctx.getLineReader());
-		assertNull(ctx.getAuthorities());
+		assertNull(ctx.getAuthentication());
 	}
 }

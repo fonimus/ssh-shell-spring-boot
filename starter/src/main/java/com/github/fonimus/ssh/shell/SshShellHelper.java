@@ -8,6 +8,8 @@ import org.jline.terminal.impl.AbstractPosixTerminal;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+
 /**
  * Ssh shell helper for user interactions and authorities check
  */
@@ -73,7 +75,7 @@ public class SshShellHelper {
 	 */
 	public String read(String message) {
 		LineReader lr = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getLineReader();
-		if(message != null) {
+		if (message != null) {
 			lr.getTerminal().writer().println(message);
 		}
 		lr.readLine();
@@ -194,13 +196,23 @@ public class SshShellHelper {
 	}
 
 	/**
+	 * Get ssh authentication containing objects from spring security when configured to 'security'
+	 *
+	 * @return authentication from spring authentication, or null of not found in context
+	 */
+	public SshAuthentication getAuthentication() {
+		return SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthentication();
+	}
+
+	/**
 	 * Check that one of the roles is in current authorities
 	 *
 	 * @param authorizedRoles authorized roles
 	 * @return true if role found in authorities
 	 */
 	public boolean checkAuthorities(List<String> authorizedRoles) {
-		return checkAuthorities(authorizedRoles, SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthorities(), false);
+		SshAuthentication auth = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthentication();
+		return checkAuthorities(authorizedRoles, auth != null ? auth.getAuthorities() : null, false);
 	}
 
 	/**

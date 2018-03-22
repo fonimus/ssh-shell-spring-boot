@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,9 +34,8 @@ import org.springframework.shell.jline.PromptProvider;
 import org.springframework.shell.result.DefaultResultHandler;
 import org.springframework.stereotype.Component;
 
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
-
-import static com.github.fonimus.ssh.shell.SshShellProperties.ACTUATOR_ROLE;
 
 /**
  * Ssh shell command factory implementation
@@ -119,13 +116,16 @@ public class SshShellCommandFactory
 			resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
 			resultHandler.handleResult("Please type `help` to see available commands");
 			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();
-			Object authoritiesFromSession = session.getSession().getIoSession().getAttribute(
-					SshShellSecurityAuthenticationProvider.AUTHORITIES_ATTRIBUTE);
-			List<String> authorities = Collections.singletonList(ACTUATOR_ROLE);
-			if (authoritiesFromSession != null) {
-				authorities = Arrays.asList(((String) authoritiesFromSession).split(","));
+			Object authenticationObject = session.getSession().getIoSession().getAttribute(
+					SshShellSecurityAuthenticationProvider.AUTHENTICATION_ATTRIBUTE);
+			SshAuthentication authentication = null;
+			if (authenticationObject != null) {
+				if (!(authenticationObject instanceof SshAuthentication)) {
+					throw new IllegalStateException("Unknown authentication object class: " + authenticationObject.getClass().getName());
+				}
+				authentication = (SshAuthentication) authenticationObject;
 			}
-			SSH_THREAD_CONTEXT.set(new SshContext(ec, sshThread, terminal, reader, authorities));
+			SSH_THREAD_CONTEXT.set(new SshContext(ec, sshThread, terminal, reader, authentication));
 			shell.run(() -> {
 				try {
 					reader.readLine(promptProvider.getPrompt().toAnsi(reader.getTerminal()));

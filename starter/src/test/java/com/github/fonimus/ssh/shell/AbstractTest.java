@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.commands.actuator.ActuatorCommand;
 
 public abstract class AbstractTest {
@@ -87,8 +88,8 @@ public abstract class AbstractTest {
 	protected ThreadDumpEndpoint threaddump;
 
 	protected void setRole(String role) {
-		SshShellCommandFactory.SSH_THREAD_CONTEXT.set(
-				new SshContext(null, null, null, null, Collections.singletonList(role)));
+		SshShellCommandFactory.SSH_THREAD_CONTEXT
+				.set(new SshContext(null, null, null, null, new SshAuthentication(null, null, null, Collections.singletonList(role))));
 	}
 
 	protected void setActuatorRole() {

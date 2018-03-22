@@ -38,6 +38,7 @@ import org.springframework.shell.standard.ShellOption;
 import com.github.fonimus.ssh.shell.SshShellCommandFactory;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.handler.PrettyJson;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
@@ -439,7 +440,8 @@ public class ActuatorCommand {
 
 	private Availability availability(String name, Class<?> clazz, boolean defaultValue) {
 		if (!"info".equals(name)) {
-			List<String> authorities = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthorities();
+			SshAuthentication auth = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthentication();
+			List<String> authorities = auth != null ? auth.getAuthorities() : null;
 			if (!helper.checkAuthorities(properties.getActuator().getAuthorizedRoles(), authorities,
 					properties.getAuthentication() == SshShellProperties.AuthenticationType.simple)) {
 				return Availability.unavailable("actuator commands are forbidden for current user");

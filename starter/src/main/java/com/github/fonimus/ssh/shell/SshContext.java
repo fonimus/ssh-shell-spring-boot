@@ -1,10 +1,10 @@
 package com.github.fonimus.ssh.shell;
 
-import java.util.List;
-
 import org.apache.sshd.server.ExitCallback;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
+
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 
 /**
  * Ssh context to hold terminal, exit callback and thread per thread
@@ -19,7 +19,7 @@ public class SshContext {
 
 	private Terminal terminal;
 
-	private List<String> authorities;
+	private SshAuthentication authentication;
 
 	/**
 	 * Constructor
@@ -28,15 +28,15 @@ public class SshContext {
 	 * @param thread       ssh thread session
 	 * @param terminal     ssh terminal
 	 * @param lineReader   ssh line reader
-	 * @param authorities  (optional) spring authorities of current session
+	 * @param authentication    (optional) spring authentication objects
 	 */
 	public SshContext(ExitCallback exitCallback, Thread thread, Terminal terminal, LineReader lineReader,
-			List<String> authorities) {
+			SshAuthentication authentication) {
 		this.exitCallback = exitCallback;
 		this.thread = thread;
 		this.terminal = terminal;
 		this.lineReader = lineReader;
-		this.authorities = authorities;
+		this.authentication = authentication;
 	}
 
 	public ExitCallback getExitCallback() {
@@ -55,7 +55,7 @@ public class SshContext {
 		return lineReader;
 	}
 
-	public List<String> getAuthorities() {
-		return authorities;
+	public SshAuthentication getAuthentication() {
+		return authentication;
 	}
 }

@@ -226,6 +226,24 @@ public class DemoCommand {
 }
 ```
 
+### Retrieve spring security authentication
+
+
+```java
+@ShellComponent
+public class DemoCommand {
+	
+	@Autowired
+	private SshShellHelper helper;
+	
+	@ShellMethod("Authentication command")
+	public PrettyJson<SshAuthentication> authentication() {
+		return new PrettyJson<>(helper.getAuthentication());
+	}
+}
+```
+
+
 ## Samples
 
 * [Basic sample](./samples/basic), no actuator, no security, no sessions

@@ -11,6 +11,8 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
 
 import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.handler.PrettyJson;
 
 /**
  * Demo command for example
@@ -85,6 +87,16 @@ public class DemoCommand {
 			return Availability.unavailable("admin command is only for an admin users !");
 		}
 		return Availability.available();
+	}
+
+	/**
+	 * Authentication example command
+	 *
+	 * @return principal
+	 */
+	@ShellMethod("Authentication command")
+	public PrettyJson<SshAuthentication> authentication() {
+		return new PrettyJson<>(helper.getAuthentication());
 	}
 
 	/**

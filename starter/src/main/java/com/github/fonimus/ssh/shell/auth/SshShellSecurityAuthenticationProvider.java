@@ -1,5 +1,6 @@
 package com.github.fonimus.ssh.shell.auth;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 public class SshShellSecurityAuthenticationProvider
 		implements SshShellAuthenticationProvider {
 
-	public static final String AUTHORITIES_ATTRIBUTE = "authorities";
+	public static final String AUTHENTICATION_ATTRIBUTE = "authentication";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SshShellSecurityAuthenticationProvider.class);
 
@@ -80,10 +81,9 @@ public class SshShellSecurityAuthenticationProvider
 			Authentication auth = authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(username, pass));
 			LOGGER.debug("User {} authenticated with authorities: {}", username, auth.getAuthorities());
-			serverSession.getIoSession().setAttribute(AUTHORITIES_ATTRIBUTE,
-					String.join(",", auth.getAuthorities().stream().map(
-							GrantedAuthority::getAuthority).collect(
-							Collectors.toList())));
+			List<String> authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+			serverSession.getIoSession().setAttribute(AUTHENTICATION_ATTRIBUTE,
+					new SshAuthentication(auth.getPrincipal(), auth.getDetails(), auth.getCredentials(), authorities));
 			return auth.isAuthenticated();
 		} catch (AuthenticationException e) {
 			LOGGER.error("Unable to authenticate user: {}", username, e);

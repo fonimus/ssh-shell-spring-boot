@@ -5,6 +5,7 @@
 package com.github.fonimus.ssh.shell;
 
 import java.io.PrintWriter;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,8 +17,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -49,7 +53,8 @@ class SshShellHelperTest {
 		NonBlockingReader reader = mock(NonBlockingReader.class);
 		when(ter.reader()).thenReturn(reader);
 		when(lr.getTerminal()).thenReturn(ter);
-		SshContext ctx = new SshContext(null, null, ter, lr, auth);
+		Principal p = () -> "name";
+		SshContext ctx = new SshContext(null, null, ter, lr, new SshAuthentication(null, null, null, auth));
 		SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
 	}
 
@@ -161,6 +166,11 @@ class SshShellHelperTest {
 		assertTrue(h.checkAuthorities(Collections.singletonList("ACTUATOR"), Collections.singletonList("ACTUATOR"), false));
 		assertTrue(h.checkAuthorities(Collections.singletonList("ACTUATOR"), null, true));
 		assertFalse(h.checkAuthorities(Collections.singletonList("ACTUATOR"), null, false));
+	}
+
+	@Test
+	void getAuthentication() {
+		assertNotNull(h.getAuthentication());
 	}
 
 	private void verifyMessage(String message) {
