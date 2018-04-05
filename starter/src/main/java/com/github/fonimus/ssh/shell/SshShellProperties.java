@@ -41,6 +41,8 @@ public class SshShellProperties {
 
 	private File hostKeyFile = new File(System.getProperty("java.io.tmpdir"), "hostKey.ser");
 
+	private File historyFile = new File(System.getProperty("java.io.tmpdir"), "sshShellHistory.log");
+
 	private List<String> confirmationWords;
 
 	public boolean isEnable() {
@@ -105,6 +107,14 @@ public class SshShellProperties {
 
 	public void setHostKeyFile(File hostKeyFile) {
 		this.hostKeyFile = hostKeyFile;
+	}
+
+	public File getHistoryFile() {
+		return historyFile;
+	}
+
+	public void setHistoryFile(File historyFile) {
+		this.historyFile = historyFile;
 	}
 
 	public List<String> getConfirmationWords() {

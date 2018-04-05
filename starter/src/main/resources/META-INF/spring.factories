@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.github.fonimus.ssh.shell.SshShellAutoConfiguration
+com.github.fonimus.ssh.shell.SshShellHistoryAutoConfiguration

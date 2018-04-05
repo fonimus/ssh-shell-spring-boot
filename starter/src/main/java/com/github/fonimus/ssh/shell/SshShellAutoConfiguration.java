@@ -104,8 +104,7 @@ public class SshShellAutoConfiguration {
 	@Primary
 	public PromptProvider sshPromptProvider(SshShellProperties properties) {
 		return () -> new AttributedString(properties.getPrompt().getText(),
-				AttributedStyle.DEFAULT.foreground(
-						properties.getPrompt().getColor().toJlineAttributedStyle()));
+				AttributedStyle.DEFAULT.foreground(properties.getPrompt().getColor().toJlineAttributedStyle()));
 	}
 
 	/**

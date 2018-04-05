@@ -48,6 +48,7 @@ ssh:
     - y    
     - yes    
     enable: true
+    history-file: <java.io.tmpdir>/sshShellHistory.log
     host: 127.0.0.1
     host-key-file: <java.io.tmpdir>/hostKey.ser
     # displayed in log if generated

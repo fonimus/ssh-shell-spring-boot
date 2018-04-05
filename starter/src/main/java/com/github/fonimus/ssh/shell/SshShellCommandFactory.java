@@ -1,6 +1,7 @@
 package com.github.fonimus.ssh.shell;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,6 +25,7 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractPosixTerminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
@@ -36,6 +38,8 @@ import org.springframework.stereotype.Component;
 
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
+
+import static com.github.fonimus.ssh.shell.SshShellHistoryAutoConfiguration.HISTORY_FILE;
 
 /**
  * Ssh shell command factory implementation
@@ -70,6 +74,8 @@ public class SshShellCommandFactory
 
 	private Environment environment;
 
+	private File historyFile;
+
 	/**
 	 * Constructor
 	 *
@@ -78,14 +84,17 @@ public class SshShellCommandFactory
 	 * @param shell            spring shell
 	 * @param completerAdapter completer adapter
 	 * @param environment      spring environment
+	 * @param historyFile      history file location
 	 */
 	public SshShellCommandFactory(Banner banner, @Lazy PromptProvider promptProvider, Shell shell,
-			JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Environment environment) {
+			JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Environment environment,
+			@Qualifier(HISTORY_FILE) File historyFile) {
 		this.shellBanner = banner;
 		this.promptProvider = promptProvider;
 		this.shell = shell;
 		this.completerAdapter = completerAdapter;
 		this.environment = environment;
+		this.historyFile = historyFile;
 	}
 
 	/**
@@ -116,6 +125,7 @@ public class SshShellCommandFactory
 			resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
 			resultHandler.handleResult("Please type `help` to see available commands");
 			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();
+			reader.setVariable(LineReader.HISTORY_FILE, historyFile.toPath());
 			Object authenticationObject = session.getSession().getIoSession().getAttribute(
 					SshShellSecurityAuthenticationProvider.AUTHENTICATION_ATTRIBUTE);
 			SshAuthentication authentication = null;
