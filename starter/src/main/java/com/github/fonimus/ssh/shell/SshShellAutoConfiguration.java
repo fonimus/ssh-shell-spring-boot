@@ -42,7 +42,34 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @ConditionalOnClass(SshServer.class)
 @ConditionalOnProperty(name = SSH_SHELL_PREFIX + ".enable", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties({ SshShellProperties.class })
-@AutoConfigureAfter({ JLineShellAutoConfiguration.class, SpringShellAutoConfiguration.class })
+@AutoConfigureAfter(value = {
+		JLineShellAutoConfiguration.class,
+		SpringShellAutoConfiguration.class
+}, name = {
+		"org.springframework.boot.actuate.autoconfigure.audit.AuditEventsEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.beans.BeansEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.context.properties.ConfigurationPropertiesReportEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.context.ShutdownEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.endpoint.jmx.JmxEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.env.EnvironmentEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.flyway.FlywayEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.info.InfoEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.jolokia.JolokiaEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.liquibase.LiquibaseEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.logging.LogFileWebEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.logging.LoggersEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.management.HeapDumpWebEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.management.ThreadDumpEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.metrics.MetricsEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.scheduling.ScheduledTasksEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.session.SessionsEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceEndpointAutoConfiguration",
+		"org.springframework.boot.actuate.autoconfigure.web.mappings.MappingsEndpointAutoConfiguration"
+})
 @ComponentScan(basePackages = { "com.github.fonimus.ssh.shell" })
 public class SshShellAutoConfiguration {
 
