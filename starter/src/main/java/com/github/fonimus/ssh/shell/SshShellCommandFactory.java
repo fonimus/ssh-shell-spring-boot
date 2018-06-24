@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.server.ChannelSessionAware;
-import org.apache.sshd.server.Command;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.channel.ChannelSession;
+import org.apache.sshd.server.command.Command;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
