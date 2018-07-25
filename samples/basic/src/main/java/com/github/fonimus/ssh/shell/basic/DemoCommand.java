@@ -7,6 +7,7 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
 import com.github.fonimus.ssh.shell.PromptColor;
+import com.github.fonimus.ssh.shell.handler.PrettyJson;
 
 /**
  * Demo command for example
@@ -27,5 +28,41 @@ public class DemoCommand {
 			return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
 		}
 		return message;
+	}
+
+	@ShellMethod("Pretty json command")
+	public PrettyJson<Pojo> pretty() {
+		return new PrettyJson<>(new Pojo("value1", "value2"));
+	}
+
+	public static class Pojo {
+
+		private String key1;
+
+		private String key2;
+
+		public Pojo() {
+		}
+
+		public Pojo(String key1, String key2) {
+			this.key1 = key1;
+			this.key2 = key2;
+		}
+
+		public String getKey1() {
+			return key1;
+		}
+
+		public void setKey1(String key1) {
+			this.key1 = key1;
+		}
+
+		public String getKey2() {
+			return key2;
+		}
+
+		public void setKey2(String key2) {
+			this.key2 = key2;
+		}
 	}
 }

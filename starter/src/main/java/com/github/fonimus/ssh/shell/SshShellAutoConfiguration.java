@@ -6,7 +6,6 @@ import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -77,13 +76,17 @@ public class SshShellAutoConfiguration {
 
 	private static final ThreadLocal<Throwable> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
 
-	@Autowired
 	public ApplicationContext context;
 
-	@Autowired
 	public ConfigurableEnvironment environment;
 
+	public SshShellAutoConfiguration(ApplicationContext context, ConfigurableEnvironment environment) {
+		this.context = context;
+		this.environment = environment;
+	}
+
 	@Bean
+	@ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")
 	public PrettyJsonResultHandler prettyJsonResultHandler() {
 		return new PrettyJsonResultHandler();
 	}
