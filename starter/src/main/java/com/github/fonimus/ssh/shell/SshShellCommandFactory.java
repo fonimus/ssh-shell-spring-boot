@@ -25,6 +25,7 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractPosixTerminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.context.annotation.Lazy;
@@ -86,7 +87,7 @@ public class SshShellCommandFactory
 	 * @param environment      spring environment
 	 * @param historyFile      history file location
 	 */
-	public SshShellCommandFactory(Banner banner, @Lazy PromptProvider promptProvider, Shell shell,
+	public SshShellCommandFactory(@Autowired(required = false) Banner banner, @Lazy PromptProvider promptProvider, Shell shell,
 			JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Environment environment,
 			@Qualifier(HISTORY_FILE) File historyFile) {
 		this.shellBanner = banner;
@@ -121,7 +122,9 @@ public class SshShellCommandFactory
 				Terminal terminal = TerminalBuilder.builder().system(false).type(terminalType).streams(is, os).build()) {
 			DefaultResultHandler resultHandler = new DefaultResultHandler();
 			resultHandler.setTerminal(terminal);
-			shellBanner.printBanner(environment, this.getClass(), ps);
+			if (shellBanner != null) {
+				shellBanner.printBanner(environment, this.getClass(), ps);
+			}
 			resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
 			resultHandler.handleResult("Please type `help` to see available commands");
 			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();

@@ -1,7 +1,8 @@
 package com.github.fonimus.ssh.shell.basic;
 
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
  * Basic application example
@@ -10,6 +11,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BasicApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BasicApplication.class, args);
+		new SpringApplicationBuilder(BasicApplication.class).bannerMode(Banner.Mode.OFF).run(args);
 	}
 }
