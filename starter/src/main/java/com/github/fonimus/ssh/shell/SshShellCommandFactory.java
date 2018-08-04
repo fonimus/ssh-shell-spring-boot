@@ -19,10 +19,14 @@ import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.ParsedLine;
+import org.jline.reader.Parser;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.AbstractPosixTerminal;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +77,8 @@ public class SshShellCommandFactory
 
 	private JLineShellAutoConfiguration.CompleterAdapter completerAdapter;
 
+	private final Parser parser;
+
 	private Environment environment;
 
 	private File historyFile;
@@ -84,16 +90,18 @@ public class SshShellCommandFactory
 	 * @param promptProvider   prompt provider
 	 * @param shell            spring shell
 	 * @param completerAdapter completer adapter
+	 * @param parser           jline parser
 	 * @param environment      spring environment
 	 * @param historyFile      history file location
 	 */
 	public SshShellCommandFactory(@Autowired(required = false) Banner banner, @Lazy PromptProvider promptProvider, Shell shell,
-			JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Environment environment,
+			JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser, Environment environment,
 			@Qualifier(HISTORY_FILE) File historyFile) {
 		this.shellBanner = banner;
 		this.promptProvider = promptProvider;
 		this.shell = shell;
 		this.completerAdapter = completerAdapter;
+		this.parser = parser;
 		this.environment = environment;
 		this.historyFile = historyFile;
 	}
@@ -118,7 +126,7 @@ public class SshShellCommandFactory
 	public void run() {
 		LOGGER.debug("run         : {}", session.toString());
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				PrintStream ps = new PrintStream(baos, true, "utf-8");
+				PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
 				Terminal terminal = TerminalBuilder.builder().system(false).type(terminalType).streams(is, os).build()) {
 			DefaultResultHandler resultHandler = new DefaultResultHandler();
 			resultHandler.setTerminal(terminal);
@@ -127,7 +135,28 @@ public class SshShellCommandFactory
 			}
 			resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
 			resultHandler.handleResult("Please type `help` to see available commands");
-			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completerAdapter).build();
+
+			LineReader reader = LineReaderBuilder.builder()
+					.terminal(terminal)
+					.appName("Spring Ssh Shell")
+					.completer(completerAdapter)
+					.highlighter((reader1, buffer) -> {
+						int l = 0;
+						String best = null;
+						for (String command : shell.listCommands().keySet()) {
+							if (buffer.startsWith(command) && command.length() > l) {
+								l = command.length();
+								best = command;
+							}
+						}
+						if (best != null) {
+							return new AttributedStringBuilder(buffer.length()).append(best, AttributedStyle.BOLD).append(buffer.substring(l)).toAttributedString();
+						} else {
+							return new AttributedString(buffer, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
+						}
+					})
+					.parser(parser)
+					.build();
 			reader.setVariable(LineReader.HISTORY_FILE, historyFile.toPath());
 			Object authenticationObject = session.getSession().getIoSession().getAttribute(
 					SshShellSecurityAuthenticationProvider.AUTHENTICATION_ATTRIBUTE);
