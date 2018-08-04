@@ -89,7 +89,7 @@ public abstract class AbstractTest {
 
 	protected void setRole(String role) {
 		SshShellCommandFactory.SSH_THREAD_CONTEXT
-				.set(new SshContext(null, null, null, null, new SshAuthentication(null, null, null, Collections.singletonList(role))));
+				.set(new SshContext(null, null, null, new SshAuthentication(null, null, null, Collections.singletonList(role))));
 	}
 
 	protected void setActuatorRole() {

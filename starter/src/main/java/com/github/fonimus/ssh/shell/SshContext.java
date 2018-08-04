@@ -2,7 +2,6 @@ package com.github.fonimus.ssh.shell;
 
 import java.util.List;
 
-import org.apache.sshd.server.ExitCallback;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
@@ -16,8 +15,6 @@ public class SshContext {
 
 	private final LineReader lineReader;
 
-	private ExitCallback exitCallback;
-
 	private Thread thread;
 
 	private Terminal terminal;
@@ -29,23 +26,17 @@ public class SshContext {
 	/**
 	 * Constructor
 	 *
-	 * @param exitCallback ssh exit callback
 	 * @param thread       ssh thread session
 	 * @param terminal     ssh terminal
 	 * @param lineReader   ssh line reader
 	 * @param authentication    (optional) spring authentication objects
 	 */
-	public SshContext(ExitCallback exitCallback, Thread thread, Terminal terminal, LineReader lineReader,
+	public SshContext(Thread thread, Terminal terminal, LineReader lineReader,
 			SshAuthentication authentication) {
-		this.exitCallback = exitCallback;
 		this.thread = thread;
 		this.terminal = terminal;
 		this.lineReader = lineReader;
 		this.authentication = authentication;
-	}
-
-	public ExitCallback getExitCallback() {
-		return exitCallback;
 	}
 
 	public Thread getThread() {

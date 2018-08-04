@@ -1,14 +1,23 @@
 package com.github.fonimus.ssh.shell.complete;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.MethodParameter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.shell.Availability;
+import org.springframework.shell.CompletionContext;
+import org.springframework.shell.CompletionProposal;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
+import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.stereotype.Component;
 
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
@@ -34,7 +43,7 @@ public class DemoCommand {
 	 * @return message
 	 */
 	@ShellMethod("Echo command")
-	public String echo(String message) {
+	public String echo(@ShellOption(valueProvider = CustomValuesProvider.class) String message) {
 		return message;
 	}
 
@@ -104,5 +113,19 @@ public class DemoCommand {
 	@Scheduled(initialDelay = 0, fixedDelay = 60000)
 	public void log() {
 		LOGGER.info("In scheduled task..");
+	}
+}
+
+@Component
+class CustomValuesProvider
+		extends ValueProviderSupport {
+
+	private final static String[] VALUES = new String[] {
+			"message1", "message2", "message3"
+	};
+
+	@Override
+	public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext, String[] hints) {
+		return Arrays.stream(VALUES).map(CompletionProposal::new).collect(Collectors.toList());
 	}
 }

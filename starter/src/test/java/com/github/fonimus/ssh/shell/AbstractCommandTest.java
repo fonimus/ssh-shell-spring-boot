@@ -187,7 +187,7 @@ public abstract class AbstractCommandTest
 		ParsedLine pl = mock(ParsedLine.class);
 		when(pl.line()).thenReturn(response);
 		when(lr.getParsedLine()).thenReturn(pl);
-		SSH_THREAD_CONTEXT.set(new SshContext(null, null, t, lr, null));
+		SSH_THREAD_CONTEXT.set(new SshContext(null, t, lr, null));
 	}
 
 	@Test

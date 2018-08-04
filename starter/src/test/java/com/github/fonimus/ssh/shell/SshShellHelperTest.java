@@ -54,7 +54,7 @@ class SshShellHelperTest {
 		when(ter.reader()).thenReturn(reader);
 		when(lr.getTerminal()).thenReturn(ter);
 		Principal p = () -> "name";
-		SshContext ctx = new SshContext(null, null, ter, lr, new SshAuthentication(null, null, null, auth));
+		SshContext ctx = new SshContext(null, ter, lr, new SshAuthentication(null, null, null, auth));
 		SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
 	}
 

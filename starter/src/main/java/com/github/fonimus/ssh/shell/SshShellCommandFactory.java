@@ -1,29 +1,30 @@
 package com.github.fonimus.ssh.shell;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import org.apache.sshd.common.Factory;
+import org.apache.sshd.common.channel.PtyMode;
 import org.apache.sshd.server.ChannelSessionAware;
 import org.apache.sshd.server.ExitCallback;
+import org.apache.sshd.server.Signal;
 import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.ParsedLine;
 import org.jline.reader.Parser;
-import org.jline.reader.UserInterruptException;
+import org.jline.terminal.Attributes;
+import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import org.jline.terminal.impl.AbstractPosixTerminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
@@ -34,8 +35,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
+import org.springframework.shell.ExitRequest;
 import org.springframework.shell.Input;
 import org.springframework.shell.Shell;
+import org.springframework.shell.jline.InteractiveShellApplicationRunner;
 import org.springframework.shell.jline.JLineShellAutoConfiguration;
 import org.springframework.shell.jline.PromptProvider;
 import org.springframework.shell.result.DefaultResultHandler;
@@ -67,8 +70,6 @@ public class SshShellCommandFactory
 
 	private ChannelSession session;
 
-	private String terminalType;
-
 	private Banner shellBanner;
 
 	private PromptProvider promptProvider;
@@ -82,6 +83,8 @@ public class SshShellCommandFactory
 	private Environment environment;
 
 	private File historyFile;
+
+	private org.apache.sshd.server.Environment sshEnv;
 
 	/**
 	 * Constructor
@@ -106,6 +109,26 @@ public class SshShellCommandFactory
 		this.historyFile = historyFile;
 	}
 
+	private static void flush(OutputStream... streams) {
+		for (OutputStream s : streams) {
+			try {
+				s.flush();
+			} catch (IOException e) {
+				// Ignore
+			}
+		}
+	}
+
+	static void close(Closeable... closeables) {
+		for (Closeable c : closeables) {
+			try {
+				c.close();
+			} catch (IOException e) {
+				// Ignore
+			}
+		}
+	}
+
 	/**
 	 * Start ssh session
 	 *
@@ -113,8 +136,8 @@ public class SshShellCommandFactory
 	 */
 	@Override
 	public void start(org.apache.sshd.server.Environment env) {
-		LOGGER.debug("start     : {}", session.toString());
-		terminalType = env.getEnv().get("TERM");
+		LOGGER.debug("{}: start", session.toString());
+		sshEnv = env;
 		sshThread = new Thread(this, "ssh-session-" + System.nanoTime());
 		sshThread.start();
 	}
@@ -124,12 +147,26 @@ public class SshShellCommandFactory
 	 */
 	@Override
 	public void run() {
-		LOGGER.debug("run         : {}", session.toString());
+		LOGGER.debug("{}: run", session.toString());
+		Size size = new Size(Integer.parseInt(sshEnv.getEnv().get("COLUMNS")), Integer.parseInt(sshEnv.getEnv().get("LINES")));
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
-				Terminal terminal = TerminalBuilder.builder().system(false).type(terminalType).streams(is, os).build()) {
+				Terminal terminal = TerminalBuilder.builder().system(false).size(size).type(sshEnv.getEnv().get("TERM")).streams(is, os).build()) {
+
 			DefaultResultHandler resultHandler = new DefaultResultHandler();
 			resultHandler.setTerminal(terminal);
+
+			Attributes attr = terminal.getAttributes();
+			fill(attr, sshEnv.getPtyModes());
+			terminal.setAttributes(attr);
+
+			sshEnv.addSignalListener(signal -> {
+				terminal.setSize(new Size(
+						Integer.parseInt(sshEnv.getEnv().get("COLUMNS")),
+						Integer.parseInt(sshEnv.getEnv().get("LINES"))));
+				terminal.raise(Terminal.Signal.WINCH);
+			}, Signal.WINCH);
+
 			if (shellBanner != null) {
 				shellBanner.printBanner(environment, this.getClass(), ps);
 			}
@@ -158,6 +195,7 @@ public class SshShellCommandFactory
 					.parser(parser)
 					.build();
 			reader.setVariable(LineReader.HISTORY_FILE, historyFile.toPath());
+
 			Object authenticationObject = session.getSession().getIoSession().getAttribute(
 					SshShellSecurityAuthenticationProvider.AUTHENTICATION_ATTRIBUTE);
 			SshAuthentication authentication = null;
@@ -167,71 +205,140 @@ public class SshShellCommandFactory
 				}
 				authentication = (SshAuthentication) authenticationObject;
 			}
-			SSH_THREAD_CONTEXT.set(new SshContext(ec, sshThread, terminal, reader, authentication));
-			shell.run(() -> {
-				SSH_THREAD_CONTEXT.get().setPostProcessorsList(null);
-				try {
-					reader.readLine(promptProvider.getPrompt().toAnsi(reader.getTerminal()));
-					if (terminal instanceof AbstractPosixTerminal) {
-						reader.getTerminal().writer().println();
-					}
-				} catch (EndOfFileException e) {
-					LOGGER.debug("interrupt : {}", session.toString());
-					quit(0);
-					return null;
-				} catch (UserInterruptException e) {
-					return Input.EMPTY;
-				}
-				return new ParsedInput(reader.getParsedLine());
-			});
-			LOGGER.debug("end       : {}", session.toString());
+
+			SSH_THREAD_CONTEXT.set(new SshContext(sshThread, terminal, reader, authentication));
+			shell.run(new SshShellInputProvider(reader, promptProvider));
+			LOGGER.debug("{}: end", session.toString());
 			quit(0);
 		} catch (IOException | RuntimeException e) {
-			LOGGER.error("exception : {}", session.toString(), e);
+			LOGGER.error("{}: unexpected exception", session.toString(), e);
 			quit(1);
 		}
 	}
 
-	class ParsedInput
-			implements Input {
-
-		private final ParsedLine parsedLine;
-
-		ParsedInput(ParsedLine parsedLine) {
-			this.parsedLine = parsedLine;
+	private void fill(Attributes attr, Map<PtyMode, Integer> ptyModes) {
+		for (Map.Entry<PtyMode, Integer> e : ptyModes.entrySet()) {
+			switch (e.getKey()) {
+			case VINTR:
+				attr.setControlChar(Attributes.ControlChar.VINTR, e.getValue());
+				break;
+			case VQUIT:
+				attr.setControlChar(Attributes.ControlChar.VQUIT, e.getValue());
+				break;
+			case VERASE:
+				attr.setControlChar(Attributes.ControlChar.VERASE, e.getValue());
+				break;
+			case VKILL:
+				attr.setControlChar(Attributes.ControlChar.VKILL, e.getValue());
+				break;
+			case VEOF:
+				attr.setControlChar(Attributes.ControlChar.VEOF, e.getValue());
+				break;
+			case VEOL:
+				attr.setControlChar(Attributes.ControlChar.VEOL, e.getValue());
+				break;
+			case VEOL2:
+				attr.setControlChar(Attributes.ControlChar.VEOL2, e.getValue());
+				break;
+			case VSTART:
+				attr.setControlChar(Attributes.ControlChar.VSTART, e.getValue());
+				break;
+			case VSTOP:
+				attr.setControlChar(Attributes.ControlChar.VSTOP, e.getValue());
+				break;
+			case VSUSP:
+				attr.setControlChar(Attributes.ControlChar.VSUSP, e.getValue());
+				break;
+			case VDSUSP:
+				attr.setControlChar(Attributes.ControlChar.VDSUSP, e.getValue());
+				break;
+			case VREPRINT:
+				attr.setControlChar(Attributes.ControlChar.VREPRINT, e.getValue());
+				break;
+			case VWERASE:
+				attr.setControlChar(Attributes.ControlChar.VWERASE, e.getValue());
+				break;
+			case VLNEXT:
+				attr.setControlChar(Attributes.ControlChar.VLNEXT, e.getValue());
+				break;
+			/*
+			case VFLUSH:
+					attr.setControlChar(Attributes.ControlChar.VMIN, e.getValue());
+					break;
+			case VSWTCH:
+					attr.setControlChar(Attributes.ControlChar.VTIME, e.getValue());
+					break;
+			*/
+			case VSTATUS:
+				attr.setControlChar(Attributes.ControlChar.VSTATUS, e.getValue());
+				break;
+			case VDISCARD:
+				attr.setControlChar(Attributes.ControlChar.VDISCARD, e.getValue());
+				break;
+			case ECHO:
+				attr.setLocalFlag(Attributes.LocalFlag.ECHO, e.getValue() != 0);
+				break;
+			case ICANON:
+				attr.setLocalFlag(Attributes.LocalFlag.ICANON, e.getValue() != 0);
+				break;
+			case ISIG:
+				attr.setLocalFlag(Attributes.LocalFlag.ISIG, e.getValue() != 0);
+				break;
+			case ICRNL:
+				attr.setInputFlag(Attributes.InputFlag.ICRNL, e.getValue() != 0);
+				break;
+			case INLCR:
+				attr.setInputFlag(Attributes.InputFlag.INLCR, e.getValue() != 0);
+				break;
+			case IGNCR:
+				attr.setInputFlag(Attributes.InputFlag.IGNCR, e.getValue() != 0);
+				break;
+			case OCRNL:
+				attr.setOutputFlag(Attributes.OutputFlag.OCRNL, e.getValue() != 0);
+				break;
+			case ONLCR:
+				attr.setOutputFlag(Attributes.OutputFlag.ONLCR, e.getValue() != 0);
+				break;
+			case ONLRET:
+				attr.setOutputFlag(Attributes.OutputFlag.ONLRET, e.getValue() != 0);
+				break;
+			case OPOST:
+				attr.setOutputFlag(Attributes.OutputFlag.OPOST, e.getValue() != 0);
+				break;
+			}
 		}
-
-		@Override
-		public String rawText() {
-			return parsedLine.line();
-		}
-
-		@Override
-		public List<String> words() {
-			return sanitizeInput(parsedLine.words());
-		}
-	}
-
-	private static List<String> sanitizeInput(List<String> words) {
-		words = words.stream()
-				.map(s -> s.replaceAll("^\\n+|\\n+$", "")) // CR at beginning/end of line introduced by backslash continuation
-				.map(s -> s.replaceAll("\\n+", " ")) // CR in middle of word introduced by return inside a quoted string
-				.collect(Collectors.toList());
-		return words;
 	}
 
 	private void quit(int exitCode) {
-		SshContext ctx = SSH_THREAD_CONTEXT.get();
-		if (ctx != null) {
-			ctx.getExitCallback().onExit(exitCode);
-		}
+		//flush(os);
+		//close(is, os);
+		ec.onExit(exitCode);
 	}
 
 	@Override
 	public void destroy() {
-		SshContext ctx = SSH_THREAD_CONTEXT.get();
-		if (ctx != null) {
-			ctx.getThread().interrupt();
+		//flush(os);
+		//close(is, os);
+	}
+
+	class SshShellInputProvider
+			extends InteractiveShellApplicationRunner.JLineInputProvider {
+
+		public SshShellInputProvider(LineReader lineReader, PromptProvider promptProvider) {
+			super(lineReader, promptProvider);
+		}
+
+		@Override
+		public Input readInput() {
+			SshContext ctx = SSH_THREAD_CONTEXT.get();
+			if (ctx != null) {
+				ctx.setPostProcessorsList(null);
+			}
+			try {
+				return super.readInput();
+			} catch (EndOfFileException e) {
+				throw new ExitRequest(1);
+			}
 		}
 	}
 
