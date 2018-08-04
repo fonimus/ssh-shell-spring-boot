@@ -1,10 +1,13 @@
 package com.github.fonimus.ssh.shell;
 
+import java.util.List;
+
 import org.apache.sshd.server.ExitCallback;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 
 /**
  * Ssh context to hold terminal, exit callback and thread per thread
@@ -20,6 +23,8 @@ public class SshContext {
 	private Terminal terminal;
 
 	private SshAuthentication authentication;
+
+	private List<PostProcessorObject> postProcessorsList;
 
 	/**
 	 * Constructor
@@ -57,5 +62,13 @@ public class SshContext {
 
 	public SshAuthentication getAuthentication() {
 		return authentication;
+	}
+
+	public List<PostProcessorObject> getPostProcessorsList() {
+		return postProcessorsList;
+	}
+
+	public void setPostProcessorsList(List<PostProcessorObject> postProcessorsList) {
+		this.postProcessorsList = postProcessorsList;
 	}
 }

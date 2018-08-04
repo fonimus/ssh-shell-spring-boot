@@ -26,7 +26,7 @@ public class SshShellApplicationSecurityTest
 	void testSshCallInfoCommandAdmin() {
 		call("admin", "admin", properties, (is, os) -> {
 			write(os, "info");
-			verifyResponse(is, "{ }");
+			verifyResponse(is, "{}");
 		});
 	}
 

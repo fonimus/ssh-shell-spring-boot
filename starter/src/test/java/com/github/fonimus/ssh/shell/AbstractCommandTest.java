@@ -50,45 +50,45 @@ public abstract class AbstractCommandTest
 	@Test
 	void testAudit() {
 		assertEquals(audit.events(null, null, null).getEvents().size(),
-				cmd.audit(null, null).getObject().getEvents().size());
+				cmd.audit(null, null).getEvents().size());
 	}
 
 	@Test
 	protected void testBeans() {
-		assertEquals(beans.beans().getContexts().size(), cmd.beans().getObject().getContexts().size());
+		assertEquals(beans.beans().getContexts().size(), cmd.beans().getContexts().size());
 	}
 
 	@Test
 	void testConditions() {
 		assertEquals(conditions.applicationConditionEvaluation().getContexts().size(),
-				cmd.conditions().getObject().getContexts().size());
+				cmd.conditions().getContexts().size());
 	}
 
 	@Test
 	void testConfigProps() {
 		assertEquals(configprops.configurationProperties().getContexts().size(),
-				cmd.configprops().getObject().getContexts().size());
+				cmd.configprops().getContexts().size());
 	}
 
 	@Test
 	void testEnv() {
 		assertEquals(env.environment(null).getActiveProfiles().size(),
-				cmd.env(null).getObject().getActiveProfiles().size());
+				cmd.env(null).getActiveProfiles().size());
 	}
 
 	@Test
 	void testHealth() {
-		assertEquals(health.health().getStatus(), cmd.health().getObject().getStatus());
+		assertEquals(health.health().getStatus(), cmd.health().getStatus());
 	}
 
 	@Test
 	void testHttpTrace() {
-		assertEquals(httptrace.traces().getTraces().size(), cmd.httptrace().getObject().getTraces().size());
+		assertEquals(httptrace.traces().getTraces().size(), cmd.httptrace().getTraces().size());
 	}
 
 	@Test
 	void testInfo() {
-		assertEquals(info.info(), cmd.info().getObject());
+		assertEquals(info.info(), cmd.info());
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public abstract class AbstractCommandTest
 
 	@Test
 	void testGetLogger() {
-		assertTrue(((String) cmd.loggers(ActuatorCommand.LoggerAction.get, "test", null).getObject()).contains(
+		assertTrue(((String) cmd.loggers(ActuatorCommand.LoggerAction.get, "test", null)).contains(
 				"[test] : [con"));
 	}
 
@@ -126,20 +126,20 @@ public abstract class AbstractCommandTest
 	@Test
 	void testMetrics() {
 		assertEquals(metrics.listNames().getNames().size(),
-				((MetricsEndpoint.ListNamesResponse) cmd.metrics(null, null).getObject()).getNames().size());
+				((MetricsEndpoint.ListNamesResponse) cmd.metrics(null, null)).getNames().size());
 	}
 
 	@Test
 	void testMetricsName() {
 		assertEquals(metrics.metric("jvm.memory.max", null).getName(),
-				((MetricsEndpoint.MetricResponse) cmd.metrics("jvm.memory.max", null).getObject()).getName());
+				((MetricsEndpoint.MetricResponse) cmd.metrics("jvm.memory.max", null)).getName());
 	}
 
 	@Test
 	void testMetricsTags() {
 		assertEquals(metrics.metric("jvm.memory.max", Collections.singletonList("area:heap")).getName(),
 				((MetricsEndpoint.MetricResponse) cmd.metrics("jvm.memory.max",
-						"area:heap").getObject()).getName());
+						"area:heap")).getName());
 	}
 
 	@Test
@@ -149,18 +149,18 @@ public abstract class AbstractCommandTest
 
 	@Test
 	void testMappings() {
-		assertEquals(mappings.mappings().getContexts().size(), cmd.mappings().getObject().getContexts().size());
+		assertEquals(mappings.mappings().getContexts().size(), cmd.mappings().getContexts().size());
 	}
 
 	@Test
 	void testSessions() {
 		assertEquals(sessions.sessionsForUsername(null).getSessions().size(),
-				cmd.sessions().getObject().getSessions().size());
+				cmd.sessions().getSessions().size());
 	}
 
 	@Test
 	void testScheduled() {
-		ScheduledTasksEndpoint.ScheduledTasksReport actual = cmd.scheduledtasks().getObject();
+		ScheduledTasksEndpoint.ScheduledTasksReport actual = cmd.scheduledtasks();
 		ScheduledTasksEndpoint.ScheduledTasksReport expected = scheduledtasks.scheduledTasks();
 		assertEquals(expected.getCron().size(), actual.getCron().size());
 		assertEquals(expected.getFixedDelay().size(), actual.getFixedDelay().size());
@@ -192,14 +192,14 @@ public abstract class AbstractCommandTest
 
 	@Test
 	void testThreadDump() {
-		assertEquals(threaddump.threadDump().getThreads().size(), cmd.threaddump().getObject().getThreads().size());
+		assertEquals(threaddump.threadDump().getThreads().size(), cmd.threaddump().getThreads().size());
 	}
 
 	@Test
 	void testSshCallInfoCommand() {
 		call(properties, (is, os) -> {
 			write(os, "info");
-			verifyResponse(is, "{ }");
+			verifyResponse(is, "{}");
 		});
 	}
 }

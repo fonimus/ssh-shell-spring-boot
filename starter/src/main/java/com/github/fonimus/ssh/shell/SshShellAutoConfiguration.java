@@ -1,11 +1,14 @@
 package com.github.fonimus.ssh.shell;
 
+import java.util.List;
+
 import org.apache.sshd.server.SshServer;
 import org.jline.reader.LineReader;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -19,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
+import org.springframework.shell.ResultHandler;
 import org.springframework.shell.Shell;
 import org.springframework.shell.SpringShellAutoConfiguration;
 import org.springframework.shell.jline.InteractiveShellApplicationRunner;
@@ -29,7 +33,12 @@ import org.springframework.shell.result.ThrowableResultHandler;
 import com.github.fonimus.ssh.shell.auth.SshShellAuthenticationProvider;
 import com.github.fonimus.ssh.shell.auth.SshShellPasswordAuthenticationProvider;
 import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
-import com.github.fonimus.ssh.shell.handler.PrettyJsonResultHandler;
+import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
+import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
+import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
+import com.github.fonimus.ssh.shell.postprocess.provided.JsonPointerPostProcessor;
+import com.github.fonimus.ssh.shell.postprocess.provided.PrettyJsonPostProcessor;
+import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
@@ -86,9 +95,31 @@ public class SshShellAutoConfiguration {
 	}
 
 	@Bean
+	@Primary
+	public Shell shell(@Qualifier("main") ResultHandler resultHandler, List<PostProcessor> postProcessors) {
+		return new ExtendedShell(new TypePostProcessorResultHandler(resultHandler, postProcessors));
+	}
+
+	@Bean
 	@ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")
-	public PrettyJsonResultHandler prettyJsonResultHandler() {
-		return new PrettyJsonResultHandler();
+	public JsonPointerPostProcessor jsonPointerPostProcessor() {
+		return new JsonPointerPostProcessor();
+	}
+
+	@Bean
+	@ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")
+	public PrettyJsonPostProcessor prettyJsonPostProcessor() {
+		return new PrettyJsonPostProcessor();
+	}
+
+	@Bean
+	public SavePostProcessor savePostProcessor() {
+		return new SavePostProcessor();
+	}
+
+	@Bean
+	public GrepPostProcessor grepPostProcessor() {
+		return new GrepPostProcessor();
 	}
 
 	@Bean

@@ -140,6 +140,7 @@ public class SshShellCommandFactory
 			}
 			SSH_THREAD_CONTEXT.set(new SshContext(ec, sshThread, terminal, reader, authentication));
 			shell.run(() -> {
+				SSH_THREAD_CONTEXT.get().setPostProcessorsList(null);
 				try {
 					reader.readLine(promptProvider.getPrompt().toAnsi(reader.getTerminal()));
 					if (terminal instanceof AbstractPosixTerminal) {

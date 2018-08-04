@@ -12,7 +12,6 @@ import org.springframework.shell.standard.ShellMethodAvailability;
 
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
-import com.github.fonimus.ssh.shell.handler.PrettyJson;
 
 /**
  * Demo command for example
@@ -95,8 +94,8 @@ public class DemoCommand {
 	 * @return principal
 	 */
 	@ShellMethod("Authentication command")
-	public PrettyJson<SshAuthentication> authentication() {
-		return new PrettyJson<>(helper.getAuthentication());
+	public SshAuthentication authentication() {
+		return helper.getAuthentication();
 	}
 
 	/**

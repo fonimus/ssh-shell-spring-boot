@@ -89,6 +89,65 @@ ssh:
       - ...
 ``` 
 
+## Post processors
+
+Post processors can be used with '|' (pipe character) followed by the name of the post processor and the parameters.
+Also, custom ones can be added.
+
+### Provided post processors
+
+#### Save
+
+This specific post processor takes the key character '>'.
+
+Example: ```echo test > /path/to/file.txt```
+
+#### Pretty
+
+This post processor, named `pretty` takes an object and apply jackson pretty writer.
+
+Example: ```info | pretty```
+
+#### Json
+
+This post processor, named `json` allows you to find a specific path within a json object.
+
+Caution: you need to have a json string. You can apply `pretty` post processor before to do so.
+
+Example: ```info | pretty | json /build/version```
+
+#### Grep
+
+This post processor, named `grep` allows you to find a specific pattern within a string.
+
+Examples: ```info | grep boot```,```info | pretty | grep boot```
+
+### Custom
+
+To register a new json result post processor, you need to implement interface `PostProcessor`
+
+Then register it within a spring configuration.
+
+Example:
+
+````java
+    @Bean
+	public PostProcessor quotePostProcessor() {
+		return new PostProcessor<String>() {
+
+			@Override
+			public String getName() {
+				return "quote";
+			}
+
+			@Override
+			public String process(String result, List parameters) {
+				return "'" + result + "'";
+			}
+		};
+	}
+````
+
 ## Custom authentication
 
 Instead of setting user and password (or using generated one), you can implement your own `SshShellAuthenticationProvider`.
@@ -237,8 +296,8 @@ public class DemoCommand {
 	private SshShellHelper helper;
 	
 	@ShellMethod("Authentication command")
-	public PrettyJson<SshAuthentication> authentication() {
-		return new PrettyJson<>(helper.getAuthentication());
+	public SshAuthentication authentication() {
+		return helper.getAuthentication();
 	}
 }
 ```

@@ -26,7 +26,7 @@ public class SshShellApplicationCustomAuthenticatorTest
 	void testSshCallInfoCommand() {
 		call("user", "user", properties, (is, os) -> {
 			write(os, "info");
-			verifyResponse(is, "{ }");
+			verifyResponse(is, "{}");
 		});
 	}
 
@@ -34,7 +34,7 @@ public class SshShellApplicationCustomAuthenticatorTest
 	void testSshCallInfoCommandOtherUser() {
 		call("myself", "myself", properties, (is, os) -> {
 			write(os, "info");
-			verifyResponse(is, "{ }");
+			verifyResponse(is, "{}");
 		});
 	}
 
