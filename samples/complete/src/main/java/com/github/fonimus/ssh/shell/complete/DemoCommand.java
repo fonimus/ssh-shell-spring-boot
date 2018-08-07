@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.ShellOption;
@@ -21,11 +20,12 @@ import org.springframework.stereotype.Component;
 
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 
 /**
  * Demo command for example
  */
-@ShellComponent
+@SshShellComponent
 public class DemoCommand {
 
 	private final SshShellHelper helper;

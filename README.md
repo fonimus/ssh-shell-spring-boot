@@ -64,6 +64,34 @@ ssh:
 
 * Add `spring-boot-starter-security` dependency to configure `ssh.shell.authentication=security` with *AuthenticationProvider*
 
+### Writing commands
+
+You can write your command exactly the way you would do with `spring shell` (For more information please visit `spring shell` 
+([website](https://projects.spring.io/spring-shell/), [reference documentation](https://docs.spring.io/spring-shell/docs/2.0.0.RELEASE/reference/htmlsingle/))
+
+Instead of using `org.springframework.shell.standard.ShellComponent` annotation, you should use `com.github.fonimus.ssh.shell.commands.SshShellComponent`: 
+it is just a conditional `@ShellComponent` with `@ConditionalOnProperty` on property **ssh.shell.enable** 
+
+Example:
+
+```java
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellMethod;
+
+import com.github.fonimus.ssh.shell.commands.SshShellComponent;
+
+
+@SshShellComponent
+@ShellCommandGroup("Test Commands")
+public class TestCommands {
+
+	@ShellMethod("test command")	
+	public String test() {
+	  return "ok";
+	}
+}
+``` 
+
 ## Actuator commands
 
 If `org.springframework.boot:spring-boot-starter-actuator` dependency is present, actuator commands
@@ -182,7 +210,7 @@ You can either autowire it or inject it in constructor:
 ```java
 import com.github.fonimus.ssh.shell.SshShellHelper;
 
-@ShellComponent
+@SshShellComponent
 public class DemoCommand {
 	
 	@Autowired
@@ -201,7 +229,7 @@ public class DemoCommand {
 #### Print output
 
 ```java
-@ShellComponent
+@SshShellComponent
 public class DemoCommand {
 	
 	@Autowired
@@ -221,7 +249,7 @@ public class DemoCommand {
 #### Read input
 
 ```java
-@ShellComponent
+@SshShellComponent
 public class DemoCommand {
 	
 	@Autowired
@@ -245,7 +273,7 @@ Default confirmation words are **[`y`, `yes`]**:
 You can specify if it is case sensitive and provide your own confirmation words.
 
 ```java
-@ShellComponent
+@SshShellComponent
 public class DemoCommand {
 	
 	@Autowired
@@ -264,7 +292,7 @@ If you are using *AuthenticationProvider* thanks to property `ssh.shell.authenti
 The easiest way of doing it is thanks to `ShellMethodAvailability` functionality. Example:
 
 ```java
-@ShellComponent
+@SshShellComponent
 public class DemoCommand {
 	
 	@Autowired
@@ -289,7 +317,7 @@ public class DemoCommand {
 
 
 ```java
-@ShellComponent
+@SshShellComponent
 public class DemoCommand {
 	
 	@Autowired

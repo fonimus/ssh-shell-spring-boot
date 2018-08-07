@@ -8,7 +8,6 @@ import java.util.List;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
@@ -16,7 +15,7 @@ import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 /**
  * Command to list available post processors
  */
-@ShellComponent
+@SshShellComponent
 @ShellCommandGroup("Built-In Commands")
 public class Postprocessors {
 

@@ -30,7 +30,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.ShellOption;
@@ -39,13 +38,14 @@ import com.github.fonimus.ssh.shell.SshShellCommandFactory;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
 /**
  * Actuator shell command
  */
-@ShellComponent
+@SshShellComponent
 @ShellCommandGroup("Actuator Commands")
 @ConditionalOnClass(Endpoint.class)
 @ConditionalOnProperty(value = SSH_SHELL_PREFIX + ".actuator.enable", havingValue = "true", matchIfMissing = true)

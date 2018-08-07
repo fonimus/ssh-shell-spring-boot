@@ -2,16 +2,16 @@ package com.github.fonimus.ssh.shell.basic;
 
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
-import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
 import com.github.fonimus.ssh.shell.PromptColor;
+import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 
 /**
  * Demo command for example
  */
-@ShellComponent
+@SshShellComponent
 public class DemoCommand {
 
 	/**

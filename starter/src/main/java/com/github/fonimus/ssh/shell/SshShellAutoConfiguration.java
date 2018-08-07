@@ -40,6 +40,7 @@ import com.github.fonimus.ssh.shell.postprocess.provided.JsonPointerPostProcesso
 import com.github.fonimus.ssh.shell.postprocess.provided.PrettyJsonPostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 
+import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_ENABLE;
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
 /**
@@ -48,7 +49,7 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
  */
 @Configuration
 @ConditionalOnClass(SshServer.class)
-@ConditionalOnProperty(name = SSH_SHELL_PREFIX + ".enable", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = SSH_SHELL_ENABLE, havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties({ SshShellProperties.class })
 @AutoConfigureAfter(value = {
 		JLineShellAutoConfiguration.class,

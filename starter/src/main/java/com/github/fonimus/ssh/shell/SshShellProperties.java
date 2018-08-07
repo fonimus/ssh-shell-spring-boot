@@ -19,6 +19,8 @@ public class SshShellProperties {
 
 	public static final String SSH_SHELL_PREFIX = "ssh.shell";
 
+	public static final String SSH_SHELL_ENABLE = SSH_SHELL_PREFIX + ".enable";
+
 	public static final String ACTUATOR_ROLE = "ACTUATOR";
 
 	private final Prompt prompt = new Prompt();
