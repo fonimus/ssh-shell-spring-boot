@@ -1,7 +1,6 @@
 package com.github.fonimus.ssh.shell;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,26 +106,6 @@ public class SshShellCommandFactory
 		this.parser = parser;
 		this.environment = environment;
 		this.historyFile = historyFile;
-	}
-
-	private static void flush(OutputStream... streams) {
-		for (OutputStream s : streams) {
-			try {
-				s.flush();
-			} catch (IOException e) {
-				// Ignore
-			}
-		}
-	}
-
-	static void close(Closeable... closeables) {
-		for (Closeable c : closeables) {
-			try {
-				c.close();
-			} catch (IOException e) {
-				// Ignore
-			}
-		}
 	}
 
 	/**
@@ -305,20 +284,19 @@ public class SshShellCommandFactory
 			case OPOST:
 				attr.setOutputFlag(Attributes.OutputFlag.OPOST, e.getValue() != 0);
 				break;
+			default:
+				// nothing
 			}
 		}
 	}
 
 	private void quit(int exitCode) {
-		//flush(os);
-		//close(is, os);
 		ec.onExit(exitCode);
 	}
 
 	@Override
 	public void destroy() {
-		//flush(os);
-		//close(is, os);
+		// nothing to do
 	}
 
 	class SshShellInputProvider

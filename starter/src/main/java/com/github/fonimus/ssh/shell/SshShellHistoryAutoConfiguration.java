@@ -26,7 +26,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.shell.SpringShellAutoConfiguration;
 import org.springframework.shell.jline.JLineShellAutoConfiguration;
 
-import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
+import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_ENABLE;
 
 /**
  * <p>Ssh shell auto configuration</p>
@@ -34,7 +34,7 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
  */
 @Configuration
 @ConditionalOnClass(SshServer.class)
-@ConditionalOnProperty(name = SSH_SHELL_PREFIX + ".enable", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = SSH_SHELL_ENABLE, havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties({ SshShellProperties.class })
 @AutoConfigureBefore({ JLineShellAutoConfiguration.class, SpringShellAutoConfiguration.class })
 public class SshShellHistoryAutoConfiguration {

@@ -26,7 +26,6 @@ import org.springframework.shell.ResultHandler;
 import org.springframework.shell.Shell;
 import org.springframework.shell.SpringShellAutoConfiguration;
 import org.springframework.shell.jline.InteractiveShellApplicationRunner;
-import org.springframework.shell.jline.JLineShellAutoConfiguration;
 import org.springframework.shell.jline.PromptProvider;
 import org.springframework.shell.result.ThrowableResultHandler;
 
@@ -52,7 +51,6 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @ConditionalOnProperty(name = SSH_SHELL_ENABLE, havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties({ SshShellProperties.class })
 @AutoConfigureAfter(value = {
-		JLineShellAutoConfiguration.class,
 		SpringShellAutoConfiguration.class
 }, name = {
 		"org.springframework.boot.actuate.autoconfigure.audit.AuditEventsEndpointAutoConfiguration",
