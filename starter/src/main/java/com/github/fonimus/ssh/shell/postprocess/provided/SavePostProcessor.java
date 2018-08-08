@@ -41,7 +41,9 @@ public class SavePostProcessor
 				if (file.exists()) {
 					throw new PostProcessorException("File already exists: " + file.getAbsolutePath());
 				}
-				Files.write(file.toPath(), result.getBytes(StandardCharsets.UTF_8));
+				String toWrite = result;
+				toWrite = toWrite.replaceAll("(\\x1b\\x5b|\\x9b)[\\x30-\\x3f]*[\\x20-\\x2f]*[\\x40-\\x7e]", "");
+				Files.write(file.toPath(), toWrite.getBytes(StandardCharsets.UTF_8));
 				return "Result saved to file: " + file.getAbsolutePath();
 			} catch (IOException e) {
 				LOGGER.debug("Unable to write to file: " + file.getAbsolutePath(), e);
