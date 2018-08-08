@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>spring-boot-ssh-shell-parent</artifactId>
 		<groupId>com.github.fonimus</groupId>
-		<version>1.0.6-SNAPSHOT</version>
+		<version>1.0.6</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
