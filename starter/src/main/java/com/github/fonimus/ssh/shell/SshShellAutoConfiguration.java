@@ -35,6 +35,7 @@ import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
 import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
+import com.github.fonimus.ssh.shell.postprocess.provided.HighlightPostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.provided.JsonPointerPostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.provided.PrettyJsonPostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
@@ -119,6 +120,11 @@ public class SshShellAutoConfiguration {
 	@Bean
 	public GrepPostProcessor grepPostProcessor() {
 		return new GrepPostProcessor();
+	}
+
+	@Bean
+	public HighlightPostProcessor highlightPostProcessor() {
+		return new HighlightPostProcessor();
 	}
 
 	@Bean

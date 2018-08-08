@@ -50,7 +50,7 @@ public class TypePostProcessorResultHandler
 				String name = postProcessorObject.getName();
 				PostProcessor postProcessor = postProcessorMap.get(name);
 				if (postProcessor != null && canApply(obj, postProcessor)) {
-					LOGGER.debug("Applying post processor [{}]", name);
+					LOGGER.debug("Applying post processor [{}] with parameters {}", name, postProcessorObject.getParameters());
 					try {
 						obj = postProcessor.process(obj, postProcessorObject.getParameters());
 					} catch (PostProcessorException e) {

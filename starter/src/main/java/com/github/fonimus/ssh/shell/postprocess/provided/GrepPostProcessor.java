@@ -24,24 +24,25 @@ public class GrepPostProcessor
 	public String process(String result, List<String> parameters) {
 		if (parameters == null || parameters.isEmpty()) {
 			LOGGER.debug("Cannot use [{}] post processor without any parameters", getName());
+			return result;
 		} else {
-			if (parameters.size() != 1) {
-				LOGGER.debug("[{}] post processor only need one parameter, rest will be ignored", getName());
-			}
-			String toFind = parameters.get(0);
-			if (toFind != null && !toFind.isEmpty()) {
-				StringBuilder sb = new StringBuilder();
-				int i = 1;
-				for (String s : result.split("\n")) {
-					if (s.contains(toFind)) {
-						sb.append(i).append(". ").append(s).append("\n");
-					}
-					i++;
+			StringBuilder sb = new StringBuilder();
+			for (String line : result.split("\n")) {
+				if (contains(line, parameters)) {
+					sb.append(line).append("\n");
 				}
-				return sb.toString().substring(0, sb.toString().length() - 1);
+			}
+			return sb.toString().isEmpty() ? sb.toString() : sb.toString().substring(0, sb.toString().length() - 1);
+		}
+	}
+
+	private boolean contains(String line, List<String> parameters) {
+		for (String parameter : parameters) {
+			if (parameter == null || parameter.isEmpty() || line.contains(parameter)) {
+				return true;
 			}
 		}
-		return result;
+		return false;
 	}
 
 }

@@ -132,8 +132,19 @@ public class SshShellHelper {
 	 * @param color   color to print
 	 * @return colored message
 	 */
-	public String getColored(String message, PromptColor color) {
+	public static String getColored(String message, PromptColor color) {
 		return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
+	}
+
+	/**
+	 * Color message with given background color
+	 *
+	 * @param message message to return
+	 * @param color   background color to print
+	 * @return colored message
+	 */
+	public static String getBackgroundColored(String message, PromptColor color) {
+		return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.background(color.toJlineAttributedStyle())).toAnsi();
 	}
 
 	/**

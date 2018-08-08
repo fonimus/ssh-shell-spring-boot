@@ -27,9 +27,9 @@ class GrepPostProcessorTest {
 		assertAll("grep",
 				() -> assertEquals(TEST, processor.process(TEST, null)),
 				() -> assertEquals(TEST, processor.process(TEST, Collections.singletonList(""))),
-				() -> assertEquals("1. test\n4. test", processor.process(TEST, Collections.singletonList("test"))),
-				() -> assertEquals("1. test\n4. test", processor.process(TEST, Arrays.asList("test", "toto"))),
-				() -> assertEquals("2. toto", processor.process(TEST, Collections.singletonList("toto")))
+				() -> assertEquals("test\ntest", processor.process(TEST, Collections.singletonList("test"))),
+				() -> assertEquals("test\ntoto\ntest", processor.process(TEST, Arrays.asList("test", "toto"))),
+				() -> assertEquals("toto", processor.process(TEST, Collections.singletonList("toto")))
 		);
 	}
 }
