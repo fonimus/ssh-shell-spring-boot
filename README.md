@@ -146,9 +146,15 @@ Example: ```info | pretty | json /build/version```
 
 #### Grep
 
-This post processor, named `grep` allows you to find a specific pattern within a string.
+This post processor, named `grep` allows you to find specific patterns within a string.
 
-Examples: ```info | grep boot```,```info | pretty | grep boot```
+Examples: ```info | grep boot```,```info | pretty | grep boot spring```
+
+#### Highlight
+
+This post processor, named `highlight` allows you to highlight specific patterns within a string.
+
+Examples: ```info | highlight boot```,```info | pretty | highlight boot spring```
 
 ### Custom
 
