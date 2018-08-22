@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/fonimus/spring-boot-ssh-shell.svg?branch=master)](https://travis-ci.org/fonimus/spring-boot-ssh-shell)
 [![Code Quality](https://api.codacy.com/project/badge/Grade/e695bc79f42c4c80a58f78ebef8c632b)](https://www.codacy.com/app/francois.onimus/spring-boot-ssh-shell?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fonimus/spring-boot-ssh-shell&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/e695bc79f42c4c80a58f78ebef8c632b)](https://www.codacy.com/app/francois.onimus/spring-boot-ssh-shell?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fonimus/spring-boot-ssh-shell&amp;utm_campaign=Badge_Coverage)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.fonimus/spring-boot-ssh-shell-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.fonimus/spring-boot-ssh-shell-starter)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.fonimus/spring-boot-ssh-shell-starter.svg?label=%22%22)](https://search.maven.org/search?q=g:%22com.github.fonimus%22%20AND%20a:%22spring-boot-ssh-shell-starter%22)
 
 > Spring shell in spring boot application over ssh
 
