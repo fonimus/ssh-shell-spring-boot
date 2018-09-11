@@ -8,7 +8,7 @@
 1. Start application
 
     ```bash
-    java -jar sample/target/spring-boot-ssh-shell-complete-sample[-version].jar
+    java -jar sample/target/ssh-shell-spring-boot-complete-sample[-version].jar
     ```
 1. Connect to application via ssh (default password: pass)
 

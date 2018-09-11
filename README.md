@@ -1,9 +1,9 @@
 # Spring Boot Ssh Shell
 
-[![Build Status](https://travis-ci.org/fonimus/spring-boot-ssh-shell.svg?branch=master)](https://travis-ci.org/fonimus/spring-boot-ssh-shell)
-[![Code Quality](https://api.codacy.com/project/badge/Grade/e695bc79f42c4c80a58f78ebef8c632b)](https://www.codacy.com/app/francois.onimus/spring-boot-ssh-shell?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fonimus/spring-boot-ssh-shell&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/e695bc79f42c4c80a58f78ebef8c632b)](https://www.codacy.com/app/francois.onimus/spring-boot-ssh-shell?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fonimus/spring-boot-ssh-shell&amp;utm_campaign=Badge_Coverage)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.fonimus/spring-boot-ssh-shell-starter.svg?label=%22maven%20central%22)](https://search.maven.org/search?q=g:%22com.github.fonimus%22%20AND%20a:%22spring-boot-ssh-shell-starter%22)
+[![Build Status](https://travis-ci.org/fonimus/ssh-shell-spring-boot.svg?branch=master)](https://travis-ci.org/fonimus/ssh-shell-spring-boot)
+[![Code Quality](https://api.codacy.com/project/badge/Grade/e695bc79f42c4c80a58f78ebef8c632b)](https://www.codacy.com/app/francois.onimus/ssh-shell-spring-boot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fonimus/ssh-shell-spring-boot&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/e695bc79f42c4c80a58f78ebef8c632b)](https://www.codacy.com/app/francois.onimus/ssh-shell-spring-boot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fonimus/ssh-shell-spring-boot&amp;utm_campaign=Badge_Coverage)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.fonimus/ssh-shell-spring-boot-starter.svg?label=%22maven%20central%22)](https://search.maven.org/search?q=g:%22com.github.fonimus%22%20AND%20a:%22ssh-shell-spring-boot-starter%22)
 
 > Spring shell in spring boot application over ssh
 
@@ -19,7 +19,7 @@ or [reference documentation](https://docs.spring.io/spring-shell/docs/2.0.0.RELE
 ```xml
 <dependency>
     <groupId>com.github.fonimus</groupId>
-    <artifactId>spring-boot-ssh-shell-starter</artifactId>
+    <artifactId>ssh-shell-spring-boot-starter</artifactId>
 </dependency>
 ```
 
@@ -102,7 +102,7 @@ Command availability is binded to endpoint activation.
 ```yaml
 management:
   endpoint:
-    threaddump:
+    audit:
       enabled: false
 ```
 
@@ -165,21 +165,21 @@ Then register it within a spring configuration.
 Example:
 
 ````java
-    @Bean
-	public PostProcessor quotePostProcessor() {
-		return new PostProcessor<String>() {
+@Bean
+public PostProcessor quotePostProcessor() {
+    return new PostProcessor<String>() {
 
-			@Override
-			public String getName() {
-				return "quote";
-			}
+        @Override
+        public String getName() {
+            return "quote";
+        }
 
-			@Override
-			public String process(String result, List parameters) {
-				return "'" + result + "'";
-			}
-		};
-	}
+        @Override
+        public String process(String result, List parameters) {
+            return "'" + result + "'";
+        }
+    };
+}
 ````
 
 ## Custom authentication
@@ -243,7 +243,7 @@ public class DemoCommand {
 
 	@ShellMethod("Print command")	
 	public String print() {
-		boolean success = ...
+        boolean success = ...
 	    helper.print("Some message");
 	    helper.print("Some black message", PromptColor.BLACK);
 	    helper.printSuccess("Some success message");

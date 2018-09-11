@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.fonimus</groupId>
-	<artifactId>spring-boot-ssh-shell-parent</artifactId>
-	<version>1.0.7-SNAPSHOT</version>
+	<artifactId>ssh-shell-spring-boot-parent</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
-	<name>Spring boot ssh shell</name>
-	<description>Ssh shell for Spring Boot Shell</description>
-	<url>https://github.com/fonimus/spring-boot-ssh-shell/</url>
+	<name>Ssh shell spring boot</name>
+	<description>Ssh shell for Spring Boot</description>
+	<url>https://github.com/fonimus/ssh-shell-spring-boot/</url>
 
 	<developers>
 		<developer>
@@ -40,19 +40,27 @@
 	</properties>
 
 	<scm>
-		<connection>scm:git:git@github.com:fonimus/spring-boot-ssh-shell.git</connection>
-		<url>scm:git:git@github.com:fonimus/spring-boot-ssh-shell.git</url>
-		<developerConnection>scm:git:git@github.com:fonimus/spring-boot-ssh-shell.git</developerConnection>
+		<connection>scm:git:git@github.com:fonimus/ssh-shell-spring-boot.git</connection>
+		<url>scm:git:git@github.com:fonimus/ssh-shell-spring-boot.git</url>
+		<developerConnection>scm:git:git@github.com:fonimus/ssh-shell-spring-boot.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
 	<modules>
 		<module>starter</module>
-		<module>samples/basic</module>
-		<module>samples/complete</module>
 	</modules>
 
 	<profiles>
+		<profile>
+			<id>samples</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>samples/basic</module>
+				<module>samples/complete</module>
+			</modules>
+		</profile>
 		<profile>
 			<id>release</id>
 			<build>
