@@ -9,7 +9,7 @@
 
 
 For more information please visit `spring shell` [website](https://projects.spring.io/spring-shell/) 
-or [reference documentation](https://docs.spring.io/spring-shell/docs/2.0.0.RELEASE/reference/htmlsingle/)
+or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.1.RELEASE/reference/htmlsingle/)
 
 
 ## Getting started
