@@ -1,21 +1,21 @@
 # Usage
 
-1. Build sample application, or get jar from maven repository
+1. Build sample application
 
     ```bash
-    mvn clean install [-DskipTests]
+    mvn clean install -f samples/complete [-DskipTests]
     ```
 1. Start application
 
     ```bash
-    java -jar sample/target/ssh-shell-spring-boot-complete-sample[-version].jar
+    java -jar samples/complete/target/ssh-shell-spring-boot-complete-sample[-version].jar
     ```
 1. Connect to application via ssh (default password: pass)
 
     ```bash
-    ~/home$ ssh -p 2222 admin@localhost
+    ~/home$ ssh -p 2222 [user|actuator|admin]@localhost
     Password authentication
-    Password: 
+    Password: [password]
     
             _         _        _ _
       _____| |_    __| |_  ___| | |
@@ -48,11 +48,14 @@
             clear: Clear the shell screen.
             exit, quit: Exit the shell.
             help: Display help about available commands.
+            history: Display or save the history of previously run commands
+            postprocessors: Display the available post processors
             script: Read and execute commands from a file.
             stacktrace: Display the full stacktrace of the last error.
     
     Demo Command
-          * admin: Admin command
+            admin: Admin command
+            authentication: Authentication command
             conf: Confirmation command
             echo: Echo command
             ex: Ex command
@@ -60,6 +63,7 @@
     
     Commands marked with (*) are currently unavailable.
     Type `help <command>` to learn more.
+
     
     
     complete::>

@@ -336,6 +336,10 @@ public class DemoCommand {
 }
 ```
 
+## Banner
+
+If a banner is found in spring context, it will be used as welcome message.
+
 
 ## Samples
 

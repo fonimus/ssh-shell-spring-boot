@@ -6,7 +6,6 @@ ssh:
     prompt:
       color: cyan
       text: 'complete::>'
-    password: pass
     authentication: security
     auth-provider-bean-name: customAuthManager
 

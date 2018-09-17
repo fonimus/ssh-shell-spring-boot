@@ -3,7 +3,7 @@ ssh:
     prompt:
       color: cyan
       text: 'basic::>'
-    password: pass
+    password: password
 
 logging:
   level:
