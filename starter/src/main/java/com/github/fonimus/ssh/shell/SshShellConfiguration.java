@@ -65,7 +65,7 @@ public class SshShellConfiguration {
 	@Bean
 	public SshServer sshServer() {
 		SshServer server = SshServer.setUpDefaultServer();
-		server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(properties.getHostKeyFile()));
+		server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(properties.getHostKeyFile().toPath()));
 		server.setPublickeyAuthenticator(RejectAllPublickeyAuthenticator.INSTANCE);
 		server.setHost(properties.getHost());
 		server.setPasswordAuthenticator(passwordAuthenticator);
