@@ -32,7 +32,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!--dependencies-->
-		<sshd.version>2.0.0</sshd.version>
+		<sshd.version>2.1.0</sshd.version>
 		<spring-boot.version>2.0.5.RELEASE</spring-boot.version>
 		<spring-shell.version>2.0.1.RELEASE</spring-shell.version>
 		<junit-jupiter.version>5.3.1</junit-jupiter.version>
