@@ -346,3 +346,57 @@ If a banner is found in spring context, it will be used as welcome message.
 * [Basic sample](./samples/basic), no actuator, no security, no sessions
 
 * [Complete sample](./samples/complete), actuator, security dependencies and configurations
+
+
+## Release note
+
+### 1.1.1
+
+* Update to spring boot 2.1.0
+    * Avoid overriding bean definitions as it is now disabled by default
+
+### 1.1.0
+
+* New artifact identifier: ssh-shell-spring-boot-starter -> [maven central link](https://search.maven.org/search?q=g:%22com.github.fonimus%22%20AND%20a:%22ssh-shell-spring-boot-starter%22)
+
+### 1.0.6
+
+* Add new post processor
+    * highlight
+* Fix various issues where ssh.shell.enable=false makes application fail to start
+* Add new `@SshShellComponent`
+
+### 1.0.5
+
+* Add post processor feature
+    * pretty
+    * grep
+    * json
+    * save
+* Fix issue with terminal size which made autocomplete fail
+
+### 1.0.4
+
+* Make PrettyJsonResultHandler bean conditional on jackson ObjectMapper class
+* Fix application start issue if banner is with configured with off mode
+
+### 1.0.3
+
+* Fix not working history
+* Make history file location configurable
+* Add authentication objects in ssh session context
+
+### 1.0.2
+
+* Add more user interactions in SshShellHelper
+
+### 1.0.1
+
+* Add spring security authentication provider for ssh connection
+* Add spring security roles check
+* Add user interactions (read, confirm)
+* Bug fixes
+
+### 1.0.0
+
+* First stable release

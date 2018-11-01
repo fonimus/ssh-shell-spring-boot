@@ -12,65 +12,73 @@ import org.slf4j.LoggerFactory;
 import org.springframework.shell.ResultHandler;
 
 import com.github.fonimus.ssh.shell.SshContext;
+import org.springframework.shell.result.ThrowableResultHandler;
 
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 
 public class TypePostProcessorResultHandler
-		implements ResultHandler<Object> {
+        implements ResultHandler<Object> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TypePostProcessorResultHandler.class);
+    public static final ThreadLocal<Throwable> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
 
-	private ResultHandler<Object> resultHandler;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TypePostProcessorResultHandler.class);
 
-	private Map<String, PostProcessor> postProcessorMap = new HashMap<>();
+    private ResultHandler<Object> resultHandler;
 
-	public TypePostProcessorResultHandler(ResultHandler<Object> resultHandler, List<PostProcessor> postProcessorList) {
-		this.resultHandler = resultHandler;
-		if (postProcessorList != null) {
-			for (PostProcessor postProcessor : postProcessorList) {
-				if (this.postProcessorMap.containsKey(postProcessor.getName())) {
-					LOGGER.warn("Unable to register post processor for name [{}], it has already been registered", postProcessor.getName());
-				} else {
-					this.postProcessorMap.put(postProcessor.getName(), postProcessor);
-					LOGGER.debug("Post processor with name [{}] registered", postProcessor.getName());
-				}
-			}
-		}
-	}
+    private Map<String, PostProcessor> postProcessorMap = new HashMap<>();
 
-	@Override
-	public void handleResult(Object result) {
-		if (result == null) {
-			return;
-		}
-		Object obj = result;
-		SshContext ctx = SSH_THREAD_CONTEXT.get();
-		if (ctx != null && ctx.getPostProcessorsList() != null) {
-			for (PostProcessorObject postProcessorObject : ctx.getPostProcessorsList()) {
-				String name = postProcessorObject.getName();
-				PostProcessor postProcessor = postProcessorMap.get(name);
-				if (postProcessor != null && canApply(obj, postProcessor)) {
-					LOGGER.debug("Applying post processor [{}] with parameters {}", name, postProcessorObject.getParameters());
-					try {
-						obj = postProcessor.process(obj, postProcessorObject.getParameters());
-					} catch (PostProcessorException e) {
-						printError(e.getMessage());
-						return;
-					}
-				} else {
-					LOGGER.debug("Unknown post processor [{}]", name);
-				}
-			}
-		}
-		resultHandler.handleResult(obj);
-	}
+    public TypePostProcessorResultHandler(ResultHandler<Object> resultHandler, List<PostProcessor> postProcessorList) {
+        this.resultHandler = resultHandler;
+        if (postProcessorList != null) {
+            for (PostProcessor postProcessor : postProcessorList) {
+                if (this.postProcessorMap.containsKey(postProcessor.getName())) {
+                    LOGGER.warn("Unable to register post processor for name [{}], it has already been registered", postProcessor.getName());
+                } else {
+                    this.postProcessorMap.put(postProcessor.getName(), postProcessor);
+                    LOGGER.debug("Post processor with name [{}] registered", postProcessor.getName());
+                }
+            }
+        }
+    }
 
-	private boolean canApply(Object object, PostProcessor postProcessor) {
-		Class<?> cls = ((Class) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
-		return cls.isAssignableFrom(object.getClass());
-	}
+    @Override
+    public void handleResult(Object result) {
+        if (result == null) {
+            return;
+        }
+        if (result instanceof Throwable) {
+            THREAD_CONTEXT.set((Throwable) result);
+        }
+        Object obj = result;
+        SshContext ctx = SSH_THREAD_CONTEXT.get();
+        if (ctx != null && ctx.getPostProcessorsList() != null) {
+            for (PostProcessorObject postProcessorObject : ctx.getPostProcessorsList()) {
+                String name = postProcessorObject.getName();
+                PostProcessor postProcessor = postProcessorMap.get(name);
+                if (postProcessor != null && canApply(obj, postProcessor)) {
+                    LOGGER.debug("Applying post processor [{}] with parameters {}", name, postProcessorObject.getParameters());
+                    try {
+                        obj = postProcessor.process(obj, postProcessorObject.getParameters());
+                    } catch (PostProcessorException e) {
+                        printError(e.getMessage());
+                        return;
+                    }
+                } else {
+                    resultHandler.handleResult(new AttributedString("Unknown post processor [" + name + "]",
+                            AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)).toAnsi());
+                    LOGGER.warn("Unknown post processor [{}]", name);
+                }
+            }
+        }
+        resultHandler.handleResult(obj);
+    }
 
-	private void printError(String error) {
-		resultHandler.handleResult(new AttributedString(error, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)).toAnsi());
-	}
+    private boolean canApply(Object object, PostProcessor postProcessor) {
+        Class<?> cls = ((Class) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
+        return cls.isAssignableFrom(object.getClass());
+    }
+
+    private void printError(String error) {
+        resultHandler.handleResult(new AttributedString(error, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)).toAnsi());
+    }
 }
