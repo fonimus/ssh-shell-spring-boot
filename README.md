@@ -11,6 +11,15 @@
 For more information please visit `spring shell` [website](https://projects.spring.io/spring-shell/) 
 or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.1.RELEASE/reference/htmlsingle/)
 
+* [Getting started](#getting-started)
+* [Actuator commands](#actuator-commands)
+* [Post processors](#post-processors)
+* [Custom authentication](#custom-authentication)
+* [Command helper](#command-helper)
+* [Banner](#banner)
+* [Samples](#samples)
+* [Release notes](#release-notes)
+
 
 ## Getting started
 
@@ -23,7 +32,7 @@ or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.
 </dependency>
 ```
 
-**Note:**: auto configuration `SshShellAutoConfiguration` can be deactivated by property **ssh.shell.enable=false**
+**Note:** auto configuration `SshShellAutoConfiguration` can be deactivated by property **ssh.shell.enable=false**
 
 ### Configuration
 
@@ -207,7 +216,7 @@ public class CustomPasswordConfiguration {
 }
 ```
 
-## Helper
+## Command helper
 
 A `com.github.fonimus.ssh.shell.SshShellHelper` bean is provided in context to help for additional functionalities.
 
@@ -338,7 +347,7 @@ public class DemoCommand {
 
 ## Banner
 
-If a banner is found in spring context, it will be used as welcome message.
+If a banner is found in spring context, it will be used as welcome prompt message.
 
 
 ## Samples
@@ -348,7 +357,7 @@ If a banner is found in spring context, it will be used as welcome message.
 * [Complete sample](./samples/complete), actuator, security dependencies and configurations
 
 
-## Release note
+## Release notes
 
 ### 1.1.1
 
