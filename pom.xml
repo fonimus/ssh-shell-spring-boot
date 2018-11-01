@@ -200,12 +200,11 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.5.3</version>
 				<configuration>
+					<preparationGoals>clean validate deploy -P release</preparationGoals>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
-					<useReleaseProfile>false</useReleaseProfile>
-					<releaseProfiles>release</releaseProfiles>
-					<goals>deploy</goals>
 					<tagNameFormat>@{project.version}</tagNameFormat>
 					<pushChanges>false</pushChanges>
+					<goals>deploy</goals>
 				</configuration>
 			</plugin>
 		</plugins>
