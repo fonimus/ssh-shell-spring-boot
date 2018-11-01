@@ -5,3 +5,6 @@ target/
 .idea/*
 !.idea/runConfigurations
 *.iml
+
+# mac os
+.DS_Store
