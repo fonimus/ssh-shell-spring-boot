@@ -35,7 +35,7 @@
 		<sshd.version>2.1.0</sshd.version>
 		<spring-boot.version>2.1.2.RELEASE</spring-boot.version>
 		<spring-shell.version>2.0.1.RELEASE</spring-shell.version>
-		<junit-jupiter.version>5.3.2</junit-jupiter.version>
+		<junit-jupiter.version>5.4.0</junit-jupiter.version>
 	</properties>
 
 	<scm>
