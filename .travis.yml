@@ -3,7 +3,7 @@ sudo: false
 
 before_install:
   - sudo apt-get install jq
-  - curl $(curl "https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest" | jq -r '.assets | map({content_type, browser_download_url} | select(.content_type | contains("application/x-java-archive"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
+  - wget -O ~/codacy-coverage-reporter-assembly.jar "https://github.com/codacy/codacy-coverage-reporter/releases/download/6.0.0/codacy-coverage-reporter-6.0.0-assembly.jar"
 
 after_success:
   - java -jar ~/codacy-coverage-reporter-assembly.jar report -l Java -r starter/target/site/jacoco/jacoco.xml
