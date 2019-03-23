@@ -1,19 +1,17 @@
 package com.github.fonimus.ssh.shell.auth;
 
-import java.util.UUID;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.auth.password.PasswordChangeRequiredException;
 import org.apache.sshd.server.session.ServerSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
 
 /**
  * Password implementation
  */
+@Slf4j
 public class SshShellPasswordAuthenticationProvider
 		implements SshShellAuthenticationProvider {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SshShellPasswordAuthenticationProvider.class);
 
 	private final String user;
 

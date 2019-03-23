@@ -1,14 +1,8 @@
 package com.github.fonimus.ssh.shell;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.common.channel.PtyMode;
 import org.apache.sshd.server.ChannelSessionAware;
@@ -27,8 +21,6 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
@@ -43,21 +35,21 @@ import org.springframework.shell.jline.PromptProvider;
 import org.springframework.shell.result.DefaultResultHandler;
 import org.springframework.stereotype.Component;
 
-import com.github.fonimus.ssh.shell.auth.SshAuthentication;
-import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static com.github.fonimus.ssh.shell.SshShellHistoryAutoConfiguration.HISTORY_FILE;
 
 /**
  * Ssh shell command factory implementation
  */
+@Slf4j
 @Component
 public class SshShellCommandFactory
 		implements Command, Factory<Command>, ChannelSessionAware, Runnable {
 
 	public static final ThreadLocal<SshContext> SSH_THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SshShellCommandFactory.class);
 
 	private InputStream is;
 
@@ -189,7 +181,7 @@ public class SshShellCommandFactory
 			shell.run(new SshShellInputProvider(reader, promptProvider));
 			LOGGER.debug("{}: end", session.toString());
 			quit(0);
-		} catch (IOException | RuntimeException e) {
+        } catch (Throwable e) {
 			LOGGER.error("{}: unexpected exception", session.toString(), e);
 			quit(1);
 		}

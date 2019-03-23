@@ -1,19 +1,16 @@
 package com.github.fonimus.ssh.shell.postprocess.provided;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 /**
  * Grep post processor
  */
+@Slf4j
 public class GrepPostProcessor
 		implements PostProcessor<String> {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(GrepPostProcessor.class);
 
 	@Override
 	public String getName() {

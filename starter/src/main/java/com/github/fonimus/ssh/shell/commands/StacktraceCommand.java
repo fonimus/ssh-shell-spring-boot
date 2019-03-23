@@ -13,8 +13,6 @@ import org.springframework.shell.standard.commands.Stacktrace;
 @SshShellComponent
 public class StacktraceCommand implements Stacktrace.Command {
 
-    @Autowired
-    @Lazy
     private Terminal terminal;
 
     @ShellMethod(key = {"stacktrace"}, value = "Display the full stacktrace of the last error.")
@@ -23,6 +21,11 @@ public class StacktraceCommand implements Stacktrace.Command {
         if (lastError != null) {
             lastError.printStackTrace(this.terminal.writer());
         }
+    }
 
+    @Autowired
+    @Lazy
+    public void setTerminal(Terminal terminal) {
+        this.terminal = terminal;
     }
 }

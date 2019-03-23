@@ -1,24 +1,21 @@
 package com.github.fonimus.ssh.shell.postprocess.provided;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessorException;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 /**
  * Pretty json post processor
  */
+@Slf4j
 public class PrettyJsonPostProcessor
 		implements PostProcessor<Object> {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(PrettyJsonPostProcessor.class);
 
 	@Override
 	public String getName() {

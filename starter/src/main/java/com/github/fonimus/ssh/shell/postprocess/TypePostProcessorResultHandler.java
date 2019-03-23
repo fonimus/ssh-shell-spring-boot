@@ -1,27 +1,23 @@
 package com.github.fonimus.ssh.shell.postprocess;
 
+import com.github.fonimus.ssh.shell.SshContext;
+import lombok.extern.slf4j.Slf4j;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
+import org.springframework.shell.ResultHandler;
+
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.shell.ResultHandler;
-
-import com.github.fonimus.ssh.shell.SshContext;
-import org.springframework.shell.result.ThrowableResultHandler;
-
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 
+@Slf4j
 public class TypePostProcessorResultHandler
         implements ResultHandler<Object> {
 
     public static final ThreadLocal<Throwable> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TypePostProcessorResultHandler.class);
 
     private ResultHandler<Object> resultHandler;
 
@@ -55,7 +51,15 @@ public class TypePostProcessorResultHandler
             for (PostProcessorObject postProcessorObject : ctx.getPostProcessorsList()) {
                 String name = postProcessorObject.getName();
                 PostProcessor postProcessor = postProcessorMap.get(name);
-                if (postProcessor != null && canApply(obj, postProcessor)) {
+                if (postProcessor == null) {
+                    printLogWarn("Unknown post processor [" + name + "]");
+                    continue;
+                }
+                Class<?> cls = ((Class) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
+                if (!cls.isAssignableFrom(obj.getClass())) {
+                    printLogWarn("Post processor [" + name + "] can only apply to class [" + cls.getName() +
+                            "] (current object class is " + obj.getClass().getName() + ")");
+                } else {
                     LOGGER.debug("Applying post processor [{}] with parameters {}", name, postProcessorObject.getParameters());
                     try {
                         obj = postProcessor.process(obj, postProcessorObject.getParameters());
@@ -63,19 +67,16 @@ public class TypePostProcessorResultHandler
                         printError(e.getMessage());
                         return;
                     }
-                } else {
-                    resultHandler.handleResult(new AttributedString("Unknown post processor [" + name + "]",
-                            AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)).toAnsi());
-                    LOGGER.warn("Unknown post processor [{}]", name);
                 }
             }
         }
         resultHandler.handleResult(obj);
     }
 
-    private boolean canApply(Object object, PostProcessor postProcessor) {
-        Class<?> cls = ((Class) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
-        return cls.isAssignableFrom(object.getClass());
+    private void printLogWarn(String warn) {
+        resultHandler.handleResult(new AttributedString(warn,
+                AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)).toAnsi());
+        LOGGER.warn(warn);
     }
 
     private void printError(String error) {

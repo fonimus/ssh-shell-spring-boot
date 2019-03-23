@@ -1,16 +1,8 @@
 package com.github.fonimus.ssh.shell.auth;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.auth.password.PasswordChangeRequiredException;
 import org.apache.sshd.server.session.ServerSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,17 +11,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
 /**
  * Spring security ssh shell authentication provider
  */
+@Slf4j
 public class SshShellSecurityAuthenticationProvider
 		implements SshShellAuthenticationProvider {
 
 	public static final String AUTHENTICATION_ATTRIBUTE = "authentication";
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SshShellSecurityAuthenticationProvider.class);
 
 	private final String authProviderBeanName;
 

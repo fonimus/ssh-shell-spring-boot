@@ -1,21 +1,18 @@
 package com.github.fonimus.ssh.shell.postprocess.provided;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.fonimus.ssh.shell.PromptColor;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 /**
  * Grep post processor
  */
+@Slf4j
 public class HighlightPostProcessor
 		implements PostProcessor<String> {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(HighlightPostProcessor.class);
 
 	@Override
 	public String getName() {

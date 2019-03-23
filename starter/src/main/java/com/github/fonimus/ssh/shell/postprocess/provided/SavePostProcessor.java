@@ -1,23 +1,20 @@
 package com.github.fonimus.ssh.shell.postprocess.provided;
 
+import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
+import com.github.fonimus.ssh.shell.postprocess.PostProcessorException;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
-import com.github.fonimus.ssh.shell.postprocess.PostProcessorException;
-
+@Slf4j
 public class SavePostProcessor
 		implements PostProcessor<String> {
 
 	public static final String SAVE = "save";
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SavePostProcessor.class);
 
 	@Override
 	public String getName() {

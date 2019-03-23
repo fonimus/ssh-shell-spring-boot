@@ -1,22 +1,19 @@
 package com.github.fonimus.ssh.shell.postprocess.provided;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Json pointer post processor
  */
+@Slf4j
 public class JsonPointerPostProcessor
 		implements PostProcessor<String> {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(JsonPointerPostProcessor.class);
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 

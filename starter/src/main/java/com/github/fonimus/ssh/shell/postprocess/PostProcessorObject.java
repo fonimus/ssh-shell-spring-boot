@@ -1,26 +1,22 @@
 package com.github.fonimus.ssh.shell.postprocess;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 /**
  * Post processor object
  */
+@RequiredArgsConstructor
+@AllArgsConstructor
+@Getter
 public class PostProcessorObject {
 
-	private String name;
+    @NonNull
+    private String name;
 
-	private List<String> parameters;
-
-	public PostProcessorObject(String name, List<String> parameters) {
-		this.name = name;
-		this.parameters = parameters;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public List<String> getParameters() {
-		return parameters;
-	}
+    private List<String> parameters;
 }

@@ -1,65 +1,46 @@
 package com.github.fonimus.ssh.shell;
 
-import java.util.List;
-
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
-import com.github.fonimus.ssh.shell.auth.SshAuthentication;
-import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
+import java.util.List;
 
 /**
  * Ssh context to hold terminal, exit callback and thread per thread
  */
+@Getter
+@RequiredArgsConstructor
 public class SshContext {
 
-	private final LineReader lineReader;
+    private Thread thread;
 
-	private Thread thread;
+    private Terminal terminal;
 
-	private Terminal terminal;
+    private LineReader lineReader;
 
-	private SshAuthentication authentication;
+    private SshAuthentication authentication;
 
-	private List<PostProcessorObject> postProcessorsList;
+    @Setter
+    private List<PostProcessorObject> postProcessorsList;
 
-	/**
-	 * Constructor
-	 *
-	 * @param thread       ssh thread session
-	 * @param terminal     ssh terminal
-	 * @param lineReader   ssh line reader
-	 * @param authentication    (optional) spring authentication objects
-	 */
-	public SshContext(Thread thread, Terminal terminal, LineReader lineReader,
-			SshAuthentication authentication) {
-		this.thread = thread;
-		this.terminal = terminal;
-		this.lineReader = lineReader;
-		this.authentication = authentication;
-	}
-
-	public Thread getThread() {
-		return thread;
-	}
-
-	public Terminal getTerminal() {
-		return terminal;
-	}
-
-	public LineReader getLineReader() {
-		return lineReader;
-	}
-
-	public SshAuthentication getAuthentication() {
-		return authentication;
-	}
-
-	public List<PostProcessorObject> getPostProcessorsList() {
-		return postProcessorsList;
-	}
-
-	public void setPostProcessorsList(List<PostProcessorObject> postProcessorsList) {
-		this.postProcessorsList = postProcessorsList;
-	}
+    /**
+     * Constructor
+     *
+     * @param thread         ssh thread session
+     * @param terminal       ssh terminal
+     * @param lineReader     ssh line reader
+     * @param authentication (optional) spring authentication objects
+     */
+    public SshContext(Thread thread, Terminal terminal, LineReader lineReader,
+                      SshAuthentication authentication) {
+        this.thread = thread;
+        this.terminal = terminal;
+        this.lineReader = lineReader;
+        this.authentication = authentication;
+    }
 }

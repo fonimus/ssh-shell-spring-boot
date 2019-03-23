@@ -361,6 +361,7 @@ If a banner is found in spring context, it will be used as welcome prompt messag
 
 ### 1.1.2
 
+* Fix option arguments with spaces, quotes, etc 
 * Update to spring boot 2.1.3
 * Update to javadoc plugin 3.1.0
 * Update to sshd 2.2.0
