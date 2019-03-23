@@ -12,6 +12,8 @@ class StacktraceCommandTest {
 
     @Test
     void stacktrace() {
+        TypePostProcessorResultHandler.THREAD_CONTEXT.set(null);
+
         StacktraceCommand cmd = new StacktraceCommand();
         Terminal terminal = Mockito.mock(Terminal.class);
         Mockito.when(terminal.writer()).thenReturn(new PrintWriter(new StringWriter()));
