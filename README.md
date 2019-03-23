@@ -359,6 +359,15 @@ If a banner is found in spring context, it will be used as welcome prompt messag
 
 ## Release notes
 
+### 1.1.3
+
+* Add methods in SshShellHelper
+    * `terminalSize` to get terminal columns and rows capabilities
+    * `progress` to fill line with progress bar
+        * `[========> ]`
+    * `interactive` which takes an interface to display lines at regular interval
+        * Check complete sample for a demo
+
 ### 1.1.2
 
 * Fix option arguments with spaces, quotes, etc 
