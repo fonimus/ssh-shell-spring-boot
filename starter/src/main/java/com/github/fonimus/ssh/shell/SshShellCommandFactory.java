@@ -77,6 +77,8 @@ public class SshShellCommandFactory
 
 	private org.apache.sshd.server.Environment sshEnv;
 
+	private boolean displayBanner;
+
 	/**
 	 * Constructor
 	 *
@@ -89,8 +91,8 @@ public class SshShellCommandFactory
 	 * @param historyFile      history file location
 	 */
 	public SshShellCommandFactory(@Autowired(required = false) Banner banner, @Lazy PromptProvider promptProvider, Shell shell,
-			JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser, Environment environment,
-			@Qualifier(HISTORY_FILE) File historyFile) {
+								  JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser, Environment environment,
+								  @Qualifier(HISTORY_FILE) File historyFile, SshShellProperties properties) {
 		this.shellBanner = banner;
 		this.promptProvider = promptProvider;
 		this.shell = shell;
@@ -98,6 +100,7 @@ public class SshShellCommandFactory
 		this.parser = parser;
 		this.environment = environment;
 		this.historyFile = historyFile;
+		this.displayBanner = properties.isDisplayBanner();
 	}
 
 	/**
@@ -138,7 +141,7 @@ public class SshShellCommandFactory
 				terminal.raise(Terminal.Signal.WINCH);
 			}, Signal.WINCH);
 
-			if (shellBanner != null) {
+			if (displayBanner && shellBanner != null) {
 				shellBanner.printBanner(environment, this.getClass(), ps);
 			}
 			resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));

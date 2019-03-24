@@ -321,7 +321,7 @@ public class SshShellHelper {
     }
 
     public void interactive(InteractiveInput input, boolean fullScreen) {
-        interactive(input, 1000, fullScreen, null);
+        interactive(input, 1000, fullScreen);
     }
 
     public void interactive(InteractiveInput input, long delay, boolean fullScreen) {

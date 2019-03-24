@@ -1,14 +1,13 @@
 package com.github.fonimus.ssh.shell.postprocess;
 
-import java.util.Arrays;
-import java.util.Collections;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fonimus.ssh.shell.postprocess.provided.JsonPointerPostProcessor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.actuate.health.Health;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fonimus.ssh.shell.postprocess.provided.JsonPointerPostProcessor;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,6 +31,7 @@ class JsonPointerPostProcessorTest {
 						.build());
 
 		assertAll("json pointer",
+				() -> assertEquals("not-a-json", processor.process("not-a-json", Collections.singletonList("/test"))),
 				() -> assertEquals(test, processor.process(test, null)),
 				() -> assertEquals(test, processor.process(test, Collections.singletonList(null))),
 				() -> assertEquals(test, processor.process(test, Collections.singletonList(""))),

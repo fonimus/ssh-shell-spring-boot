@@ -48,7 +48,8 @@ class SshShellHelperTest {
         reader = mock(NonBlockingReader.class);
         when(ter.reader()).thenReturn(reader);
         when(lr.getTerminal()).thenReturn(ter);
-        SshContext ctx = new SshContext(null, ter, lr, new SshAuthentication(null, null, null, auth));
+        SshContext ctx = new SshContext(new Thread("th"), ter, lr, new SshAuthentication(null, null, null, auth));
+        assertNotNull(ctx.getThread());
         SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
     }
 

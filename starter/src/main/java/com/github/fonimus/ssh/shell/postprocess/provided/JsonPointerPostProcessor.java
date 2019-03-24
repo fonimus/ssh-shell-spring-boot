@@ -43,9 +43,9 @@ public class JsonPointerPostProcessor
 					}
 				}
 			} catch (IOException e) {
-				LOGGER.debug("Unable to read tree", e);
+                LOGGER.warn("Unable to read tree", e);
 			} catch (IllegalArgumentException e) {
-				LOGGER.debug("Illegal argument: " + path, e);
+                LOGGER.warn("Illegal argument: " + path, e);
 				return e.getMessage();
 			}
 		}

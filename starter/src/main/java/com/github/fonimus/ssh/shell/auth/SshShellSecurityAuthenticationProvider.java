@@ -44,7 +44,7 @@ public class SshShellSecurityAuthenticationProvider
 		Map<String, AuthenticationManager> map = context.getBeansOfType(AuthenticationManager.class);
 		if (map.isEmpty()) {
 			throw new BeanCreationException(
-					"Could not find any beans if class: " + AuthenticationManager.class.getName());
+					"Could not find any beans of class: " + AuthenticationManager.class.getName());
 		}
 		String beanName = authProviderBeanName;
 		Set<String> available = map.keySet();

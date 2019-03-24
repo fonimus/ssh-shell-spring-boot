@@ -39,6 +39,8 @@ public class SshShellProperties {
 
 	private String password;
 
+    private boolean displayBanner = true;
+
 	private AuthenticationType authentication = AuthenticationType.simple;
 
 	private String authProviderBeanName;

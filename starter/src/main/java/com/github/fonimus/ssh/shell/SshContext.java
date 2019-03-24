@@ -3,7 +3,6 @@ package com.github.fonimus.ssh.shell;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
@@ -14,7 +13,6 @@ import java.util.List;
  * Ssh context to hold terminal, exit callback and thread per thread
  */
 @Getter
-@RequiredArgsConstructor
 public class SshContext {
 
     private Thread thread;

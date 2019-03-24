@@ -54,7 +54,8 @@ ssh:
     # for ssh helper 'confirm' method
     confirmation-words:
     - y    
-    - yes    
+    - yes  
+    display-banner: true
     enable: true
     history-file: <java.io.tmpdir>/sshShellHistory.log
     host: 127.0.0.1
@@ -252,7 +253,7 @@ public class DemoCommand {
 
 	@ShellMethod("Print command")	
 	public String print() {
-        boolean success = ...
+	    boolean success = ...;
 	    helper.print("Some message");
 	    helper.print("Some black message", PromptColor.BLACK);
 	    helper.printSuccess("Some success message");
@@ -297,6 +298,33 @@ public class DemoCommand {
 	@ShellMethod("Confirmation command")
 	public String conf() {
 	    return helper.confirm("Are you sure ?" [, true|false] [, "oui", "si", ...]) ? "Great ! Let's do it !" : "Such a shame ...";
+	}
+}
+```
+
+### Interactive
+
+This method takes an interface to display lines at regular interval.
+
+Every **refresh delay** (here 2 seconds), `com.github.fonimus.ssh.shell.interactive.InteractiveInput.getLines` is called.
+
+This can be used to display progress, monitoring, etc.
+
+```java
+@SshShellComponent
+public class DemoCommand {
+	
+	@Autowired
+	private SshShellHelper helper;
+	
+	@ShellMethod("Interactive command")
+	public void interactive() {
+		helper.interactive((size, currentDelay) -> {
+			lines.add(AttributedString.fromAnsi("Current time: " + String.format("%8tT", new Date())));
+			lines.add(AttributedString.fromAnsi(helper.progress(new SecureRandom().nextInt(100))));
+			lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
+			return lines;
+		}, 2000, true); // refresh delay, fullscreen
 	}
 }
 ```
@@ -347,7 +375,8 @@ public class DemoCommand {
 
 ## Banner
 
-If a banner is found in spring context, it will be used as welcome prompt message.
+If a banner is found in spring context and `display-banner` is set to true, 
+it will be used as welcome prompt message.
 
 
 ## Samples
