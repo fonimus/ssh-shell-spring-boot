@@ -219,7 +219,6 @@ class SshShellHelperTest {
     }
 
     private void verifyMessage(String message) {
-        verify(lr, times(1)).getTerminal();
         verify(ter, times(1)).writer();
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(writer, times(1)).println(captor.capture());

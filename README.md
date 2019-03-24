@@ -17,6 +17,7 @@ or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.
 * [Custom authentication](#custom-authentication)
 * [Command helper](#command-helper)
 * [Banner](#banner)
+* [Tests](#tests)
 * [Samples](#samples)
 * [Release notes](#release-notes)
 
@@ -32,7 +33,23 @@ or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.
 </dependency>
 ```
 
-**Note:** auto configuration `SshShellAutoConfiguration` can be deactivated by property **ssh.shell.enable=false**
+**Note:** auto configuration `SshShellAutoConfiguration` (active by default) can be deactivated by property **ssh.shell.enable=false**.
+
+It means that the ssh server won't start and the commands won't be scanned. Unfortunately the application will still
+load the `spring-shell` auto configuration classes and display a shell at startup (shell:>). You can disable them with
+following property:
+
+```yaml
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.shell.jline.JLineShellAutoConfiguration
+      - org.springframework.shell.SpringShellAutoConfiguration
+      - org.springframework.shell.jcommander.JCommanderParameterResolverAutoConfiguration
+      - org.springframework.shell.legacy.LegacyAdapterAutoConfiguration
+      - org.springframework.shell.standard.StandardAPIAutoConfiguration
+      - org.springframework.shell.standard.commands.StandardCommandsAutoConfiguration
+```  
 
 ### Configuration
 
@@ -378,6 +395,20 @@ public class DemoCommand {
 If a banner is found in spring context and `display-banner` is set to true, 
 it will be used as welcome prompt message.
 
+## Tests
+
+It can be annoying to load ssh server during spring boot tests.
+`SshShellProperties` class provides constants to easily deactivate 
+the all ssh and spring shell auto configurations: 
+
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = { "ssh.shell.port=2346",
+		SshShellProperties.DISABLE_SSH_SHELL,
+		SshShellProperties.DISABLE_SPRING_SHELL_AUTO_CONFIG
+})
+@ExtendWith(SpringExtension.class)
+public class ApplicationTest {}
+```
 
 ## Samples
 
@@ -390,6 +421,7 @@ it will be used as welcome prompt message.
 
 ### 1.1.3
 
+* Remove `static` from SshShellHelper methods (**getColored**, **getBackgroundColored**)
 * Add methods in SshShellHelper
     * `terminalSize` to get terminal columns and rows capabilities
     * `progress` to fill line with progress bar

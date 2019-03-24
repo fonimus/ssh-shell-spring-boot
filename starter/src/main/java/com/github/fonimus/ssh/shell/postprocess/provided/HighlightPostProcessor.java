@@ -14,6 +14,8 @@ import java.util.List;
 public class HighlightPostProcessor
 		implements PostProcessor<String> {
 
+	private static final SshShellHelper HELPER = new SshShellHelper();
+
 	@Override
 	public String getName() {
 		return "highlight";
@@ -27,7 +29,7 @@ public class HighlightPostProcessor
 		} else {
 			String finalResult = result;
 			for (String toHighlight : parameters) {
-				finalResult = finalResult.replaceAll(toHighlight, SshShellHelper.getBackgroundColored(toHighlight, PromptColor.YELLOW));
+				finalResult = finalResult.replaceAll(toHighlight, HELPER.getBackgroundColored(toHighlight, PromptColor.YELLOW));
 			}
 			return finalResult;
 		}

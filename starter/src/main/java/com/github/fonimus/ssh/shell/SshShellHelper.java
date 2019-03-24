@@ -22,6 +22,7 @@ import java.util.List;
 public class SshShellHelper {
 
     public static final List<String> DEFAULT_CONFIRM_WORDS = Arrays.asList("y", "yes");
+
     private final List<String> confirmWords;
 
     public SshShellHelper() {
@@ -39,19 +40,19 @@ public class SshShellHelper {
      * @param color   color to print
      * @return colored message
      */
-    public static String getColored(String message, PromptColor color) {
+    public String getColored(String message, PromptColor color) {
         return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
     }
 
     /**
      * Color message with given background color
      *
-     * @param message message to return
-     * @param color   background color to print
+     * @param message         message to return
+     * @param backgroundColor background color to print
      * @return colored message
      */
-    public static String getBackgroundColored(String message, PromptColor color) {
-        return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.background(color.toJlineAttributedStyle())).toAnsi();
+    public String getBackgroundColored(String message, PromptColor backgroundColor) {
+        return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.background(backgroundColor.toJlineAttributedStyle())).toAnsi();
     }
 
     /**
@@ -208,7 +209,7 @@ public class SshShellHelper {
         if (color != null) {
             toPrint = getColored(message, color);
         }
-        SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getLineReader().getTerminal().writer().println(toPrint);
+        SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal().writer().println(toPrint);
     }
 
     /**
@@ -332,7 +333,7 @@ public class SshShellHelper {
         long refreshDelay = delay;
         int rows = 0;
         final int[] maxLines = {rows};
-        Terminal terminal = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getLineReader().getTerminal();
+        Terminal terminal = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal();
         Display display = new Display(terminal, fullScreen);
         Size size = sizeParam != null ? sizeParam : new Size();
         BindingReader bindingReader = new BindingReader(terminal.reader());
