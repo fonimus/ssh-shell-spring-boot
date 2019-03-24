@@ -59,6 +59,9 @@
             conf: Confirmation command
             echo: Echo command
             ex: Ex command
+            interactive: Interactive command
+            progress: Progress command
+            size: Terminal size command
             welcome: Welcome command
     
     Commands marked with (*) are currently unavailable.
