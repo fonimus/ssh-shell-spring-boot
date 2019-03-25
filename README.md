@@ -337,7 +337,14 @@ public class DemoCommand {
 	@ShellMethod("Interactive command")
 	public void interactive() {
 		helper.interactive((size, currentDelay) -> {
-			lines.add(AttributedString.fromAnsi("Current time: " + String.format("%8tT", new Date())));
+			List<AttributedString> lines = new ArrayList<>();
+			AttributedStringBuilder sb = new AttributedStringBuilder(size.getColumns());
+			sb.style(sb.style().bold());
+			sb.append("Current time");
+			sb.style(sb.style().boldOff());
+			sb.append(" : ");
+			sb.append(String.format("%8tT", new Date()));
+			lines.add(sb.toAttributedString());
 			lines.add(AttributedString.fromAnsi(helper.progress(new SecureRandom().nextInt(100))));
 			lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
 			return lines;
