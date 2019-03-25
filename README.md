@@ -14,6 +14,7 @@ or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.
 * [Getting started](#getting-started)
 * [Actuator commands](#actuator-commands)
 * [Post processors](#post-processors)
+* [Parameter providers](#parameter-providers)
 * [Custom authentication](#custom-authentication)
 * [Command helper](#command-helper)
 * [Banner](#banner)
@@ -58,6 +59,7 @@ Please check class: [SshShellProperties.java](./starter/src/main/java/com/github
 ```yaml
 ssh:
   shell:
+    enable: true
     actuator:
       enable: true
       # empty by default
@@ -73,7 +75,9 @@ ssh:
     - y    
     - yes  
     display-banner: true
-    enable: true
+    # to use AnyOsFileValueProvider instead of spring shell FileValueProvider for all File option parameters
+    # if set to false, it still can be used via '@ShellOption(valueProvider = AnyOsFileValueProvider.class) File file'
+    any-os-file-provider: true
     history-file: <java.io.tmpdir>/sshShellHistory.log
     host: 127.0.0.1
     host-key-file: <java.io.tmpdir>/hostKey.ser
@@ -206,6 +210,45 @@ public PostProcessor quotePostProcessor() {
             return "'" + result + "'";
         }
     };
+}
+````
+
+## Parameter providers
+
+### Enum
+
+Enumeration option parameters have auto completion by default.
+
+### File
+
+Thanks to [AnyOsFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/AnyOsFileValueProvider.java) 
+(or FileValueProvider is deactivated), auto completion is available
+for `java.io.File` option parameters.
+
+### Custom
+
+To enable auto completion for a parameter, declare a **valueProvider** class.
+
+**Note:**  the value provider has to be in the spring context.
+
+````java
+
+...
+@ShellOption(valueProvider = CustomValuesProvider.class) String message
+...
+
+@Component
+class CustomValuesProvider
+        extends ValueProviderSupport {
+
+    private final static String[] VALUES = new String[]{
+            "message1", "message2", "message3"
+    };
+
+    @Override
+    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext, String[] hints) {
+        return Arrays.stream(VALUES).map(CompletionProposal::new).collect(Collectors.toList());
+    }
 }
 ````
 
@@ -425,6 +468,13 @@ public class ApplicationTest {}
 
 
 ## Release notes
+
+### 1.1.4
+
+* [AnyOsFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/AnyOsFileValueProvider.java)
+replaces `FileValueProvider` (spring shell default) by default 
+    * Supports Windows OS in addition to Unix
+    * Can be deactivated by `ssh.shell.any-os-file-provider`
 
 ### 1.1.3
 

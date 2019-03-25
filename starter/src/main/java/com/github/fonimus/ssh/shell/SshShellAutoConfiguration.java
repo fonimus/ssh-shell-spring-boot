@@ -6,6 +6,7 @@ import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
 import com.github.fonimus.ssh.shell.postprocess.provided.*;
+import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
 import org.apache.sshd.server.SshServer;
 import org.jline.reader.LineReader;
 import org.jline.reader.Parser;
@@ -31,6 +32,7 @@ import org.springframework.shell.Shell;
 import org.springframework.shell.SpringShellAutoConfiguration;
 import org.springframework.shell.jline.InteractiveShellApplicationRunner;
 import org.springframework.shell.jline.PromptProvider;
+import org.springframework.shell.standard.ValueProvider;
 
 import java.util.List;
 
@@ -91,6 +93,15 @@ public class SshShellAutoConfiguration {
     public Shell sshShell(@Qualifier("main") ResultHandler<Object> resultHandler, List<PostProcessor> postProcessors) {
         return new ExtendedShell(new TypePostProcessorResultHandler(resultHandler, postProcessors));
     }
+
+    // value providers
+
+    @Bean
+    public ValueProvider anyOsFileValueProvider(SshShellProperties properties) {
+        return new AnyOsFileValueProvider(properties.isAnyOsFileProvider());
+    }
+
+    // post processors
 
     @Bean
     @ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")

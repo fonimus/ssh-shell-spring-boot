@@ -52,6 +52,8 @@ public class SshShellProperties {
 
     private boolean displayBanner = true;
 
+    private boolean anyOsFileProvider = true;
+
     private AuthenticationType authentication = AuthenticationType.simple;
 
     private String authProviderBeanName;

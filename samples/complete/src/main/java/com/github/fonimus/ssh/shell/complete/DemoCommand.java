@@ -3,6 +3,7 @@ package com.github.fonimus.ssh.shell.complete;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.commands.SshShellComponent;
+import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
@@ -19,6 +20,7 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.standard.ValueProviderSupport;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,157 +31,182 @@ import java.util.stream.Collectors;
 @SshShellComponent
 public class DemoCommand {
 
-	private final SshShellHelper helper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemoCommand.class);
+    private final SshShellHelper helper;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DemoCommand.class);
+    public DemoCommand(SshShellHelper helper) {
+        this.helper = helper;
+    }
 
-	public DemoCommand(SshShellHelper helper) {
-		this.helper = helper;
-	}
+    /**
+     * Echo command
+     *
+     * @param message message to print
+     * @return message
+     */
+    @ShellMethod("Echo command")
+    public String echo(@ShellOption(valueProvider = CustomValuesProvider.class) String message) {
+        return message;
+    }
 
-	/**
-	 * Echo command
-	 *
-	 * @param message message to print
-	 * @return message
-	 */
-	@ShellMethod("Echo command")
-	public String echo(@ShellOption(valueProvider = CustomValuesProvider.class) String message) {
-		return message;
-	}
+    /**
+     * Terminal size command example
+     *
+     * @return size
+     */
+    @ShellMethod("Terminal size command")
+    public Size size() {
+        return helper.terminalSize();
+    }
 
-	/**
-	 * Terminal size command example
-	 *
-	 * @return size
-	 */
-	@ShellMethod("Terminal size command")
-	public Size size() {
-		return helper.terminalSize();
-	}
+    /**
+     * Progress displays command example
+     *
+     * @param progress current percentage
+     */
+    @ShellMethod("Progress command")
+    public void progress(int progress) {
+        helper.printSuccess(progress + "%");
+        helper.print(helper.progress(progress));
+    }
 
-	/**
-	 * Progress displays command example
-	 *
-	 * @param progress current percentage
-	 */
-	@ShellMethod("Progress command")
-	public void progress(int progress) {
-		helper.printSuccess(progress + "%");
-		helper.print(helper.progress(progress));
-	}
+    /**
+     * File provider command example
+     *
+     * @param file file to get info from
+     */
+    @ShellMethod("File command")
+    public void file(
+            @ShellOption(defaultValue = ShellOption.NULL) File file,
+            @ShellOption(valueProvider = AnyOsFileValueProvider.class, defaultValue = ShellOption.NULL) File anyOs) {
 
-	/**
-	 * Interactive command example
-	 *
-	 * @param fullscreen fullscreen mode
-	 * @param delay      delay in ms
-	 */
-	@ShellMethod("Interactive command")
-	public void interactive(boolean fullscreen, long delay) {
-		helper.interactive((size, currentDelay) -> {
-			LOGGER.info("In interactive command for input...");
-			List<AttributedString> lines = new ArrayList<>();
-			AttributedStringBuilder sb = new AttributedStringBuilder(size.getColumns());
+        info(file);
+        info(anyOs);
+    }
 
-			sb.style(sb.style().bold());
-			sb.append("Current time");
-			sb.style(sb.style().boldOff());
-			sb.append(" : ");
-			sb.append(String.format("%8tT", new Date()));
-			lines.add(sb.toAttributedString());
+    private void info(File file) {
+        if (file != null) {
+            if (file.exists()) {
+                helper.printSuccess("File exists: " + file.getAbsolutePath());
+                helper.print("\nType: " + (file.isDirectory() ? "directory" : "file"));
+                helper.print("Size: " + file.length());
+            } else {
+                helper.printError("File does not exist: " + file.getAbsolutePath());
+            }
+        }
+    }
 
-			lines.add(AttributedString.fromAnsi(helper.progress(new SecureRandom().nextInt(100))));
-			lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
+    /**
+     * Interactive command example
+     *
+     * @param fullscreen fullscreen mode
+     * @param delay      delay in ms
+     */
+    @ShellMethod("Interactive command")
+    public void interactive(boolean fullscreen, long delay) {
+        helper.interactive((size, currentDelay) -> {
+            LOGGER.info("In interactive command for input...");
+            List<AttributedString> lines = new ArrayList<>();
+            AttributedStringBuilder sb = new AttributedStringBuilder(size.getColumns());
 
-			return lines;
-		}, delay, fullscreen);
-	}
+            sb.style(sb.style().bold());
+            sb.append("Current time");
+            sb.style(sb.style().boldOff());
+            sb.append(" : ");
+            sb.append(String.format("%8tT", new Date()));
+            lines.add(sb.toAttributedString());
 
-	/**
-	 * Ex command
-	 *
-	 * @throws IllegalStateException for example
-	 */
-	@ShellMethod("Ex command")
-	public void ex() {
-		throw new IllegalStateException("Test exception message");
-	}
+            lines.add(AttributedString.fromAnsi(helper.progress(new SecureRandom().nextInt(100))));
+            lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
 
-	/**
-	 * Interaction example command
-	 *
-	 * @return welcome message
-	 */
-	@ShellMethod("Welcome command")
-	public String welcome() {
-		helper.printInfo("You are now in the welcome command");
-		String name = helper.read("What's your name ?");
-		return "Hello, '" + name + "' !";
-	}
+            return lines;
+        }, delay, fullscreen);
+    }
 
-	/**
-	 * Confirmation example command
-	 *
-	 * @return welcome message
-	 */
-	@ShellMethod("Confirmation command")
-	public String conf() {
-		return helper.confirm("Are you sure ?") ? "Great ! Let's do it !" : "Such a shame ...";
-	}
+    /**
+     * Ex command
+     *
+     * @throws IllegalStateException for example
+     */
+    @ShellMethod("Ex command")
+    public void ex() {
+        throw new IllegalStateException("Test exception message");
+    }
 
-	/**
-	 * Admin only example command
-	 *
-	 * @return welcome message
-	 */
-	@ShellMethod("Admin command")
-	@ShellMethodAvailability("adminAvailability")
-	public String admin() {
-		return "Finally an administrator !!";
-	}
+    /**
+     * Interaction example command
+     *
+     * @return welcome message
+     */
+    @ShellMethod("Welcome command")
+    public String welcome() {
+        helper.printInfo("You are now in the welcome command");
+        String name = helper.read("What's your name ?");
+        return "Hello, '" + name + "' !";
+    }
 
-	/**
-	 * Check admin availability
-	 *
-	 * @return is admin
-	 */
-	public Availability adminAvailability() {
-		if (!helper.checkAuthorities(Collections.singletonList("ADMIN"))) {
-			return Availability.unavailable("admin command is only for an admin users !");
-		}
-		return Availability.available();
-	}
+    /**
+     * Confirmation example command
+     *
+     * @return welcome message
+     */
+    @ShellMethod("Confirmation command")
+    public String conf() {
+        return helper.confirm("Are you sure ?") ? "Great ! Let's do it !" : "Such a shame ...";
+    }
 
-	/**
-	 * Authentication example command
-	 *
-	 * @return principal
-	 */
-	@ShellMethod("Authentication command")
-	public SshAuthentication authentication() {
-		return helper.getAuthentication();
-	}
+    /**
+     * Admin only example command
+     *
+     * @return welcome message
+     */
+    @ShellMethod("Admin command")
+    @ShellMethodAvailability("adminAvailability")
+    public String admin() {
+        return "Finally an administrator !!";
+    }
 
-	/**
-	 * For scheduled command example
-	 */
-	@Scheduled(initialDelay = 0, fixedDelay = 60000)
-	public void log() {
-		LOGGER.info("In scheduled task..");
-	}
+    /**
+     * Check admin availability
+     *
+     * @return is admin
+     */
+    public Availability adminAvailability() {
+        if (!helper.checkAuthorities(Collections.singletonList("ADMIN"))) {
+            return Availability.unavailable("admin command is only for an admin users !");
+        }
+        return Availability.available();
+    }
+
+    /**
+     * Authentication example command
+     *
+     * @return principal
+     */
+    @ShellMethod("Authentication command")
+    public SshAuthentication authentication() {
+        return helper.getAuthentication();
+    }
+
+    /**
+     * For scheduled command example
+     */
+    @Scheduled(initialDelay = 0, fixedDelay = 60000)
+    public void log() {
+        LOGGER.info("In scheduled task..");
+    }
 }
 
 @Component
 class CustomValuesProvider
-		extends ValueProviderSupport {
+        extends ValueProviderSupport {
 
-	private final static String[] VALUES = new String[] {
-			"message1", "message2", "message3"
-	};
+    private final static String[] VALUES = new String[]{
+            "message1", "message2", "message3"
+    };
 
-	@Override
-	public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext, String[] hints) {
-		return Arrays.stream(VALUES).map(CompletionProposal::new).collect(Collectors.toList());
-	}
+    @Override
+    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext, String[] hints) {
+        return Arrays.stream(VALUES).map(CompletionProposal::new).collect(Collectors.toList());
+    }
 }
