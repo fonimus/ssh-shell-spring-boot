@@ -4,54 +4,21 @@
 
 package com.github.fonimus.ssh.shell;
 
-import com.github.fonimus.ssh.shell.auth.SshAuthentication;
-import org.jline.reader.LineReader;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.terminal.Size;
-import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
-import org.jline.utils.NonBlockingReader;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.io.PrintWriter;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-class SshShellHelperTest {
+class SshShellHelperTest extends AbstractShellHelperTest {
 
     private static final String MESSAGE = "The message";
-
-    private static SshShellHelper h;
-
-    private static LineReader lr;
-
-    private static Terminal ter;
-
-    private static PrintWriter writer;
-
-    private NonBlockingReader reader;
-
-    @BeforeEach
-    public void each() {
-        h = new SshShellHelper();
-        List<String> auth = Collections.singletonList("ROLE_ACTUATOR");
-        lr = mock(LineReader.class);
-        ter = mock(Terminal.class);
-        writer = mock(PrintWriter.class);
-        when(ter.writer()).thenReturn(writer);
-        reader = mock(NonBlockingReader.class);
-        when(ter.reader()).thenReturn(reader);
-        when(lr.getTerminal()).thenReturn(ter);
-        SshContext ctx = new SshContext(new Thread("th"), ter, lr, new SshAuthentication(null, null, null, auth));
-        assertNotNull(ctx.getThread());
-        SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
-    }
 
     @Test
     void confirm() {
@@ -171,7 +138,6 @@ class SshShellHelperTest {
 
     @Test
     void terminalSize() {
-        when(ter.getSize()).thenReturn(new Size(123, 40));
         assertEquals(123, h.terminalSize().getColumns());
         assertEquals(40, h.terminalSize().getRows());
     }

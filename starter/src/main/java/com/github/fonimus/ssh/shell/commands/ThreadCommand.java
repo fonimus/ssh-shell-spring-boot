@@ -39,65 +39,6 @@ public class ThreadCommand {
         return map;
     }
 
-    private static ThreadGroup getRoot() {
-        ThreadGroup group = Thread.currentThread().getThreadGroup();
-        ThreadGroup parent;
-        while ((parent = group.getParent()) != null) {
-            group = parent;
-        }
-        return group;
-    }
-
-    @ShellMethod("Thread command.")
-    @SuppressWarnings("deprecation")
-    public String threads(@ShellOption(defaultValue = "LIST") ThreadAction action,
-                          @ShellOption(defaultValue = "ID") ThreadColumn orderBy,
-                          @ShellOption(defaultValue = ShellOption.NULL) Long threadId,
-                          boolean reverseOrder) {
-
-        switch (action) {
-
-            case LIST:
-                Map<Long, Thread> threads = getThreads();
-                String[][] data = new String[threads.size() + 1][ThreadColumn.values().length];
-                TableModel model = new ArrayTableModel(data);
-                TableBuilder tableBuilder = new TableBuilder(model);
-
-                int i = 0;
-                for (ThreadColumn column : ThreadColumn.values()) {
-                    data[0][i] = column.name();
-                    tableBuilder.on(at(0, i)).addAligner(SimpleHorizontalAligner.center);
-                    i++;
-                }
-                int r = 1;
-                List<Thread> ordered = new ArrayList<>(threads.values());
-                ordered.sort(comparator(orderBy, reverseOrder));
-                for (Thread t : ordered) {
-                    data[r][0] = String.valueOf(t.getId());
-                    data[r][1] = String.valueOf(t.getPriority());
-                    data[r][2] = helper.getColored(t.getState().name(), color(t.getState()));
-                    // because align implementations remove colors ! (trim())
-                    tableBuilder.on(at(r, 2)).addAligner(new ColorFixAligner());
-                    data[r][3] = String.valueOf(t.isInterrupted());
-                    data[r][4] = String.valueOf(t.isDaemon());
-                    data[r][5] = t.getName();
-                    r++;
-                }
-                return tableBuilder.addHeaderAndVerticalsBorders(BorderStyle.fancy_double).build().render(helper.terminalSize().getRows());
-            case DUMP:
-                Thread t = get(threadId);
-                Exception e = new Exception("Thread [" + t.getId() + "] stack trace");
-                e.setStackTrace(t.getStackTrace());
-                e.printStackTrace(helper.terminalWriter());
-                return "";
-            case INTERRUPT:
-                get(threadId).stop();
-                return helper.getSuccess("Thread " + threadId + " interrupted");
-            default:
-                throw new IllegalArgumentException("Unknown action: " + action);
-        }
-    }
-
     private Thread get(Long threadId) {
         if (threadId == null) {
             throw new IllegalArgumentException("Thread id is mandatory");
@@ -148,18 +89,72 @@ public class ThreadCommand {
             case WAITING:
             case TIMED_WAITING:
                 return PromptColor.CYAN;
-            case NEW:
             default:
                 return PromptColor.WHITE;
 
         }
     }
 
-    enum ThreadAction {
-        LIST, DUMP, INTERRUPT
+    private static ThreadGroup getRoot() {
+        ThreadGroup group = Thread.currentThread().getThreadGroup();
+        ThreadGroup parent;
+        while ((parent = group.getParent()) != null) {
+            group = parent;
+        }
+        return group;
     }
 
     enum ThreadColumn {
         ID, PRIORITY, STATE, INTERRUPTED, DAEMON, NAME
+    }
+
+    @ShellMethod("Thread command.")
+    @SuppressWarnings("deprecation")
+    public String threads(@ShellOption(defaultValue = "LIST") ThreadAction action,
+                          @ShellOption(help = "Order by column. Default is: ID", defaultValue = "ID") ThreadColumn orderBy,
+                          @ShellOption(help = "Reverse order by column. Default is: false") boolean reverseOrder,
+                          @ShellOption(help = "Only for DUMP action", defaultValue = ShellOption.NULL) Long threadId) {
+
+        switch (action) {
+
+            case DUMP:
+                Thread th = get(threadId);
+                Exception e = new Exception("Thread [" + th.getId() + "] stack trace");
+                e.setStackTrace(th.getStackTrace());
+                e.printStackTrace(helper.terminalWriter());
+                return "";
+
+            default:
+                Map<Long, Thread> threads = getThreads();
+                String[][] data = new String[threads.size() + 1][ThreadColumn.values().length];
+                TableModel model = new ArrayTableModel(data);
+                TableBuilder tableBuilder = new TableBuilder(model);
+
+                int i = 0;
+                for (ThreadColumn column : ThreadColumn.values()) {
+                    data[0][i] = column.name();
+                    tableBuilder.on(at(0, i)).addAligner(SimpleHorizontalAligner.center);
+                    i++;
+                }
+                int r = 1;
+                List<Thread> ordered = new ArrayList<>(threads.values());
+                ordered.sort(comparator(orderBy, reverseOrder));
+                for (Thread t : ordered) {
+                    data[r][0] = String.valueOf(t.getId());
+                    data[r][1] = String.valueOf(t.getPriority());
+                    data[r][2] = helper.getColored(t.getState().name(), color(t.getState()));
+                    // because align implementations remove colors ! (trim())
+                    tableBuilder.on(at(r, 2)).addAligner(new ColorFixAligner());
+                    data[r][3] = String.valueOf(t.isInterrupted());
+                    data[r][4] = String.valueOf(t.isDaemon());
+                    data[r][5] = t.getName();
+                    r++;
+                }
+                return tableBuilder.addHeaderAndVerticalsBorders(BorderStyle.fancy_double).build().render(helper.terminalSize().getRows());
+        }
+    }
+
+    enum ThreadAction {
+        LIST, DUMP
     }
 }
