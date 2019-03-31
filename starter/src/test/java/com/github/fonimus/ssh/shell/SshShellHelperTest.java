@@ -170,10 +170,15 @@ class SshShellHelperTest {
     }
 
     @Test
-    void available() {
+    void terminalSize() {
         when(ter.getSize()).thenReturn(new Size(123, 40));
         assertEquals(123, h.terminalSize().getColumns());
         assertEquals(40, h.terminalSize().getRows());
+    }
+
+    @Test
+    void terminalWriter() {
+        assertNotNull(h.terminalWriter());
     }
 
     @Test
@@ -224,5 +229,10 @@ class SshShellHelperTest {
         verify(writer, times(1)).println(captor.capture());
         assertEquals(1, captor.getAllValues().size());
         assertEquals(message, captor.getValue());
+    }
+
+    @Test
+    void test() {
+        assertNotNull(SshShellHelper.at(1, 2));
     }
 }

@@ -469,6 +469,10 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.1.5
+
+* Add `threads`, `jvm-env` and `jvm-properties` built-it commands
+
 ### 1.1.4
 
 * [AnyOsFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/AnyOsFileValueProvider.java)

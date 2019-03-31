@@ -7,6 +7,7 @@ import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
@@ -103,7 +104,7 @@ public class DemoCommand {
      * @param delay      delay in ms
      */
     @ShellMethod("Interactive command")
-    public void interactive(boolean fullscreen, long delay) {
+    public void interactive(boolean fullscreen, @ShellOption(defaultValue = "2000") long delay) {
         helper.interactive((size, currentDelay) -> {
             LOGGER.info("In interactive command for input...");
             List<AttributedString> lines = new ArrayList<>();
@@ -116,7 +117,9 @@ public class DemoCommand {
             sb.append(String.format("%8tT", new Date()));
             lines.add(sb.toAttributedString());
 
-            lines.add(AttributedString.fromAnsi(helper.progress(new SecureRandom().nextInt(100))));
+            SecureRandom sr = new SecureRandom();
+            lines.add(new AttributedStringBuilder().append(helper.progress(sr.nextInt(100)),
+                    AttributedStyle.DEFAULT.foreground(sr.nextInt(6) + 1)).toAttributedString());
             lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
 
             return lines;

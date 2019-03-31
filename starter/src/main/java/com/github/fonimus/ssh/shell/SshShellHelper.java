@@ -11,7 +11,9 @@ import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.impl.AbstractPosixTerminal;
 import org.jline.utils.*;
+import org.springframework.shell.table.CellMatcher;
 
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -210,6 +212,18 @@ public class SshShellHelper {
             toPrint = getColored(message, color);
         }
         SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal().writer().println(toPrint);
+    }
+
+    /**
+     * Build cell matcher
+     * <p>Should be used only once</p>
+     *
+     * @param row the row
+     * @param col the col
+     * @return the cell matcher
+     */
+    public static CellMatcher at(final int row, final int col) {
+        return (r, column, model) -> r == row && column == col;
     }
 
     /**
@@ -435,6 +449,18 @@ public class SshShellHelper {
         }
     }
 
+    /**
+     * Return the terminal writer
+     *
+     * @return terminal writer
+     */
+    public PrintWriter terminalWriter() {
+        return SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal().writer();
+    }
+
+    /**
+     * Interactive operation
+     */
     public enum Operation {
         EXIT,
         INCREASE_DELAY,

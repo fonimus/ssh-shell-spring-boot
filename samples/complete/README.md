@@ -48,10 +48,13 @@
             clear: Clear the shell screen.
             exit, quit: Exit the shell.
             help: Display help about available commands.
-            history: Display or save the history of previously run commands
-            postprocessors: Display the available post processors
+            history: Display or save the history of previously run commands.
+            jvm-env: List system env.
+            jvm-properties: List system properties.
+            postprocessors: Display the available post processors.
             script: Read and execute commands from a file.
             stacktrace: Display the full stacktrace of the last error.
+            threads: Thread comman.
     
     Demo Command
             admin: Admin command
@@ -59,6 +62,7 @@
             conf: Confirmation command
             echo: Echo command
             ex: Ex command
+            file: File command
             interactive: Interactive command
             progress: Progress command
             size: Terminal size command
