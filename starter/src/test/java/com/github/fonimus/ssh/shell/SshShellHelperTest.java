@@ -4,6 +4,7 @@
 
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.interactive.Interactive;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
@@ -175,16 +176,16 @@ class SshShellHelperTest extends AbstractShellHelperTest {
         final int[] count = {0};
 
         assertEquals(0, count[0]);
-        h.interactive((size, currentDelay) -> {
+        h.interactive(Interactive.builder().input((size, currentDelay) -> {
             count[0]++;
             return Collections.singletonList(AttributedString.EMPTY);
-        });
+        }).build());
         assertEquals(3, count[0]);
 
-        h.interactive((size, currentDelay) -> {
+        h.interactive(Interactive.builder().input((size, currentDelay) -> {
             count[0]++;
             return Collections.singletonList(AttributedString.EMPTY);
-        }, false);
+        }).fullScreen(false).build());
 
         assertEquals(4, count[0]);
     }

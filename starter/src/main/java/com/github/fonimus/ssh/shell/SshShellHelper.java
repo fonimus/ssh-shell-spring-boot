@@ -1,7 +1,10 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.interactive.Interactive;
 import com.github.fonimus.ssh.shell.interactive.InteractiveInput;
+import com.github.fonimus.ssh.shell.interactive.KeyBinding;
+import com.github.fonimus.ssh.shell.interactive.KeyBindingInput;
 import lombok.extern.slf4j.Slf4j;
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
@@ -14,8 +17,7 @@ import org.jline.utils.*;
 import org.springframework.shell.table.CellMatcher;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Ssh shell helper for user interactions and authorities check
@@ -26,6 +28,10 @@ public class SshShellHelper {
     public static final String INTERACTIVE_LONG_MESSAGE = "Please press key 'q' to quit, '+' and '-' to increase or decrease refresh delay";
 
     public static final String INTERACTIVE_SHORT_MESSAGE = "'q': quit, '+'|'-': increase|decrease refresh";
+
+    public static final String EXIT = "_EXIT";
+    public static final String INCREASE_DELAY = "_INCREASE_DELAY";
+    public static final String DECREASE_DELAY = "_DECREASE_DELAY";
 
     public static final List<String> DEFAULT_CONFIRM_WORDS = Arrays.asList("y", "yes");
 
@@ -328,74 +334,101 @@ public class SshShellHelper {
         return builder.append("]").toString();
     }
 
-    public void interactive(InteractiveInput input) {
-        interactive(input, 1000, true, null);
-    }
-
-
     // Interactive command which refreshes automatically
 
-    public void interactive(InteractiveInput input, long delay) {
-        interactive(input, delay, true, null);
-    }
-
-    public void interactive(InteractiveInput input, boolean fullScreen) {
-        interactive(input, 1000, fullScreen);
-    }
-
-    public void interactive(InteractiveInput input, long delay, boolean fullScreen) {
-        interactive(input, delay, fullScreen, null);
-    }
-
-    public void interactive(InteractiveInput input, long delay, boolean fullScreen, Size sizeParam) {
-        long refreshDelay = delay;
+    public void interactive(Interactive interactive) {
+        final long[] refreshDelay = {interactive.getRefreshDelay()};
         int rows = 0;
         final int[] maxLines = {rows};
         Terminal terminal = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal();
-        Display display = new Display(terminal, fullScreen);
-        Size size = sizeParam != null ? sizeParam : new Size();
+        Display display = new Display(terminal, interactive.isFullScreen());
+        Size size = interactive.getSize() != null ? interactive.getSize() : new Size();
         BindingReader bindingReader = new BindingReader(terminal.reader());
 
         size.copy(new Size(terminal.getSize().getColumns(), terminal.getSize().getRows()));
-        long finalRefreshDelay = refreshDelay;
         Terminal.SignalHandler prevHandler = terminal.handle(Terminal.Signal.WINCH, signal -> {
             int previous = size.getColumns();
             size.copy(new Size(terminal.getSize().getColumns(), rows));
             if (size.getColumns() < previous) {
                 display.clear();
             }
-            maxLines[0] = display(input, display, size, finalRefreshDelay);
+            maxLines[0] = display(interactive.getInput(), display, size, refreshDelay[0]);
         });
         Attributes attr = terminal.enterRawMode();
         try {
 
-            // Use alternate buffer
-            if (fullScreen) {
+            terminal.puts(InfoCmp.Capability.cursor_invisible);
+            if (interactive.isFullScreen()) {
                 terminal.puts(InfoCmp.Capability.enter_ca_mode);
                 terminal.puts(InfoCmp.Capability.keypad_xmit);
-                terminal.puts(InfoCmp.Capability.cursor_invisible);
                 terminal.writer().flush();
             }
 
             long t0 = System.currentTimeMillis();
 
-            KeyMap<Operation> keys = new KeyMap<>();
-            keys.bind(Operation.EXIT, "q", ":q", "Q", ":Q");
-            keys.bind(Operation.INCREASE_DELAY, "+", "i", "p");
-            keys.bind(Operation.DECREASE_DELAY, "-", "d", "m");
+            KeyMap<String> keys = new KeyMap<>();
+            Map<String, KeyBindingInput> inputs = new HashMap<>();
+            Set<String> usedKeys = new HashSet<>();
 
-            Operation op;
+            if (interactive.isExit()) {
+                keys.bind(EXIT, "q");
+                inputs.put(EXIT, () -> {
+                    // nothing
+                });
+                usedKeys.add("q");
+            }
+            if (interactive.isIncrease()) {
+                keys.bind(INCREASE_DELAY, "+");
+                inputs.put(INCREASE_DELAY, () -> {
+                    refreshDelay[0] = refreshDelay[0] + 1000;
+                    LOGGER.debug("New refresh delay is now: " + refreshDelay[0]);
+                });
+                usedKeys.add("+");
+            }
+            if (interactive.isDecrease()) {
+                keys.bind(DECREASE_DELAY, "-");
+                inputs.put(DECREASE_DELAY, () -> {
+                    if (refreshDelay[0] > 1000) {
+                        refreshDelay[0] = refreshDelay[0] - 1000;
+                        LOGGER.debug("New refresh delay is now: " + refreshDelay[0]);
+                    } else {
+                        LOGGER.warn("Cannot decrease delay under 1000 ms");
+                    }
+                });
+                usedKeys.add("-");
+            }
+
+            for (KeyBinding binding : interactive.getBindings()) {
+                if (inputs.containsKey(binding.getId())) {
+                    LOGGER.warn("Binding now allowed: {}. Protected name.", binding.getId());
+                } else {
+                    boolean ok = true;
+                    for (String key : binding.getKeys()) {
+                        if (usedKeys.contains(key)) {
+                            LOGGER.warn("Binding key now allowed: {}. Protected key.", key);
+                            ok = false;
+                        }
+                    }
+                    if (ok) {
+                        keys.bind(binding.getId(), binding.getKeys().toArray(new String[0]));
+                        inputs.put(binding.getId(), binding.getInput());
+                    }
+                }
+            }
+
+            String op;
             do {
-                maxLines[0] = display(input, display, size, refreshDelay);
+                maxLines[0] = display(interactive.getInput(), display, size, refreshDelay[0]);
                 checkInterrupted();
 
                 op = null;
 
-                long delta = ((System.currentTimeMillis() - t0) / refreshDelay + 1) * refreshDelay + t0 - System.currentTimeMillis();
+                long delta = ((System.currentTimeMillis() - t0) / refreshDelay[0] + 1)
+                        * refreshDelay[0] + t0 - System.currentTimeMillis();
 
                 int ch = bindingReader.peekCharacter(delta);
                 if (ch == -1) {
-                    op = Operation.EXIT;
+                    op = EXIT;
                 } else if (ch != NonBlockingReader.READ_EXPIRED) {
                     op = bindingReader.readBinding(keys, null, false);
                 }
@@ -403,21 +436,11 @@ public class SshShellHelper {
                     continue;
                 }
 
-                switch (op) {
-                    case INCREASE_DELAY:
-                        refreshDelay = refreshDelay + 1000;
-                        LOGGER.debug("New refresh delay is now: " + refreshDelay);
-                        break;
-                    case DECREASE_DELAY:
-                        if (refreshDelay > 1000) {
-                            refreshDelay = refreshDelay - 1000;
-                            LOGGER.debug("New refresh delay is now: " + refreshDelay);
-                        } else {
-                            LOGGER.warn("Cannot decrease delay under 1000 ms");
-                        }
-                        break;
+                KeyBindingInput input = inputs.get(op);
+                if (input != null) {
+                    input.action();
                 }
-            } while (op != Operation.EXIT);
+            } while (op == null || !op.equals(EXIT));
         } catch (InterruptedException ie) {
             // Do nothing
         } finally {
@@ -425,11 +448,11 @@ public class SshShellHelper {
             if (prevHandler != null) {
                 terminal.handle(Terminal.Signal.WINCH, prevHandler);
             }
-            // Use main buffer
-            if (fullScreen) {
+
+            terminal.puts(InfoCmp.Capability.cursor_visible);
+            if (interactive.isFullScreen()) {
                 terminal.puts(InfoCmp.Capability.exit_ca_mode);
                 terminal.puts(InfoCmp.Capability.keypad_local);
-                terminal.puts(InfoCmp.Capability.cursor_visible);
                 terminal.writer().flush();
             } else {
                 for (int i = 0; i < maxLines[0]; i++) {
@@ -460,15 +483,6 @@ public class SshShellHelper {
      */
     public PrintWriter terminalWriter() {
         return SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal().writer();
-    }
-
-    /**
-     * Interactive operation
-     */
-    public enum Operation {
-        EXIT,
-        INCREASE_DELAY,
-        DECREASE_DELAY,
     }
 
 }

@@ -3,6 +3,7 @@ package com.github.fonimus.ssh.shell.complete;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.commands.SshShellComponent;
+import com.github.fonimus.ssh.shell.interactive.Interactive;
 import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
@@ -105,7 +106,7 @@ public class DemoCommand {
      */
     @ShellMethod("Interactive command")
     public void interactive(boolean fullscreen, @ShellOption(defaultValue = "2000") long delay) {
-        helper.interactive((size, currentDelay) -> {
+        Interactive interactive = Interactive.builder().input((size, currentDelay) -> {
             LOGGER.info("In interactive command for input...");
             List<AttributedString> lines = new ArrayList<>();
             AttributedStringBuilder sb = new AttributedStringBuilder(size.getColumns());
@@ -123,7 +124,9 @@ public class DemoCommand {
             lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
 
             return lines;
-        }, delay, fullscreen);
+        })
+                .fullScreen(fullscreen).refreshDelay(delay).build();
+        helper.interactive(interactive);
     }
 
     /**

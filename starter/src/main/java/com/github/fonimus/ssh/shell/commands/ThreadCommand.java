@@ -2,6 +2,8 @@ package com.github.fonimus.ssh.shell.commands;
 
 import com.github.fonimus.ssh.shell.PromptColor;
 import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.interactive.Interactive;
+import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
@@ -135,45 +137,61 @@ public class ThreadCommand {
             return "";
         }
 
-        if (!staticDisplay) {
-            helper.interactive((size, currentDelay) -> {
-                List<AttributedString> lines = new ArrayList<>(size.getRows());
-
-                lines.add(new AttributedStringBuilder()
-                        .append("Time: ")
-                        .append(FORMATTER.format(LocalDateTime.now()), AttributedStyle.BOLD)
-                        .append(", refresh delay: ")
-                        .append(String.valueOf(currentDelay), AttributedStyle.BOLD)
-                        .append(" ms\n")
-                        .toAttributedString());
-
-                int max = helper.terminalSize().getRows() - 3;
-
-                for (String s : table(orderBy, reverseOrder, max).split("\n")) {
-                    lines.add(AttributedString.fromAnsi(s));
-                }
-
-                String msg = INTERACTIVE_LONG_MESSAGE.length() <= helper.terminalSize().getColumns() ?
-                        INTERACTIVE_LONG_MESSAGE : INTERACTIVE_SHORT_MESSAGE;
-                lines.add(AttributedString.fromAnsi(msg));
-
-                return lines;
-            }, 3000, true);
-            return "";
+        if (staticDisplay) {
+            return table(orderBy, reverseOrder, false);
         }
 
-        return table(orderBy, reverseOrder, -1);
+        boolean[] finalReverseOrder = {reverseOrder};
+        ThreadColumn[] finalOrderBy = {orderBy};
+
+        Interactive.InteractiveBuilder builder = Interactive.builder();
+        for (ThreadColumn value : ThreadColumn.values()) {
+            String key = value == ThreadColumn.INTERRUPTED ? "t" : value.name().toLowerCase().substring(0, 1);
+            builder.binding(KeyBinding.builder().id("ORDER_BY_" + value.name())
+                    .key(key).input(() -> {
+                        if (value == finalOrderBy[0]) {
+                            finalReverseOrder[0] = !finalReverseOrder[0];
+                        } else {
+                            finalOrderBy[0] = value;
+                        }
+                    }).build());
+        }
+        builder.binding(KeyBinding.builder().id("REVERSE_ORDER").key("r").input(() -> finalReverseOrder[0] = !finalReverseOrder[0]).build());
+
+        helper.interactive(builder.input((size, currentDelay) -> {
+            List<AttributedString> lines = new ArrayList<>(size.getRows());
+
+            lines.add(new AttributedStringBuilder()
+                    .append("Time: ")
+                    .append(FORMATTER.format(LocalDateTime.now()), AttributedStyle.BOLD)
+                    .append(", refresh delay: ")
+                    .append(String.valueOf(currentDelay), AttributedStyle.BOLD)
+                    .append(" ms\n")
+                    .toAttributedString());
+
+            for (String s : table(finalOrderBy[0], finalReverseOrder[0], true).split("\n")) {
+                lines.add(AttributedString.fromAnsi(s));
+            }
+
+            lines.add(AttributedString.fromAnsi("Press 'r' to reverse order, first column letter to change order by"));
+            String msg = INTERACTIVE_LONG_MESSAGE.length() <= helper.terminalSize().getColumns() ?
+                    INTERACTIVE_LONG_MESSAGE : INTERACTIVE_SHORT_MESSAGE;
+            lines.add(AttributedString.fromAnsi(msg));
+
+            return lines;
+        }).build());
+        return "";
     }
 
-    private String table(ThreadColumn orderBy, boolean reverseOrder, int max) {
+    private String table(ThreadColumn orderBy, boolean reverseOrder, boolean fullscreen) {
         List<Thread> ordered = new ArrayList<>(getThreads().values());
         ordered.sort(comparator(orderBy, reverseOrder));
 
-        // handle max, remove headers, 3 borders
-        int maxWithHeadersAndBorders = max - 1 - 3;
+        // handle maximum rows: 1 line for headers, 3 borders, 3 description lines
+        int maxWithHeadersAndBorders = helper.terminalSize().getRows() - 8;
         int tableSize = ordered.size() + 1;
         boolean addDotLine = false;
-        if (max != -1 && ordered.size() > maxWithHeadersAndBorders) {
+        if (fullscreen && ordered.size() > maxWithHeadersAndBorders) {
             ordered = ordered.subList(0, maxWithHeadersAndBorders);
             tableSize = maxWithHeadersAndBorders + 2;
             addDotLine = true;

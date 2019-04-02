@@ -379,19 +379,27 @@ public class DemoCommand {
 	
 	@ShellMethod("Interactive command")
 	public void interactive() {
-		helper.interactive((size, currentDelay) -> {
-			List<AttributedString> lines = new ArrayList<>();
-			AttributedStringBuilder sb = new AttributedStringBuilder(size.getColumns());
-			sb.style(sb.style().bold());
-			sb.append("Current time");
-			sb.style(sb.style().boldOff());
-			sb.append(" : ");
-			sb.append(String.format("%8tT", new Date()));
-			lines.add(sb.toAttributedString());
-			lines.add(AttributedString.fromAnsi(helper.progress(new SecureRandom().nextInt(100))));
-			lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
-			return lines;
-		}, 2000, true); // refresh delay, fullscreen
+        Interactive interactive = Interactive.builder().input((size, currentDelay) -> {
+            LOGGER.info("In interactive command for input...");
+            List<AttributedString> lines = new ArrayList<>();
+            AttributedStringBuilder sb = new AttributedStringBuilder(size.getColumns());
+
+            sb.style(sb.style().bold());
+            sb.append("Current time");
+            sb.style(sb.style().boldOff());
+            sb.append(" : ");
+            sb.append(String.format("%8tT", new Date()));
+            lines.add(sb.toAttributedString());
+
+            SecureRandom sr = new SecureRandom();
+            lines.add(new AttributedStringBuilder().append(helper.progress(sr.nextInt(100)),
+                    AttributedStyle.DEFAULT.foreground(sr.nextInt(6) + 1)).toAttributedString());
+            lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
+
+            return lines;
+        })
+                .fullScreen(fullscreen).refreshDelay(delay).build();
+        helper.interactive(interactive);
 	}
 }
 ```
