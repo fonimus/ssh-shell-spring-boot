@@ -119,6 +119,8 @@ public class ThreadCommand {
 
             case DUMP:
                 Thread th = get(threadId);
+                helper.print("Name  : " + th.getName());
+                helper.print("State : " + helper.getColored(th.getState().name(), color(th.getState())) + "\n");
                 Exception e = new Exception("Thread [" + th.getId() + "] stack trace");
                 e.setStackTrace(th.getStackTrace());
                 e.printStackTrace(helper.terminalWriter());
@@ -142,9 +144,11 @@ public class ThreadCommand {
                 for (Thread t : ordered) {
                     data[r][0] = String.valueOf(t.getId());
                     data[r][1] = String.valueOf(t.getPriority());
-                    data[r][2] = helper.getColored(t.getState().name(), color(t.getState()));
+                    //data[r][2] = helper.getColored(t.getState().name(), color(t.getState()));
+                    data[r][2] = t.getState().name();
                     // because align implementations remove colors ! (trim())
-                    tableBuilder.on(at(r, 2)).addAligner(new ColorFixAligner());
+                    tableBuilder.on(at(r, 2)).addAligner(new ColorAligner(color(t.getState())));
+                    //tableBuilder.on(at(r, 2)).addSizer(new ColorFixAutoSizeConstraints(t.getState().name()));
                     data[r][3] = String.valueOf(t.isInterrupted());
                     data[r][4] = String.valueOf(t.isDaemon());
                     data[r][5] = t.getName();
