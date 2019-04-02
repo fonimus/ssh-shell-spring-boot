@@ -23,6 +23,10 @@ import java.util.List;
 @Slf4j
 public class SshShellHelper {
 
+    public static final String INTERACTIVE_LONG_MESSAGE = "Please press key 'q' to quit, '+' and '-' to increase or decrease refresh delay";
+
+    public static final String INTERACTIVE_SHORT_MESSAGE = "'q': quit, '+'|'-': increase|decrease refresh";
+
     public static final List<String> DEFAULT_CONFIRM_WORDS = Arrays.asList("y", "yes");
 
     private final List<String> confirmWords;
@@ -352,7 +356,7 @@ public class SshShellHelper {
         Size size = sizeParam != null ? sizeParam : new Size();
         BindingReader bindingReader = new BindingReader(terminal.reader());
 
-        size.copy(new Size(terminal.getSize().getColumns(), rows));
+        size.copy(new Size(terminal.getSize().getColumns(), terminal.getSize().getRows()));
         long finalRefreshDelay = refreshDelay;
         Terminal.SignalHandler prevHandler = terminal.handle(Terminal.Signal.WINCH, signal -> {
             int previous = size.getColumns();

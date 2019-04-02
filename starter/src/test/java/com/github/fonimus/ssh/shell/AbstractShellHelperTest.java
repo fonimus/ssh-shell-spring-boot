@@ -41,6 +41,7 @@ public abstract class AbstractShellHelperTest {
         SshContext ctx = new SshContext(new Thread("th"), ter, lr, new SshAuthentication(null, null, null, auth));
         assertNotNull(ctx.getThread());
         SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
+        when(ter.getType()).thenReturn("osx");
         when(ter.getSize()).thenReturn(new Size(123, 40));
     }
 }
