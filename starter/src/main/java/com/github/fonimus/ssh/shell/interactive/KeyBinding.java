@@ -1,7 +1,7 @@
 package com.github.fonimus.ssh.shell.interactive;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.Singular;
 
@@ -10,12 +10,12 @@ import java.util.List;
 /**
  * Key binding bean
  */
-@Data
 @Builder
+@Getter
 public class KeyBinding {
 
     @NonNull
-    private String id;
+    private String description;
 
     @NonNull
     private KeyBindingInput input;

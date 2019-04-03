@@ -1,7 +1,7 @@
 package com.github.fonimus.ssh.shell.interactive;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.Singular;
 import org.jline.terminal.Size;
@@ -11,8 +11,8 @@ import java.util.List;
 /**
  * Interactive bean
  */
-@Data
 @Builder
+@Getter
 public class Interactive {
 
     @NonNull

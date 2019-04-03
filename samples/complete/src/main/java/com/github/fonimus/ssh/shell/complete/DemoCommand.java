@@ -4,6 +4,7 @@ import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import com.github.fonimus.ssh.shell.interactive.Interactive;
+import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
@@ -105,27 +106,30 @@ public class DemoCommand {
      * @param delay      delay in ms
      */
     @ShellMethod("Interactive command")
-    public void interactive(boolean fullscreen, @ShellOption(defaultValue = "2000") long delay) {
+    public void interactive(boolean fullscreen, @ShellOption(defaultValue = "3000") long delay) {
+
+        KeyBinding binding = KeyBinding.builder()
+                .description("K binding example")
+                .key("k").input(() -> LOGGER.info("In specific action triggered by key 'k' !")).build();
+
         Interactive interactive = Interactive.builder().input((size, currentDelay) -> {
             LOGGER.info("In interactive command for input...");
             List<AttributedString> lines = new ArrayList<>();
             AttributedStringBuilder sb = new AttributedStringBuilder(size.getColumns());
 
-            sb.style(sb.style().bold());
-            sb.append("Current time");
-            sb.style(sb.style().boldOff());
-            sb.append(" : ");
+            sb.append("\nCurrent time", AttributedStyle.BOLD).append(" : ");
             sb.append(String.format("%8tT", new Date()));
+
             lines.add(sb.toAttributedString());
 
             SecureRandom sr = new SecureRandom();
             lines.add(new AttributedStringBuilder().append(helper.progress(sr.nextInt(100)),
                     AttributedStyle.DEFAULT.foreground(sr.nextInt(6) + 1)).toAttributedString());
-            lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
+            lines.add(AttributedString.fromAnsi(SshShellHelper.INTERACTIVE_LONG_MESSAGE + "\n"));
 
             return lines;
-        })
-                .fullScreen(fullscreen).refreshDelay(delay).build();
+        }).binding(binding).fullScreen(fullscreen).refreshDelay(delay).build();
+
         helper.interactive(interactive);
     }
 

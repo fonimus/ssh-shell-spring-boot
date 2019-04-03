@@ -5,6 +5,8 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.interactive.Interactive;
+import com.github.fonimus.ssh.shell.interactive.InteractiveInput;
+import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
@@ -167,27 +169,39 @@ class SshShellHelperTest extends AbstractShellHelperTest {
     void interactive() throws Exception {
         // return 'q' = 113 after third times
         when(reader.read(100L))
-                .thenReturn(0)
-                .thenReturn(0)
-                .thenReturn(113)
-                .thenReturn(113);
+                // '-','+' char
+                .thenReturn(43).thenReturn(45)
+                // 'f' char
+                .thenReturn(102)
+                // 'q' char
+                .thenReturn(113).thenReturn(113).thenReturn(113);
 
         when(ter.getSize()).thenReturn(new Size(13, 40));
         final int[] count = {0};
 
+        KeyBinding binding = KeyBinding.builder().key("f").description("Binding Ok").input(() -> {
+
+        }).build();
+        KeyBinding failingBinding = KeyBinding.builder().key("f").description("Failing Binding").input(() -> {
+
+        }).build();
+
+        InteractiveInput input = (size, currentDelay) -> {
+            count[0]++;
+            return Collections.singletonList(AttributedString.EMPTY);
+        };
+
         assertEquals(0, count[0]);
-        h.interactive(Interactive.builder().input((size, currentDelay) -> {
-            count[0]++;
-            return Collections.singletonList(AttributedString.EMPTY);
-        }).build());
-        assertEquals(3, count[0]);
-
-        h.interactive(Interactive.builder().input((size, currentDelay) -> {
-            count[0]++;
-            return Collections.singletonList(AttributedString.EMPTY);
-        }).fullScreen(false).build());
-
+        h.interactive(Interactive.builder().binding(binding).binding(failingBinding).input(input).build());
         assertEquals(4, count[0]);
+
+        h.interactive(Interactive.builder().input(input).fullScreen(false).build());
+
+        assertEquals(5, count[0]);
+
+        h.interactive(input);
+
+        assertEquals(6, count[0]);
     }
 
     private void verifyMessage(String message) {

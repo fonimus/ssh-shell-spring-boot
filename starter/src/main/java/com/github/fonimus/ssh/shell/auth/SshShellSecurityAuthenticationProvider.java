@@ -83,7 +83,8 @@ public class SshShellSecurityAuthenticationProvider
 					new SshAuthentication(auth.getPrincipal(), auth.getDetails(), auth.getCredentials(), authorities));
 			return auth.isAuthenticated();
 		} catch (AuthenticationException e) {
-			LOGGER.error("Unable to authenticate user: {}", username, e);
+			LOGGER.error("Unable to authenticate user [{}] : {}", username, e.getMessage());
+			LOGGER.debug("Unable to authenticate user [{}]", username, e);
 			return false;
 		}
 	}

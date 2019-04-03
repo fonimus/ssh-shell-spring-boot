@@ -147,8 +147,8 @@ public class ThreadCommand {
         Interactive.InteractiveBuilder builder = Interactive.builder();
         for (ThreadColumn value : ThreadColumn.values()) {
             String key = value == ThreadColumn.INTERRUPTED ? "t" : value.name().toLowerCase().substring(0, 1);
-            builder.binding(KeyBinding.builder().id("ORDER_BY_" + value.name())
-                    .key(key).input(() -> {
+            builder.binding(KeyBinding.builder().description("ORDER_" + value.name()).key(key)
+                    .input(() -> {
                         if (value == finalOrderBy[0]) {
                             finalReverseOrder[0] = !finalReverseOrder[0];
                         } else {
@@ -156,7 +156,8 @@ public class ThreadCommand {
                         }
                     }).build());
         }
-        builder.binding(KeyBinding.builder().id("REVERSE_ORDER").key("r").input(() -> finalReverseOrder[0] = !finalReverseOrder[0]).build());
+        builder.binding(KeyBinding.builder().key("r").description("REVERSE")
+                .input(() -> finalReverseOrder[0] = !finalReverseOrder[0]).build());
 
         helper.interactive(builder.input((size, currentDelay) -> {
             List<AttributedString> lines = new ArrayList<>(size.getRows());

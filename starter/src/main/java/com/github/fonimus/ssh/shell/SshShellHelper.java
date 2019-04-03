@@ -30,8 +30,6 @@ public class SshShellHelper {
     public static final String INTERACTIVE_SHORT_MESSAGE = "'q': quit, '+'|'-': increase|decrease refresh";
 
     public static final String EXIT = "_EXIT";
-    public static final String INCREASE_DELAY = "_INCREASE_DELAY";
-    public static final String DECREASE_DELAY = "_DECREASE_DELAY";
 
     public static final List<String> DEFAULT_CONFIRM_WORDS = Arrays.asList("y", "yes");
 
@@ -336,6 +334,15 @@ public class SshShellHelper {
 
     // Interactive command which refreshes automatically
 
+    private static String generateId() {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Interactive
+     *
+     * @param interactive interactive built command
+     */
     public void interactive(Interactive interactive) {
         final long[] refreshDelay = {interactive.getRefreshDelay()};
         int rows = 0;
@@ -378,16 +385,18 @@ public class SshShellHelper {
                 usedKeys.add("q");
             }
             if (interactive.isIncrease()) {
-                keys.bind(INCREASE_DELAY, "+");
-                inputs.put(INCREASE_DELAY, () -> {
+                String id = generateId();
+                keys.bind(id, "+");
+                inputs.put(id, () -> {
                     refreshDelay[0] = refreshDelay[0] + 1000;
                     LOGGER.debug("New refresh delay is now: " + refreshDelay[0]);
                 });
                 usedKeys.add("+");
             }
             if (interactive.isDecrease()) {
-                keys.bind(DECREASE_DELAY, "-");
-                inputs.put(DECREASE_DELAY, () -> {
+                String id = generateId();
+                keys.bind(id, "-");
+                inputs.put(id, () -> {
                     if (refreshDelay[0] > 1000) {
                         refreshDelay[0] = refreshDelay[0] - 1000;
                         LOGGER.debug("New refresh delay is now: " + refreshDelay[0]);
@@ -399,20 +408,23 @@ public class SshShellHelper {
             }
 
             for (KeyBinding binding : interactive.getBindings()) {
-                if (inputs.containsKey(binding.getId())) {
-                    LOGGER.warn("Binding now allowed: {}. Protected name.", binding.getId());
+                List<String> newKeys = new ArrayList<>();
+                for (String key : binding.getKeys()) {
+                    if (usedKeys.contains(key)) {
+                        LOGGER.warn("Binding key not allowed as already used: {}.", key);
+                    } else {
+                        newKeys.add(key);
+                    }
+                }
+                if (newKeys.isEmpty()) {
+                    LOGGER.error("None of the keys are allowed {}, action [{}] will not be bound",
+                            binding.getDescription(), binding.getKeys());
                 } else {
-                    boolean ok = true;
-                    for (String key : binding.getKeys()) {
-                        if (usedKeys.contains(key)) {
-                            LOGGER.warn("Binding key now allowed: {}. Protected key.", key);
-                            ok = false;
-                        }
-                    }
-                    if (ok) {
-                        keys.bind(binding.getId(), binding.getKeys().toArray(new String[0]));
-                        inputs.put(binding.getId(), binding.getInput());
-                    }
+                    String id = generateId();
+                    keys.bind(id, newKeys.toArray(new String[0]));
+                    inputs.put(id, binding.getInput());
+                    usedKeys.addAll(newKeys);
+                    LOGGER.debug("Binding [{}] added with keys: {}", binding.getDescription(), newKeys);
                 }
             }
 
@@ -421,13 +433,13 @@ public class SshShellHelper {
                 maxLines[0] = display(interactive.getInput(), display, size, refreshDelay[0]);
                 checkInterrupted();
 
-                op = null;
-
                 long delta = ((System.currentTimeMillis() - t0) / refreshDelay[0] + 1)
                         * refreshDelay[0] + t0 - System.currentTimeMillis();
 
                 int ch = bindingReader.peekCharacter(delta);
-                if (ch == -1) {
+                op = null;
+                // 27 is escape char
+                if (ch == -1 || ch == 27) {
                     op = EXIT;
                 } else if (ch != NonBlockingReader.READ_EXPIRED) {
                     op = bindingReader.readBinding(keys, null, false);
@@ -460,6 +472,33 @@ public class SshShellHelper {
                 }
             }
         }
+    }
+
+    // Old interactive for compatibility
+
+    @Deprecated
+    public void interactive(InteractiveInput input) {
+        interactive(input, true);
+    }
+
+    @Deprecated
+    public void interactive(InteractiveInput input, long delay) {
+        interactive(input, delay, true);
+    }
+
+    @Deprecated
+    public void interactive(InteractiveInput input, boolean fullScreen) {
+        interactive(input, 1000, fullScreen);
+    }
+
+    @Deprecated
+    public void interactive(InteractiveInput input, long delay, boolean fullScreen) {
+        interactive(input, delay, fullScreen, null);
+    }
+
+    @Deprecated
+    public void interactive(InteractiveInput input, long delay, boolean fullScreen, Size size) {
+        interactive(Interactive.builder().input(input).refreshDelay(delay).fullScreen(fullScreen).size(size).build());
     }
 
     private int display(InteractiveInput input, Display display, Size size, long currentDelay) {

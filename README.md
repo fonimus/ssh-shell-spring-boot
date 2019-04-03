@@ -370,6 +370,12 @@ Every **refresh delay** (here 2 seconds), `com.github.fonimus.ssh.shell.interact
 
 This can be used to display progress, monitoring, etc.
 
+The interactive builder, [Interactive.java](./starter/src/main/java/com/github/fonimus/ssh/shell/interactive/Interactive.java) 
+allows you to build your interactive command.
+
+This builder can also take key bindings to make specific actions, whose can be made by the following builder: 
+[KeyBinding.java](./starter/src/main/java/com/github/fonimus/ssh/shell/interactive/KeyBinding.java).
+
 ```java
 @SshShellComponent
 public class DemoCommand {
@@ -379,30 +385,39 @@ public class DemoCommand {
 	
 	@ShellMethod("Interactive command")
 	public void interactive() {
+	    
+        KeyBinding binding = KeyBinding.builder()
+                .description("K binding example")
+                .key("k").input(() -> LOGGER.info("In specific action triggered by key 'k' !")).build();
+
         Interactive interactive = Interactive.builder().input((size, currentDelay) -> {
             LOGGER.info("In interactive command for input...");
             List<AttributedString> lines = new ArrayList<>();
             AttributedStringBuilder sb = new AttributedStringBuilder(size.getColumns());
 
-            sb.style(sb.style().bold());
-            sb.append("Current time");
-            sb.style(sb.style().boldOff());
-            sb.append(" : ");
+            sb.append("\nCurrent time", AttributedStyle.BOLD).append(" : ");
             sb.append(String.format("%8tT", new Date()));
+
             lines.add(sb.toAttributedString());
 
             SecureRandom sr = new SecureRandom();
             lines.add(new AttributedStringBuilder().append(helper.progress(sr.nextInt(100)),
                     AttributedStyle.DEFAULT.foreground(sr.nextInt(6) + 1)).toAttributedString());
-            lines.add(AttributedString.fromAnsi("Please press key 'q' to quit."));
+            lines.add(AttributedString.fromAnsi(SshShellHelper.INTERACTIVE_LONG_MESSAGE + "\n"));
 
             return lines;
-        })
-                .fullScreen(fullscreen).refreshDelay(delay).build();
+        }).binding(binding).fullScreen(true|false).refreshDelay(5000).build();
+
         helper.interactive(interactive);
 	}
 }
 ```
+
+Note: existing key bindings are:
+
+* `q`: to quit interactive command and go back to shell
+* `+`: to increase refresh delay by 1000 milliseconds
+* `-`: to decrease refresh delay by 1000 milliseconds
 
 ### Role check
 
