@@ -2,9 +2,11 @@ package com.github.fonimus.ssh.shell;
 
 import org.jline.terminal.Terminal;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SshShellTerminalDelegateTest {
@@ -15,6 +17,11 @@ public class SshShellTerminalDelegateTest {
     static void prepare() throws Exception {
         Terminal terminal = Mockito.mock(Terminal.class);
         del = new SshShellTerminalDelegate(terminal);
+    }
+
+    @BeforeEach
+    void setUp() {
+        SSH_THREAD_CONTEXT.remove();
     }
 
     @Test

@@ -1,16 +1,18 @@
 package com.github.fonimus.ssh.shell;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.RejectAllPublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.IOException;
 
 /**
  * Ssh shell configuration
@@ -68,8 +70,8 @@ public class SshShellConfiguration {
 		server.setHost(properties.getHost());
 		server.setPasswordAuthenticator(passwordAuthenticator);
 		server.setPort(properties.getPort());
-		server.setShellFactory(() -> shellCommandFactory);
-		server.setCommandFactory(command -> shellCommandFactory);
+		server.setShellFactory(channelSession -> shellCommandFactory);
+		server.setCommandFactory((channelSession, s) -> shellCommandFactory);
 		return server;
 	}
 
