@@ -1,21 +1,37 @@
 package com.github.fonimus.ssh.shell.commands;
 
-import com.github.fonimus.ssh.shell.SshShellHelper;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.table.*;
-
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.table.ArrayTableModel;
+import org.springframework.shell.table.BorderStyle;
+import org.springframework.shell.table.SimpleHorizontalAligner;
+import org.springframework.shell.table.SimpleVerticalAligner;
+import org.springframework.shell.table.SizeConstraints;
+import org.springframework.shell.table.Table;
+import org.springframework.shell.table.TableBuilder;
+import org.springframework.shell.table.TableModel;
+
+import com.github.fonimus.ssh.shell.SshShellHelper;
+
 import static com.github.fonimus.ssh.shell.SshShellHelper.at;
+import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
 /**
  * System command
  */
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
+@ConditionalOnProperty(
+    value = {
+        SSH_SHELL_PREFIX + ".default-commands.jvm",
+        SSH_SHELL_PREFIX + ".defaultCommands.jvm"
+    }, havingValue = "true", matchIfMissing = true
+)
 public class SystemCommand {
 
     public static final String SPLIT_REGEX = "[:;]";
@@ -39,7 +55,7 @@ public class SystemCommand {
         return new SizeConstraints.Extent(min, max);
     }
 
-    @ShellMethod(key = "jvm-env", value = "List system env.")
+    @ShellMethod(key = "jvm-env", value = "List system environment.")
     public Object jvmEnv(boolean simpleView) {
         if (simpleView) {
             return buildSimple(System.getenv());
