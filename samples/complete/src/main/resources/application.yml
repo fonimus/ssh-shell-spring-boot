@@ -9,6 +9,9 @@ ssh:
     authentication: security
     auth-provider-bean-name: customAuthManager
     any-os-file-provider: false
+    default-commands:
+      jvm: false
+      threads: false
 
 management:
   endpoints:

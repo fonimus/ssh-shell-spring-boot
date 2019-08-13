@@ -1,13 +1,14 @@
 package com.github.fonimus.ssh.shell;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
@@ -37,6 +38,8 @@ public class SshShellProperties {
     public static final String ACTUATOR_ROLE = "ACTUATOR";
 
     private Prompt prompt = new Prompt();
+
+    private DefaultCommands defaultCommands = new DefaultCommands();
 
     private Actuator actuator = new Actuator();
 
@@ -90,6 +93,19 @@ public class SshShellProperties {
         private List<String> authorizedRoles = Arrays.asList(ACTUATOR_ROLE);
 
         private List<String> excludes = new ArrayList<>();
+    }
+
+    /**
+     * Default commands configuration
+     */
+    @Data
+    public static class DefaultCommands {
+
+        private boolean jvm = true;
+
+        private boolean postprocessors = true;
+
+        private boolean threads = true;
     }
 
 }

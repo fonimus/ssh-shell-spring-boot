@@ -9,7 +9,7 @@
 
 
 For more information please visit `spring shell` [website](https://projects.spring.io/spring-shell/) 
-or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.1.RELEASE/reference/htmlsingle/)
+or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.1.RELEASE/reference/htmlsingle/).
 
 * [Getting started](#getting-started)
 * [Actuator commands](#actuator-commands)
@@ -73,7 +73,12 @@ ssh:
     # for ssh helper 'confirm' method
     confirmation-words:
     - y    
-    - yes  
+    - yes
+    # set to false to disable following default built-in commands
+    default-commands:
+      jvm: true
+      postprocessors: true
+      thread: true
     display-banner: true
     # to use AnyOsFileValueProvider instead of spring shell FileValueProvider for all File option parameters
     # if set to false, it still can be used via '@ShellOption(valueProvider = AnyOsFileValueProvider.class) File file'
@@ -86,7 +91,7 @@ ssh:
     port: 2222
     user: user
     prompt:
-      # in enum: com.github.fonimus.ssh.shell.PromptColor
+      # in enum: com.github.fonimus.ssh.shell.PromptColor (black, red, green, yellow, blue, magenta, cyan, white, bright)
       color: white
       text: 'shell>'
 ```
