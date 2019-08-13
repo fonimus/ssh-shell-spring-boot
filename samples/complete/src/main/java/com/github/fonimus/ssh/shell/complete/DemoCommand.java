@@ -77,6 +77,7 @@ public class DemoCommand {
      * File provider command example
      *
      * @param file file to get info from
+     * @param anyOs any os file to get info from
      */
     @ShellMethod("File command")
     public void file(

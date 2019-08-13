@@ -1,8 +1,15 @@
 package com.github.fonimus.ssh.shell;
 
-import com.github.fonimus.ssh.shell.auth.SshAuthentication;
-import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.server.ChannelSessionAware;
 import org.apache.sshd.server.ExitCallback;
@@ -34,8 +41,8 @@ import org.springframework.shell.jline.PromptProvider;
 import org.springframework.shell.result.DefaultResultHandler;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
 
 import static com.github.fonimus.ssh.shell.SshShellHistoryAutoConfiguration.HISTORY_FILE;
 
@@ -87,10 +94,11 @@ public class SshShellCommandFactory
 	 * @param parser           jline parser
 	 * @param environment      spring environment
 	 * @param historyFile      history file location
+	 * @param properties       ssh shell properties
 	 */
 	public SshShellCommandFactory(@Autowired(required = false) Banner banner, @Lazy PromptProvider promptProvider, Shell shell,
-								  JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser, Environment environment,
-								  @Qualifier(HISTORY_FILE) File historyFile, SshShellProperties properties) {
+			JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser, Environment environment,
+			@Qualifier(HISTORY_FILE) File historyFile, SshShellProperties properties) {
 		this.shellBanner = banner;
 		this.promptProvider = promptProvider;
 		this.shell = shell;
@@ -104,10 +112,11 @@ public class SshShellCommandFactory
 	/**
 	 * Start ssh session
 	 *
-	 * @param env ssh environment
+	 * @param channelSession ssh channel session
+	 * @param env            ssh environment
 	 */
 	@Override
-	public void start(org.apache.sshd.server.Environment env) {
+	public void start(ChannelSession channelSession, org.apache.sshd.server.Environment env) throws IOException {
 		LOGGER.debug("{}: start", session.toString());
 		sshEnv = env;
 		sshThread = new Thread(this, "ssh-session-" + System.nanoTime());
@@ -129,10 +138,10 @@ public class SshShellCommandFactory
 			resultHandler.setTerminal(terminal);
 
 			Attributes attr = terminal.getAttributes();
-            SshShellUtils.fill(attr, sshEnv.getPtyModes());
+			SshShellUtils.fill(attr, sshEnv.getPtyModes());
 			terminal.setAttributes(attr);
 
-			sshEnv.addSignalListener(signal -> {
+			sshEnv.addSignalListener((channel, signal) -> {
 				terminal.setSize(new Size(
 						Integer.parseInt(sshEnv.getEnv().get("COLUMNS")),
 						Integer.parseInt(sshEnv.getEnv().get("LINES"))));
@@ -182,7 +191,7 @@ public class SshShellCommandFactory
 			shell.run(new SshShellInputProvider(reader, promptProvider));
 			LOGGER.debug("{}: end", session.toString());
 			quit(0);
-        } catch (Throwable e) {
+		} catch (Throwable e) {
 			LOGGER.error("{}: unexpected exception", session.toString(), e);
 			quit(1);
 		}
@@ -193,11 +202,11 @@ public class SshShellCommandFactory
 	}
 
 	@Override
-	public void destroy() {
+	public void destroy(ChannelSession channelSession) throws Exception {
 		// nothing to do
 	}
 
-	class SshShellInputProvider
+	static class SshShellInputProvider
 			extends InteractiveShellApplicationRunner.JLineInputProvider {
 
 		public SshShellInputProvider(LineReader lineReader, PromptProvider promptProvider) {
