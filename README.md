@@ -497,6 +497,17 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.1.7
+
+* Bump to spring boot 2.1.8.RELEASE
+
+### 1.1.6
+
+* Bump to spring boot 2.1.7.RELEASE
+* Bump to sshd 2.3.0
+* Add properties to exclude not wanted built-in commands
+    * Via properties `ssh.shell.default-commands.*`
+
 ### 1.1.5
 
 * Add `threads`, `jvm-env` and `jvm-properties` built-it commands
