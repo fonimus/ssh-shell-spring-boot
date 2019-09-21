@@ -3,9 +3,6 @@ ssh:
     actuator:
       excludes:
       - audit
-    prompt:
-      color: cyan
-      text: 'complete::>'
     authentication: security
     auth-provider-bean-name: customAuthManager
     any-os-file-provider: false
