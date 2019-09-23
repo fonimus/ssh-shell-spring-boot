@@ -170,7 +170,7 @@ public class SshShellAutoConfiguration {
      * @return prompt provider
      */
     @Bean
-    @Primary
+    @ConditionalOnMissingBean
     public PromptProvider sshPromptProvider(SshShellProperties properties) {
         return () -> new AttributedString(properties.getPrompt().getText(),
                 AttributedStyle.DEFAULT.foreground(properties.getPrompt().getColor().toJlineAttributedStyle()));
