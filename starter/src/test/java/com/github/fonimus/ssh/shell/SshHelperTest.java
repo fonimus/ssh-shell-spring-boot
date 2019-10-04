@@ -6,9 +6,9 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Properties;
 
-import org.awaitility.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +68,7 @@ public class SshHelperTest {
 			fail("Got interrupted exception while waiting");
 		}
 		try {
-			await().atMost(Duration.FIVE_SECONDS).until(() -> {
+			await().atMost(Duration.ofSeconds(5)).until(() -> {
 				while (true) {
 					sb.append((char) pis.read());
 					String s = sb.toString();
