@@ -497,9 +497,9 @@ public class ApplicationTest {}
 
 ## Release notes
 
-### 1.1.7
+### 1.1.7 (not yet released)
 
-* Bump to spring boot 2.1.8.RELEASE
+* Bump to spring boot 2.1.9.RELEASE
 
 ### 1.1.6
 
