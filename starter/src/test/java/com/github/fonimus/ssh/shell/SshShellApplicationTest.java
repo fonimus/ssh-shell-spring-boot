@@ -9,8 +9,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = SshShellApplicationTest.class,
-		properties = { "ssh.shell.port=2345", "ssh.shell.password=pass" })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = SshShellApplicationTest.class, properties = {
+		"ssh.shell.port=2345",
+		"ssh.shell.password=pass",
+		"management.endpoints.web.exposure.include=*"
+})
 @ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext
@@ -24,10 +27,5 @@ public class SshShellApplicationTest
 		super.commonCommandAvailability();
 
 		assertFalse(cmd.httptraceAvailability().isAvailable());
-	}
-
-	@Override
-	void testHttpTrace() {
-		// do nothing
 	}
 }
