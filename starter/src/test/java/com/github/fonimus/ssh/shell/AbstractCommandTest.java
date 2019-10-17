@@ -8,6 +8,7 @@ import org.jline.reader.ParsedLine;
 import org.jline.terminal.Terminal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.boot.actuate.health.HealthComponent;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.boot.actuate.scheduling.ScheduledTasksEndpoint;
 import org.springframework.boot.logging.LogLevel;
@@ -31,7 +32,11 @@ public abstract class AbstractCommandTest
 
 	void commonCommandAvailability() {
 		assertAll(
-				() -> assertTrue(cmd.auditAvailability().isAvailable()),
+				// since spring boot 2.2 audit,httptrace disabled by default
+				// more info: https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.2-Release-Notes#actuator-http-trace-and-auditing-are-disabled-by-default
+				() -> assertFalse(cmd.auditAvailability().isAvailable()),
+				() -> assertFalse(cmd.httptraceAvailability().isAvailable()),
+				// all available except for shutdown
 				() -> assertTrue(cmd.beansAvailability().isAvailable()),
 				() -> assertTrue(cmd.conditionsAvailability().isAvailable()),
 				() -> assertTrue(cmd.configpropsAvailability().isAvailable()),
@@ -45,12 +50,6 @@ public abstract class AbstractCommandTest
 				() -> assertFalse(cmd.shutdownAvailability().isAvailable()),
 				() -> assertTrue(cmd.threaddumpAvailability().isAvailable())
 		);
-	}
-
-	@Test
-	void testAudit() {
-		assertEquals(audit.events(null, null, null).getEvents().size(),
-				cmd.audit(null, null).getEvents().size());
 	}
 
 	@Test
@@ -78,12 +77,8 @@ public abstract class AbstractCommandTest
 
 	@Test
 	void testHealth() {
-		assertEquals(health.health().getStatus(), cmd.health().getStatus());
-	}
-
-	@Test
-	void testHttpTrace() {
-		assertEquals(httptrace.traces().getTraces().size(), cmd.httptrace().getTraces().size());
+		HealthComponent healthComponent = (HealthComponent) cmd.health();
+		assertEquals(health.health().getStatus(), healthComponent.getStatus());
 	}
 
 	@Test

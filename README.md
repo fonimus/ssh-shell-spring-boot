@@ -497,9 +497,11 @@ public class ApplicationTest {}
 
 ## Release notes
 
-### 1.1.7 (not yet released)
+### 1.2.0
 
-* Bump to spring boot 2.1.9.RELEASE
+* Bump to spring boot 2.2.0.RELEASE
+    * Audit and Http Trace actuator commands will be disabled by default, because endpoint will be by spring boot by default
+    (check [spring boot migration 2.2](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.2-Release-Notes#actuator-http-trace-and-auditing-are-disabled-by-default) for more info)
 
 ### 1.1.6
 

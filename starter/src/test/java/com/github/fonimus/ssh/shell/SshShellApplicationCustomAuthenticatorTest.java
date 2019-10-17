@@ -15,7 +15,8 @@ import static com.github.fonimus.ssh.shell.SshHelperTest.write;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
 		classes = { SshShellApplicationCustomAuthenticatorTest.class, SshShellPasswordConfigurationTest.class },
-		properties = { "ssh.shell.port=2349" })
+		properties = { "ssh.shell.port=2349", "management.endpoints.web.exposure.include=*" }
+)
 @ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext

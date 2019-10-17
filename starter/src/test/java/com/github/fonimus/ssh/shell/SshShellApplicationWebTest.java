@@ -15,7 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		classes = { SshShellApplicationWebTest.class, SshShellSessionConfigurationTest.class },
-		properties = { "ssh.shell.port=2346", "ssh.shell.password=pass" })
+		properties = {
+				"ssh.shell.port=2346",
+				"ssh.shell.password=pass",
+				"management.endpoints.web.exposure.include=*"
+		}
+)
 @ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext
@@ -28,7 +33,6 @@ public class SshShellApplicationWebTest
 
 		super.commonCommandAvailability();
 
-		assertTrue(cmd.httptraceAvailability().isAvailable());
 		assertTrue(cmd.sessionsAvailability().isAvailable());
 	}
 

@@ -4,7 +4,6 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.audit.AuditEventsEndpoint;
 import org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpoint;
 import org.springframework.boot.actuate.beans.BeansEndpoint;
 import org.springframework.boot.actuate.context.ShutdownEndpoint;
@@ -17,7 +16,6 @@ import org.springframework.boot.actuate.management.ThreadDumpEndpoint;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.boot.actuate.scheduling.ScheduledTasksEndpoint;
 import org.springframework.boot.actuate.session.SessionsEndpoint;
-import org.springframework.boot.actuate.trace.http.HttpTraceEndpoint;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
@@ -41,9 +39,6 @@ public abstract class AbstractTest {
 	protected ActuatorCommand cmd;
 
 	@Autowired
-	protected AuditEventsEndpoint audit;
-
-	@Autowired
 	protected BeansEndpoint beans;
 
 	@Autowired
@@ -57,10 +52,6 @@ public abstract class AbstractTest {
 
 	@Autowired
 	protected HealthEndpoint health;
-
-	@Autowired
-	@Lazy
-	protected HttpTraceEndpoint httptrace;
 
 	@Autowired
 	protected InfoEndpoint info;
