@@ -1,13 +1,15 @@
 package com.github.fonimus.ssh.shell;
 
-import com.github.fonimus.ssh.shell.auth.SshAuthentication;
-import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
+
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
-import java.util.List;
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 
 /**
  * Ssh context to hold terminal, exit callback and thread per thread
@@ -15,30 +17,32 @@ import java.util.List;
 @Getter
 public class SshContext {
 
-    private Thread thread;
+	private SshShellRunnable sshShellRunnable;
 
-    private Terminal terminal;
+	private Terminal terminal;
 
-    private LineReader lineReader;
+	private LineReader lineReader;
 
-    private SshAuthentication authentication;
+	private SshAuthentication authentication;
 
-    @Setter
-    private List<PostProcessorObject> postProcessorsList;
+	@Setter
+	private List<PostProcessorObject> postProcessorsList;
 
-    /**
-     * Constructor
-     *
-     * @param thread         ssh thread session
-     * @param terminal       ssh terminal
-     * @param lineReader     ssh line reader
-     * @param authentication (optional) spring authentication objects
-     */
-    public SshContext(Thread thread, Terminal terminal, LineReader lineReader,
-                      SshAuthentication authentication) {
-        this.thread = thread;
-        this.terminal = terminal;
-        this.lineReader = lineReader;
-        this.authentication = authentication;
-    }
+	public SshContext() {
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param sshShellRunnable
+	 * @param terminal         ssh terminal
+	 * @param lineReader       ssh line reader
+	 * @param authentication   (optional) spring authentication objects
+	 */
+	public SshContext(SshShellRunnable sshShellRunnable, Terminal terminal, LineReader lineReader, SshAuthentication authentication) {
+		this.sshShellRunnable = sshShellRunnable;
+		this.terminal = terminal;
+		this.lineReader = lineReader;
+		this.authentication = authentication;
+	}
 }

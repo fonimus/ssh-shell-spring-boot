@@ -1,16 +1,17 @@
 package com.github.fonimus.ssh.shell.postprocess;
 
-import com.github.fonimus.ssh.shell.SshContext;
-import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
-import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.shell.ResultHandler;
 
-import java.util.Arrays;
-import java.util.Collections;
+import com.github.fonimus.ssh.shell.SshContext;
+import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
+import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +30,7 @@ class TypePostProcessorResultHandlerTest {
         rh = new TypePostProcessorResultHandler(rhMock,
                 Arrays.asList(new GrepPostProcessor(), new GrepPostProcessor(), new SavePostProcessor())
         );
-        SSH_THREAD_CONTEXT.set(new SshContext(new Thread(), null, null, null));
+        SSH_THREAD_CONTEXT.set(new SshContext(null, null, null, null));
     }
 
     @Test
