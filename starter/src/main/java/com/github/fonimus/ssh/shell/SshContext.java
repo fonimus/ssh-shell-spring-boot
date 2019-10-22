@@ -1,15 +1,13 @@
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
-
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
-import com.github.fonimus.ssh.shell.auth.SshAuthentication;
-import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
+import java.util.List;
 
 /**
  * Ssh context to hold terminal, exit callback and thread per thread
@@ -17,32 +15,32 @@ import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 @Getter
 public class SshContext {
 
-	private SshShellRunnable sshShellRunnable;
+    private SshShellRunnable sshShellRunnable;
 
-	private Terminal terminal;
+    private Terminal terminal;
 
-	private LineReader lineReader;
+    private LineReader lineReader;
 
-	private SshAuthentication authentication;
+    private SshAuthentication authentication;
 
-	@Setter
-	private List<PostProcessorObject> postProcessorsList;
+    @Setter
+    private List<PostProcessorObject> postProcessorsList;
 
-	public SshContext() {
-	}
+    public SshContext() {
+    }
 
-	/**
-	 * Constructor
-	 *
-	 * @param sshShellRunnable
-	 * @param terminal         ssh terminal
-	 * @param lineReader       ssh line reader
-	 * @param authentication   (optional) spring authentication objects
-	 */
-	public SshContext(SshShellRunnable sshShellRunnable, Terminal terminal, LineReader lineReader, SshAuthentication authentication) {
-		this.sshShellRunnable = sshShellRunnable;
-		this.terminal = terminal;
-		this.lineReader = lineReader;
-		this.authentication = authentication;
-	}
+    /**
+     * Constructor
+     *
+     * @param sshShellRunnable ssh runnable
+     * @param terminal         ssh terminal
+     * @param lineReader       ssh line reader
+     * @param authentication   (optional) spring authentication objects
+     */
+    public SshContext(SshShellRunnable sshShellRunnable, Terminal terminal, LineReader lineReader, SshAuthentication authentication) {
+        this.sshShellRunnable = sshShellRunnable;
+        this.terminal = terminal;
+        this.lineReader = lineReader;
+        this.authentication = authentication;
+    }
 }
