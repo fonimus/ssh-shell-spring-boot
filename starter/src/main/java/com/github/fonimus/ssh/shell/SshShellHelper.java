@@ -112,7 +112,7 @@ public class SshShellHelper {
      * @return response read from terminal
      */
     public String read(String message) {
-        LineReader lr = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getLineReader();
+        LineReader lr = reader();
         if (message != null) {
             lr.getTerminal().writer().println(message);
         }
@@ -219,7 +219,7 @@ public class SshShellHelper {
         if (color != null) {
             toPrint = getColored(message, color);
         }
-        SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal().writer().println(toPrint);
+        terminal().writer().println(toPrint);
     }
 
     /**
@@ -250,7 +250,12 @@ public class SshShellHelper {
      * @return true if role found in authorities
      */
     public boolean checkAuthorities(List<String> authorizedRoles) {
-        SshAuthentication auth = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthentication();
+        SshContext sshContext = SshShellCommandFactory.SSH_THREAD_CONTEXT.get();
+        if (sshContext.isLocalPrompt()) {
+            LOGGER.debug("Not an ssh session -> local prompt -> giving all rights");
+            return true;
+        }
+        SshAuthentication auth = sshContext.getAuthentication();
         return checkAuthorities(authorizedRoles, auth != null ? auth.getAuthorities() : null, false);
     }
 
@@ -286,7 +291,7 @@ public class SshShellHelper {
      * @return size
      */
     public Size terminalSize() {
-        return SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal().getSize();
+        return terminal().getSize();
     }
 
     /**
@@ -339,6 +344,15 @@ public class SshShellHelper {
     }
 
     /**
+     * Return the terminal writer
+     *
+     * @return terminal writer
+     */
+    public PrintWriter terminalWriter() {
+        return terminal().writer();
+    }
+
+    /**
      * Interactive
      *
      * @param interactive interactive built command
@@ -347,7 +361,7 @@ public class SshShellHelper {
         final long[] refreshDelay = {interactive.getRefreshDelay()};
         int rows = 0;
         final int[] maxLines = {rows};
-        Terminal terminal = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal();
+        Terminal terminal = terminal();
         Display display = new Display(terminal, interactive.isFullScreen());
         Size size = interactive.getSize() != null ? interactive.getSize() : new Size();
         BindingReader bindingReader = new BindingReader(terminal.reader());
@@ -515,13 +529,20 @@ public class SshShellHelper {
         }
     }
 
-    /**
-     * Return the terminal writer
-     *
-     * @return terminal writer
-     */
-    public PrintWriter terminalWriter() {
-        return SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal().writer();
+    private Terminal terminal() {
+        SshContext sshContext = SshShellCommandFactory.SSH_THREAD_CONTEXT.get();
+        if (sshContext == null) {
+            throw new IllegalStateException("Unable to find ssh context");
+        }
+        return sshContext.getTerminal();
+    }
+
+    private LineReader reader() {
+        SshContext sshContext = SshShellCommandFactory.SSH_THREAD_CONTEXT.get();
+        if (sshContext == null) {
+            throw new IllegalStateException("Unable to find ssh context");
+        }
+        return sshContext.getLineReader();
     }
 
 }

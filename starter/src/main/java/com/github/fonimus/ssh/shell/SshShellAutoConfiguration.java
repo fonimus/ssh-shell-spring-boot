@@ -36,6 +36,7 @@ import org.springframework.shell.standard.ValueProvider;
 
 import java.util.List;
 
+import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_ENABLE;
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
@@ -153,13 +154,20 @@ public class SshShellAutoConfiguration {
     /**
      * Primary terminal which delegates with right session
      *
-     * @param terminal jline terminal
+     * @param terminal   jline terminal
+     * @param lineReader jline line reader
+     * @param properties ssh shell properties
      * @return terminal
      */
     @Bean(TERMINAL_DELEGATE)
     @Primary
-    public Terminal terminal(Terminal terminal) {
-        InteractiveShellApplicationRunner.disable(environment);
+    public Terminal terminal(Terminal terminal, LineReader lineReader, SshShellProperties properties) {
+        if (properties.getPrompt().getLocal().isEnable()) {
+            // local prompt enable, add ssh context in main thread
+            SSH_THREAD_CONTEXT.set(new SshContext(null, terminal, lineReader, null));
+        } else {
+            InteractiveShellApplicationRunner.disable(environment);
+        }
         return new SshShellTerminalDelegate(terminal);
     }
 

@@ -1,7 +1,7 @@
 package com.github.fonimus.ssh.shell;
 
-import java.util.Collections;
-
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.commands.actuator.ActuatorCommand;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpoint;
@@ -21,74 +21,75 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 
-import com.github.fonimus.ssh.shell.auth.SshAuthentication;
-import com.github.fonimus.ssh.shell.commands.actuator.ActuatorCommand;
+import java.util.Collections;
 
 public abstract class AbstractTest {
 
-	@Autowired
-	protected ApplicationContext context;
+    @Autowired
+    protected ApplicationContext context;
 
-	@Autowired
-	protected Environment environment;
+    @Autowired
+    protected Environment environment;
 
-	@Autowired
-	protected SshShellProperties properties;
+    @Autowired
+    protected SshShellProperties properties;
 
-	@Autowired
-	protected ActuatorCommand cmd;
+    @Autowired
+    protected ActuatorCommand cmd;
 
-	@Autowired
-	protected BeansEndpoint beans;
+    @Autowired
+    protected BeansEndpoint beans;
 
-	@Autowired
-	protected ConditionsReportEndpoint conditions;
+    @Autowired
+    protected ConditionsReportEndpoint conditions;
 
-	@Autowired
-	protected ConfigurationPropertiesReportEndpoint configprops;
+    @Autowired
+    protected ConfigurationPropertiesReportEndpoint configprops;
 
-	@Autowired
-	protected EnvironmentEndpoint env;
+    @Autowired
+    protected EnvironmentEndpoint env;
 
-	@Autowired
-	protected HealthEndpoint health;
+    @Autowired
+    protected HealthEndpoint health;
 
-	@Autowired
-	protected InfoEndpoint info;
+    @Autowired
+    protected InfoEndpoint info;
 
-	@Autowired
-	protected LoggersEndpoint loggers;
+    @Autowired
+    protected LoggersEndpoint loggers;
 
-	@Autowired
-	protected MetricsEndpoint metrics;
+    @Autowired
+    protected MetricsEndpoint metrics;
 
-	@Autowired
-	protected MappingsEndpoint mappings;
+    @Autowired
+    protected MappingsEndpoint mappings;
 
-	@Autowired
-	protected ScheduledTasksEndpoint scheduledtasks;
+    @Autowired
+    protected ScheduledTasksEndpoint scheduledtasks;
 
-	@Autowired
-	protected SessionsEndpoint sessions;
+    @Autowired
+    protected SessionsEndpoint sessions;
 
-	@Autowired
-	@Lazy
-	protected ShutdownEndpoint shutdown;
+    @Autowired
+    @Lazy
+    protected ShutdownEndpoint shutdown;
 
-	@Autowired
-	protected ThreadDumpEndpoint threaddump;
+    @Autowired
+    protected ThreadDumpEndpoint threaddump;
 
-	protected void setRole(String role) {
-		SshShellCommandFactory.SSH_THREAD_CONTEXT
-				.set(new SshContext(null, null, null, new SshAuthentication(null, null, null, Collections.singletonList(role))));
-	}
+    protected void setRole(String role) {
+        SshShellCommandFactory.SSH_THREAD_CONTEXT
+                .set(new SshContext(
+                        new SshShellRunnable(null, null, null, null, null, null, null, null, null, false, null, null, null, null),
+                        null, null, new SshAuthentication(null, null, null, Collections.singletonList(role))));
+    }
 
-	protected void setActuatorRole() {
-		setRole("ACTUATOR");
-	}
+    protected void setActuatorRole() {
+        setRole("ACTUATOR");
+    }
 
-	@AfterEach
-	protected void afterEach() {
-		SshShellCommandFactory.SSH_THREAD_CONTEXT.remove();
-	}
+    @AfterEach
+    protected void afterEach() {
+        SshShellCommandFactory.SSH_THREAD_CONTEXT.remove();
+    }
 }

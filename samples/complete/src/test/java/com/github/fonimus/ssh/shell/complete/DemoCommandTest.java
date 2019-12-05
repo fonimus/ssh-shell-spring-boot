@@ -3,6 +3,7 @@ package com.github.fonimus.ssh.shell.complete;
 import com.github.fonimus.ssh.shell.SshContext;
 import com.github.fonimus.ssh.shell.SshShellCommandFactory;
 import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellRunnable;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
@@ -36,7 +37,7 @@ public class DemoCommandTest {
 
     @BeforeAll
     static void prepare() {
-        cmd = new DemoCommand(new SshShellHelper(null));
+        cmd = new DemoCommand(new SshShellHelper());
         terminal = mock(Terminal.class);
         when(terminal.getSize()).thenReturn(size);
         PrintWriter writer = mock(PrintWriter.class);
@@ -50,7 +51,9 @@ public class DemoCommandTest {
         when(terminal.reader()).thenReturn(reader);
         when(terminal.getType()).thenReturn("osx");
         auth = new SshAuthentication(null, null, null, null);
-        SshContext ctx = new SshContext(null, terminal, lr, auth);
+        SshContext ctx = new SshContext(
+                new SshShellRunnable(null, null, null, null, null, null, null, null, null, false, null, null, null, null),
+                terminal, lr, auth);
         SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
     }
 

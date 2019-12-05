@@ -94,6 +94,9 @@ ssh:
       # in enum: com.github.fonimus.ssh.shell.PromptColor (black, red, green, yellow, blue, magenta, cyan, white, bright)
       color: white
       text: 'shell>'
+      local:
+        # to let default local spring shell prompt when application starts
+        enable: false
 ```
 
 * Add `spring-boot-starter-actuator` dependency to get actuator commands
@@ -496,6 +499,10 @@ public class ApplicationTest {}
 
 
 ## Release notes
+
+### 1.2.1
+
+* Add property `ssh.shell.prompt.local.enable` (false by default) to let default local spring shell prompt when application starts 
 
 ### 1.2.0
 

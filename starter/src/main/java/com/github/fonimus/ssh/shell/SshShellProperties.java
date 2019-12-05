@@ -1,14 +1,13 @@
 package com.github.fonimus.ssh.shell;
 
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
@@ -80,6 +79,17 @@ public class SshShellProperties {
         private String text = "shell>";
 
         private PromptColor color = PromptColor.WHITE;
+
+        private Local local = new Local();
+    }
+
+    /**
+     * Prompt local configuration
+     */
+    @Data
+    public static class Local {
+
+        private boolean enable;
     }
 
     /**

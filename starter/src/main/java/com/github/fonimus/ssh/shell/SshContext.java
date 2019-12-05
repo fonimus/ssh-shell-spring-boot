@@ -43,4 +43,13 @@ public class SshContext {
         this.lineReader = lineReader;
         this.authentication = authentication;
     }
+
+    /**
+     * Check if current prompt is the one started with application
+     *
+     * @return if local prompt or not
+     */
+    public boolean isLocalPrompt() {
+        return sshShellRunnable == null;
+    }
 }
