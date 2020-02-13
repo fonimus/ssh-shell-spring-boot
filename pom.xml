@@ -42,7 +42,7 @@
         <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
         <spring-shell.version>2.0.1.RELEASE</spring-shell.version>
         <sshd.version>2.4.0</sshd.version>
-        <junit-jupiter.version>5.3.2</junit-jupiter.version>
+        <junit-jupiter.version>5.6.0</junit-jupiter.version>
     </properties>
 
     <scm>
@@ -107,6 +107,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- note: it must be before spring, or spring dependency management will be used -->
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -131,8 +139,8 @@
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                        <groupId>org.junit.vintage</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -144,18 +152,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
