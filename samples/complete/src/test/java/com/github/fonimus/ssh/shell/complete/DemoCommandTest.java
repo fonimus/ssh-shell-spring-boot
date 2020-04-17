@@ -50,7 +50,7 @@ public class DemoCommandTest {
         reader = mock(NonBlockingReader.class);
         when(terminal.reader()).thenReturn(reader);
         when(terminal.getType()).thenReturn("osx");
-        auth = new SshAuthentication(null, null, null, null);
+        auth = new SshAuthentication("user", null, null, null);
         SshContext ctx = new SshContext(
                 new SshShellRunnable(null, null, null, null, null, null, null, null, null, false, null, null, null, null),
                 terminal, lr, auth);

@@ -11,6 +11,8 @@ import org.apache.sshd.server.auth.password.PasswordAuthenticator;
  */
 @FunctionalInterface
 public interface SshShellAuthenticationProvider
-		extends PasswordAuthenticator {
+        extends PasswordAuthenticator {
+
+    String AUTHENTICATION_ATTRIBUTE = "authentication";
 
 }

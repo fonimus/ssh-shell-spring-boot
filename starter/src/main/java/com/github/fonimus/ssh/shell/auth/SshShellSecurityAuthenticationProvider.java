@@ -26,8 +26,6 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 public class SshShellSecurityAuthenticationProvider
 		implements SshShellAuthenticationProvider {
 
-	public static final String AUTHENTICATION_ATTRIBUTE = "authentication";
-
 	private final String authProviderBeanName;
 
 	private ApplicationContext context;

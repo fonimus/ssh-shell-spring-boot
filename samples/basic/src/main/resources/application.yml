@@ -4,6 +4,7 @@ ssh:
       color: cyan
       text: 'basic::>'
     password: password
+    authorized-public-keys-file: samples/public-keys-sample
 
 logging:
   level:

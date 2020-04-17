@@ -2,6 +2,8 @@ package com.github.fonimus.ssh.shell.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -9,14 +11,16 @@ import java.util.List;
  * Ssh authentication
  */
 @Getter
+@RequiredArgsConstructor
 @AllArgsConstructor
 public class SshAuthentication {
 
-	private Object principal;
+    @NonNull
+    private final Object principal;
 
-	private Object details;
+    private Object details;
 
-	private Object credentials;
+    private Object credentials;
 
-	private List<String> authorities;
+    private List<String> authorities;
 }

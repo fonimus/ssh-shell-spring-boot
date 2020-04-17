@@ -6,5 +6,8 @@ target/
 !.idea/runConfigurations
 *.iml
 
+# public key file example
+samples/public-keys-sample
+
 # mac os
 .DS_Store

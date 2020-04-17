@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 public class DemoCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemoCommand.class);
+
     private final SshShellHelper helper;
 
     public DemoCommand(SshShellHelper helper) {

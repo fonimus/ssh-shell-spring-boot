@@ -70,6 +70,9 @@ ssh:
     # if authentication set to 'security' the AuthenticationProvider bean name
     # if not specified and only one AuthenticationProvider bean is present in the context, it will be used 
     auth-provider-bean-name:
+    # optional file containing authorized public keys (standard authorized_keys format, one key per line starting with 'ssh-rsa')
+    # takes precedence over authentication (simple or not)
+    authorized-public-keys-file:
     # for ssh helper 'confirm' method
     confirmation-words:
     - y    
@@ -499,6 +502,11 @@ public class ApplicationTest {}
 
 
 ## Release notes
+
+### 1.2.2
+
+* Add property `ssh.shell.authorized-public-keys-file` to specify authorized public keys to login via ssh.
+  This file is a standard `authorized_keys` format (one key per line, starting with **ssh-rsa**)
 
 ### 1.2.1
 

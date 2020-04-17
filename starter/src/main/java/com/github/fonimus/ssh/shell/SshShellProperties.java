@@ -62,6 +62,8 @@ public class SshShellProperties {
 
     private File hostKeyFile = new File(System.getProperty("java.io.tmpdir"), "hostKey.ser");
 
+    private File authorizedPublicKeysFile;
+
     private File historyFile = new File(System.getProperty("java.io.tmpdir"), "sshShellHistory.log");
 
     private List<String> confirmationWords;

@@ -1,6 +1,8 @@
 package com.github.fonimus.ssh.shell.basic;
 
 import com.github.fonimus.ssh.shell.PromptColor;
+import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +17,12 @@ import org.springframework.shell.standard.ShellOption;
  */
 @SshShellComponent
 public class DemoCommand {
+
+    private final SshShellHelper helper;
+
+    public DemoCommand(SshShellHelper helper) {
+        this.helper = helper;
+    }
 
     /**
      * Echo command
@@ -40,6 +48,16 @@ public class DemoCommand {
     @ShellMethod("Pojo command")
     public Pojo pojo() {
         return new Pojo("value1", "value2");
+    }
+
+    /**
+     * Authentication example command
+     *
+     * @return principal
+     */
+    @ShellMethod("Authentication command")
+    public SshAuthentication authentication() {
+        return helper.getAuthentication();
     }
 
     @Data
