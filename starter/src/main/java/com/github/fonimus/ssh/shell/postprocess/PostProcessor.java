@@ -7,7 +7,7 @@ import java.util.List;
  */
 public interface PostProcessor<T> {
 
-	String getName();
+    String getName();
 
-	String process(T result, List<String> parameters) throws PostProcessorException;
+    String process(T result, List<String> parameters) throws PostProcessorException;
 }

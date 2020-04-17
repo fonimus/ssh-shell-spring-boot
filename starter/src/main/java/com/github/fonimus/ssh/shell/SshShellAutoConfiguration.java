@@ -54,7 +54,8 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
         "org.springframework.boot.actuate.autoconfigure.audit.AuditEventsEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.beans.BeansEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpointAutoConfiguration",
-        "org.springframework.boot.actuate.autoconfigure.context.properties.ConfigurationPropertiesReportEndpointAutoConfiguration",
+        "org.springframework.boot.actuate.autoconfigure.context.properties" +
+                ".ConfigurationPropertiesReportEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.context.ShutdownEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.endpoint.jmx.JmxEndpointAutoConfiguration",

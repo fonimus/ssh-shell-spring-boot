@@ -4,13 +4,13 @@ jdk:
   - openjdk9
   - openjdk10
   - openjdk11
-  
+
 matrix:
   allow_failures:
     - jdk: openjdk9
     - jdk: openjdk10
     - jdk: openjdk11
-  
+
 sudo: false
 
 before_install:

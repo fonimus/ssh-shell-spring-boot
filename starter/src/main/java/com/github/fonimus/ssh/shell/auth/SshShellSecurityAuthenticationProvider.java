@@ -24,66 +24,67 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
  */
 @Slf4j
 public class SshShellSecurityAuthenticationProvider
-		implements SshShellAuthenticationProvider {
+        implements SshShellAuthenticationProvider {
 
-	private final String authProviderBeanName;
+    private final String authProviderBeanName;
 
-	private ApplicationContext context;
+    private ApplicationContext context;
 
-	private AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
-	public SshShellSecurityAuthenticationProvider(ApplicationContext context, String authProviderBeanName) {
-		this.context = context;
-		this.authProviderBeanName = authProviderBeanName;
-	}
+    public SshShellSecurityAuthenticationProvider(ApplicationContext context, String authProviderBeanName) {
+        this.context = context;
+        this.authProviderBeanName = authProviderBeanName;
+    }
 
-	@PostConstruct
-	public void init() {
-		Map<String, AuthenticationManager> map = context.getBeansOfType(AuthenticationManager.class);
-		if (map.isEmpty()) {
-			throw new BeanCreationException(
-					"Could not find any beans of class: " + AuthenticationManager.class.getName());
-		}
-		String beanName = authProviderBeanName;
-		Set<String> available = map.keySet();
-		if (beanName != null && !beanName.isEmpty()) {
-			this.authenticationManager = map.get(beanName);
-			if (this.authenticationManager == null) {
-				throw new BeanCreationException(
-						"Could not find bean with name: " + beanName + " and class: " + AuthenticationManager.class
-								.getName() + ". Available are: "
-								+ available);
-			}
-		} else {
-			if (map.size() != 1) {
-				throw new BeanCreationException(
-						"Found too many beans of class: " + AuthenticationManager.class.getName() + ". Please specify" +
-								" name with property '" + SSH_SHELL_PREFIX
-								+ ".authProviderBeanName'");
-			}
-			Map.Entry<String, AuthenticationManager> e = map.entrySet().iterator().next();
-			beanName = e.getKey();
-			this.authenticationManager = e.getValue();
-		}
-		LOGGER.info("Using authentication manager named: {} [class={}]", beanName,
-				this.authenticationManager.getClass().getName());
-	}
+    @PostConstruct
+    public void init() {
+        Map<String, AuthenticationManager> map = context.getBeansOfType(AuthenticationManager.class);
+        if (map.isEmpty()) {
+            throw new BeanCreationException(
+                    "Could not find any beans of class: " + AuthenticationManager.class.getName());
+        }
+        String beanName = authProviderBeanName;
+        Set<String> available = map.keySet();
+        if (beanName != null && !beanName.isEmpty()) {
+            this.authenticationManager = map.get(beanName);
+            if (this.authenticationManager == null) {
+                throw new BeanCreationException(
+                        "Could not find bean with name: " + beanName + " and class: " + AuthenticationManager.class
+                                .getName() + ". Available are: "
+                                + available);
+            }
+        } else {
+            if (map.size() != 1) {
+                throw new BeanCreationException(
+                        "Found too many beans of class: " + AuthenticationManager.class.getName() + ". Please specify" +
+                                " name with property '" + SSH_SHELL_PREFIX
+                                + ".authProviderBeanName'");
+            }
+            Map.Entry<String, AuthenticationManager> e = map.entrySet().iterator().next();
+            beanName = e.getKey();
+            this.authenticationManager = e.getValue();
+        }
+        LOGGER.info("Using authentication manager named: {} [class={}]", beanName,
+                this.authenticationManager.getClass().getName());
+    }
 
-	@Override
-	public boolean authenticate(String username, String pass,
-			ServerSession serverSession) throws PasswordChangeRequiredException {
-		try {
-			Authentication auth = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(username, pass));
-			LOGGER.debug("User {} authenticated with authorities: {}", username, auth.getAuthorities());
-			List<String> authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-			serverSession.getIoSession().setAttribute(AUTHENTICATION_ATTRIBUTE,
-					new SshAuthentication(auth.getPrincipal(), auth.getDetails(), auth.getCredentials(), authorities));
-			return auth.isAuthenticated();
-		} catch (AuthenticationException e) {
-			LOGGER.error("Unable to authenticate user [{}] : {}", username, e.getMessage());
-			LOGGER.debug("Unable to authenticate user [{}]", username, e);
-			return false;
-		}
-	}
+    @Override
+    public boolean authenticate(String username, String pass,
+                                ServerSession serverSession) throws PasswordChangeRequiredException {
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, pass));
+            LOGGER.debug("User {} authenticated with authorities: {}", username, auth.getAuthorities());
+            List<String> authorities =
+                    auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+            serverSession.getIoSession().setAttribute(AUTHENTICATION_ATTRIBUTE,
+                    new SshAuthentication(auth.getPrincipal(), auth.getDetails(), auth.getCredentials(), authorities));
+            return auth.isAuthenticated();
+        } catch (AuthenticationException e) {
+            LOGGER.error("Unable to authenticate user [{}] : {}", username, e.getMessage());
+            LOGGER.debug("Unable to authenticate user [{}]", username, e);
+            return false;
+        }
+    }
 }

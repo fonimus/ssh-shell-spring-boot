@@ -34,7 +34,8 @@ public class DemoCommand {
     @ShellMethod("Echo command")
     public String echo(String message, @ShellOption(defaultValue = ShellOption.NULL) PromptColor color) {
         if (color != null) {
-            return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
+            return new AttributedStringBuilder().append(message,
+                    AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
         }
         return message;
     }

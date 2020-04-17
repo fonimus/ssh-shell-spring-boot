@@ -21,36 +21,36 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class DemoSecurity
-		extends WebSecurityConfigurerAdapter {
+        extends WebSecurityConfigurerAdapter {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http
-				.authorizeRequests()
-				.requestMatchers(EndpointRequest.to("info")).permitAll()
-				.requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR");
-	}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                .requestMatchers(EndpointRequest.to("info")).permitAll()
+                .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR");
+    }
 
-	@Bean("customAuthManager")
-	@Override
-	public AuthenticationManager authenticationManager() throws Exception {
-		return super.authenticationManager();
-	}
+    @Bean("customAuthManager")
+    @Override
+    public AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManager();
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	public UserDetailsService userDetailsService() {
-		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-		PasswordEncoder encoder = passwordEncoder();
-		manager.createUser(User.withUsername("user").password(encoder.encode("password")).roles("USER").build());
-		manager.createUser(User.withUsername("actuator").password(encoder.encode("password")).roles("ACTUATOR").build
-				());
-		manager.createUser(User.withUsername("admin").password(encoder.encode("admin")).roles("ADMIN", "ACTUATOR")
-				.build());
-		return manager;
-	}
+    @Bean
+    public UserDetailsService userDetailsService() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        PasswordEncoder encoder = passwordEncoder();
+        manager.createUser(User.withUsername("user").password(encoder.encode("password")).roles("USER").build());
+        manager.createUser(User.withUsername("actuator").password(encoder.encode("password")).roles("ACTUATOR").build
+                ());
+        manager.createUser(User.withUsername("admin").password(encoder.encode("admin")).roles("ADMIN", "ACTUATOR")
+                .build());
+        return manager;
+    }
 }

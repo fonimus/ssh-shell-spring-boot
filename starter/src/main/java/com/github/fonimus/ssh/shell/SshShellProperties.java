@@ -25,14 +25,16 @@ public class SshShellProperties {
 
     public static final String DISABLE_SSH_SHELL = SSH_SHELL_ENABLE + "=false";
 
-    public static final String SPRING_SHELL_AUTO_CONFIG_CLASSES = "org.springframework.shell.jline.JLineShellAutoConfiguration," +
+    public static final String SPRING_SHELL_AUTO_CONFIG_CLASSES = "org.springframework.shell.jline" +
+            ".JLineShellAutoConfiguration," +
             "org.springframework.shell.SpringShellAutoConfiguration," +
             "org.springframework.shell.jcommander.JCommanderParameterResolverAutoConfiguration," +
             "org.springframework.shell.legacy.LegacyAdapterAutoConfiguration," +
             "org.springframework.shell.standard.StandardAPIAutoConfiguration," +
             "org.springframework.shell.standard.commands.StandardCommandsAutoConfiguration";
 
-    public static final String DISABLE_SPRING_SHELL_AUTO_CONFIG = "spring.autoconfigure.exclude=" + SPRING_SHELL_AUTO_CONFIG_CLASSES;
+    public static final String DISABLE_SPRING_SHELL_AUTO_CONFIG =
+            "spring.autoconfigure.exclude=" + SPRING_SHELL_AUTO_CONFIG_CLASSES;
 
     public static final String ACTUATOR_ROLE = "ACTUATOR";
 

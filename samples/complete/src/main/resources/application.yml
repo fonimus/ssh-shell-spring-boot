@@ -2,7 +2,7 @@ ssh:
   shell:
     actuator:
       excludes:
-      - audit
+        - audit
     authentication: security
     auth-provider-bean-name: customAuthManager
     authorized-public-keys-file: samples/public-keys-sample

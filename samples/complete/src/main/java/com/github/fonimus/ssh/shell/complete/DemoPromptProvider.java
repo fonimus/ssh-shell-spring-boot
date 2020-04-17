@@ -10,8 +10,8 @@ import static org.jline.utils.AttributedStyle.DEFAULT;
 @Component
 public class DemoPromptProvider implements PromptProvider {
 
-  @Override
-  public AttributedString getPrompt() {
-    return new AttributedString("complete::>", DEFAULT.foreground(CYAN));
-  }
+    @Override
+    public AttributedString getPrompt() {
+        return new AttributedString("complete::>", DEFAULT.foreground(CYAN));
+    }
 }

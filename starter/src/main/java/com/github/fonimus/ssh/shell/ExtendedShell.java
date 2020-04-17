@@ -49,7 +49,8 @@ public class ExtendedShell
         if (ctx != null) {
             ctx.setPostProcessorsList(null);
             if (isKeyCharInList(words)) {
-                List<Integer> indexes = IntStream.range(0, words.size()).filter(i -> KEY_CHARS.contains(words.get(i))).boxed().collect(Collectors.toList());
+                List<Integer> indexes =
+                        IntStream.range(0, words.size()).filter(i -> KEY_CHARS.contains(words.get(i))).boxed().collect(Collectors.toList());
                 List<PostProcessorObject> postProcessors = new ArrayList<>();
                 for (Integer index : indexes) {
                     if (words.size() > index + 1) {
@@ -66,7 +67,8 @@ public class ExtendedShell
                             }
                             postProcessors.add(new PostProcessorObject(postProcessorName, params));
                         } else if (keyChar.equals(ARROW)) {
-                            postProcessors.add(new PostProcessorObject(SavePostProcessor.SAVE, Collections.singletonList(words.get(index + 1))));
+                            postProcessors.add(new PostProcessorObject(SavePostProcessor.SAVE,
+                                    Collections.singletonList(words.get(index + 1))));
                         }
                     }
                 }

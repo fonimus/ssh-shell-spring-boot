@@ -6,11 +6,10 @@ package com.github.fonimus.ssh.shell;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.sshd.server.ExitCallback;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.sshd.server.ExitCallback;
 
 /**
  * Ssh io
@@ -19,9 +18,9 @@ import org.apache.sshd.server.ExitCallback;
 @Setter
 public class SshIO {
 
-	private InputStream is;
+    private InputStream is;
 
-	private OutputStream os;
+    private OutputStream os;
 
-	private ExitCallback ec;
+    private ExitCallback ec;
 }

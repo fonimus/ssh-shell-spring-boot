@@ -1,13 +1,9 @@
 package com.github.fonimus.ssh.shell.commands;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.github.fonimus.ssh.shell.PromptColor;
+import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.interactive.Interactive;
+import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
@@ -20,14 +16,11 @@ import org.springframework.shell.table.BorderStyle;
 import org.springframework.shell.table.SimpleHorizontalAligner;
 import org.springframework.shell.table.TableBuilder;
 
-import com.github.fonimus.ssh.shell.PromptColor;
-import com.github.fonimus.ssh.shell.SshShellHelper;
-import com.github.fonimus.ssh.shell.interactive.Interactive;
-import com.github.fonimus.ssh.shell.interactive.KeyBinding;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
-import static com.github.fonimus.ssh.shell.SshShellHelper.INTERACTIVE_LONG_MESSAGE;
-import static com.github.fonimus.ssh.shell.SshShellHelper.INTERACTIVE_SHORT_MESSAGE;
-import static com.github.fonimus.ssh.shell.SshShellHelper.at;
+import static com.github.fonimus.ssh.shell.SshShellHelper.*;
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
 /**
@@ -36,10 +29,10 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
 @ConditionalOnProperty(
-    value = {
-        SSH_SHELL_PREFIX + ".default-commands.threads",
-        SSH_SHELL_PREFIX + ".defaultCommands.threads"
-    }, havingValue = "true", matchIfMissing = true
+        value = {
+                SSH_SHELL_PREFIX + ".default-commands.threads",
+                SSH_SHELL_PREFIX + ".defaultCommands.threads"
+        }, havingValue = "true", matchIfMissing = true
 )
 public class ThreadCommand {
 

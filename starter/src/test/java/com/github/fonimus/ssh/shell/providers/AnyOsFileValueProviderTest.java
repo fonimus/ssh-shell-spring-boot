@@ -48,7 +48,8 @@ class AnyOsFileValueProviderTest {
 
     private static class TestCommand {
 
-        private void test(@ShellOption(valueProvider = AnyOsFileValueProvider.class) File file, File otherFile, String notAFile) {
+        private void test(@ShellOption(valueProvider = AnyOsFileValueProvider.class) File file, File otherFile,
+                          String notAFile) {
 
         }
     }

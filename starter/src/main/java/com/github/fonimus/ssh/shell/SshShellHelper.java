@@ -25,7 +25,8 @@ import java.util.*;
 @Slf4j
 public class SshShellHelper {
 
-    public static final String INTERACTIVE_LONG_MESSAGE = "Please press key 'q' to quit, '+' and '-' to increase or decrease refresh delay";
+    public static final String INTERACTIVE_LONG_MESSAGE = "Please press key 'q' to quit, '+' and '-' to increase or " +
+            "decrease refresh delay";
 
     public static final String INTERACTIVE_SHORT_MESSAGE = "'q': quit, '+'|'-': increase|decrease refresh";
 
@@ -51,7 +52,8 @@ public class SshShellHelper {
      * @return colored message
      */
     public String getColored(String message, PromptColor color) {
-        return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
+        return new AttributedStringBuilder().append(message,
+                AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
     }
 
     /**
@@ -62,12 +64,14 @@ public class SshShellHelper {
      * @return colored message
      */
     public String getBackgroundColored(String message, PromptColor backgroundColor) {
-        return new AttributedStringBuilder().append(message, AttributedStyle.DEFAULT.background(backgroundColor.toJlineAttributedStyle())).toAnsi();
+        return new AttributedStringBuilder().append(message,
+                AttributedStyle.DEFAULT.background(backgroundColor.toJlineAttributedStyle())).toAnsi();
     }
 
     /**
      * @param message      confirmation message
-     * @param confirmWords (optional) confirmation words, default are {@link SshShellHelper#DEFAULT_CONFIRM_WORDS}, or configured in {@link SshShellProperties}
+     * @param confirmWords (optional) confirmation words, default are {@link SshShellHelper#DEFAULT_CONFIRM_WORDS},
+     *                     or configured in {@link SshShellProperties}
      * @return whether it has been confirmed
      */
     public boolean confirm(String message, String... confirmWords) {
@@ -77,7 +81,8 @@ public class SshShellHelper {
     /**
      * @param message       confirmation message
      * @param caseSensitive should be case sensitive or not
-     * @param confirmWords  (optional) confirmation words, default are {@link SshShellHelper#DEFAULT_CONFIRM_WORDS}, or configured in {@link SshShellProperties}
+     * @param confirmWords  (optional) confirmation words, default are {@link SshShellHelper#DEFAULT_CONFIRM_WORDS},
+     *                      or configured in {@link SshShellProperties}
      * @return whether it has been confirmed
      */
     public boolean confirm(String message, boolean caseSensitive, String... confirmWords) {
@@ -267,7 +272,8 @@ public class SshShellHelper {
      * @param authorizedIfNoAuthorities whether to return true if no authorities
      * @return true if role found in authorities
      */
-    public boolean checkAuthorities(List<String> authorizedRoles, List<String> authorities, boolean authorizedIfNoAuthorities) {
+    public boolean checkAuthorities(List<String> authorizedRoles, List<String> authorities,
+                                    boolean authorizedIfNoAuthorities) {
         if (authorities == null) {
             // if authorized only -> return false
             return authorizedIfNoAuthorities;

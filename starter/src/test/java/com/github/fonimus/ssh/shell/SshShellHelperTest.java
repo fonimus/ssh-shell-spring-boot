@@ -128,8 +128,10 @@ class SshShellHelperTest extends AbstractShellHelperTest {
         assertTrue(h.checkAuthorities(Collections.singletonList("ACTUATOR")));
         assertTrue(h.checkAuthorities(Collections.singletonList("ACTUATOR")));
         assertFalse(h.checkAuthorities(Collections.singletonList("TOTO")));
-        assertTrue(h.checkAuthorities(Collections.singletonList("ACTUATOR"), Collections.singletonList("ACTUATOR"), true));
-        assertTrue(h.checkAuthorities(Collections.singletonList("ACTUATOR"), Collections.singletonList("ACTUATOR"), false));
+        assertTrue(h.checkAuthorities(Collections.singletonList("ACTUATOR"), Collections.singletonList("ACTUATOR"),
+                true));
+        assertTrue(h.checkAuthorities(Collections.singletonList("ACTUATOR"), Collections.singletonList("ACTUATOR"),
+                false));
         assertTrue(h.checkAuthorities(Collections.singletonList("ACTUATOR"), null, true));
         assertFalse(h.checkAuthorities(Collections.singletonList("ACTUATOR"), null, false));
     }

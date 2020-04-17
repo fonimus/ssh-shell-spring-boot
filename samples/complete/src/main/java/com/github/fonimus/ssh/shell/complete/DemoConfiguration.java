@@ -1,11 +1,10 @@
 package com.github.fonimus.ssh.shell.complete;
 
-import java.util.List;
-
+import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
+import java.util.List;
 
 /**
  * Demo configuration
@@ -13,19 +12,19 @@ import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 @Configuration
 public class DemoConfiguration {
 
-	@Bean
-	public PostProcessor quotePostProcessor() {
-		return new PostProcessor<String>() {
+    @Bean
+    public PostProcessor quotePostProcessor() {
+        return new PostProcessor<String>() {
 
-			@Override
-			public String getName() {
-				return "quote";
-			}
+            @Override
+            public String getName() {
+                return "quote";
+            }
 
-			@Override
-			public String process(String result, List parameters) {
-				return "'" + result + "'";
-			}
-		};
-	}
+            @Override
+            public String process(String result, List parameters) {
+                return "'" + result + "'";
+            }
+        };
+    }
 }

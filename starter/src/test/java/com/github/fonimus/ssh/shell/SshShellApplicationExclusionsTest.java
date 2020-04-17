@@ -10,31 +10,32 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = SshShellApplicationExclusionsTest.class, properties = {
-		"ssh.shell.port=2344",
-		"ssh.shell.actuator.excludes[0]=info",
-		"ssh.shell.actuator.excludes[1]=beans",
-		"ssh.shell.user=user",
-		"ssh.shell.host=127.0.0.1",
-		"ssh.shell.actuator.enable=true",
-		"ssh.shell.prompt.text=test>",
-		"ssh.shell.prompt.color=red",
-		"ssh.shell.hostKeyFile=target/test.tmp",
-		"ssh.shell.enable=true",
-		"management.endpoints.web.exposure.include=*"
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes =
+        SshShellApplicationExclusionsTest.class, properties = {
+        "ssh.shell.port=2344",
+        "ssh.shell.actuator.excludes[0]=info",
+        "ssh.shell.actuator.excludes[1]=beans",
+        "ssh.shell.user=user",
+        "ssh.shell.host=127.0.0.1",
+        "ssh.shell.actuator.enable=true",
+        "ssh.shell.prompt.text=test>",
+        "ssh.shell.prompt.color=red",
+        "ssh.shell.hostKeyFile=target/test.tmp",
+        "ssh.shell.enable=true",
+        "management.endpoints.web.exposure.include=*"
 })
 @ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext
 public class SshShellApplicationExclusionsTest
-		extends AbstractTest {
+        extends AbstractTest {
 
-	@Test
-	void testCommandAvailability() {
-		setActuatorRole();
+    @Test
+    void testCommandAvailability() {
+        setActuatorRole();
 
-		assertFalse(cmd.infoAvailability().isAvailable());
-		assertFalse(cmd.beansAvailability().isAvailable());
-		assertTrue(cmd.configpropsAvailability().isAvailable());
-	}
+        assertFalse(cmd.infoAvailability().isAvailable());
+        assertFalse(cmd.beansAvailability().isAvailable());
+        assertTrue(cmd.configpropsAvailability().isAvailable());
+    }
 }

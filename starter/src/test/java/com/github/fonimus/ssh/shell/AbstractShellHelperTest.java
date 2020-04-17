@@ -16,18 +16,18 @@ import static org.mockito.Mockito.when;
 
 public abstract class AbstractShellHelperTest {
 
-	protected static SshShellHelper h;
+    protected static SshShellHelper h;
 
-	protected static LineReader lr;
+    protected static LineReader lr;
 
-	protected static Terminal ter;
+    protected static Terminal ter;
 
-	protected static PrintWriter writer;
+    protected static PrintWriter writer;
 
-	protected NonBlockingReader reader;
+    protected NonBlockingReader reader;
 
-	@BeforeEach
-	public void each() {
+    @BeforeEach
+    public void each() {
         h = new SshShellHelper();
         List<String> auth = Collections.singletonList("ROLE_ACTUATOR");
         lr = mock(LineReader.class);

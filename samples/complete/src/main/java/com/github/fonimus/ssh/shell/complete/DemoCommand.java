@@ -77,7 +77,7 @@ public class DemoCommand {
     /**
      * File provider command example
      *
-     * @param file file to get info from
+     * @param file  file to get info from
      * @param anyOs any os file to get info from
      */
     @ShellMethod("File command")
@@ -218,7 +218,8 @@ class CustomValuesProvider
     };
 
     @Override
-    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext, String[] hints) {
+    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext,
+                                             String[] hints) {
         return Arrays.stream(VALUES).map(CompletionProposal::new).collect(Collectors.toList());
     }
 }

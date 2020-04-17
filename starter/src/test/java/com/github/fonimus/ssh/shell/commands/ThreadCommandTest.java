@@ -22,14 +22,19 @@ class ThreadCommandTest extends AbstractShellHelperTest {
         for (ThreadCommand.ThreadColumn tc : ThreadCommand.ThreadColumn.values()) {
             assertNotNull(t.threads(ThreadCommand.ThreadAction.LIST, tc, true, true, null));
         }
-        assertNotNull(t.threads(ThreadCommand.ThreadAction.DUMP, ThreadCommand.ThreadColumn.NAME, true, true, Thread.currentThread().getId()));
-        assertThrows(IllegalArgumentException.class, () -> assertNotNull(t.threads(ThreadCommand.ThreadAction.DUMP, ThreadCommand.ThreadColumn.NAME, true, true, null)));
-        assertThrows(IllegalArgumentException.class, () -> assertNotNull(t.threads(ThreadCommand.ThreadAction.DUMP, ThreadCommand.ThreadColumn.NAME, true, true, -1L)));
+        assertNotNull(t.threads(ThreadCommand.ThreadAction.DUMP, ThreadCommand.ThreadColumn.NAME, true, true,
+                Thread.currentThread().getId()));
+        assertThrows(IllegalArgumentException.class, () -> assertNotNull(t.threads(ThreadCommand.ThreadAction.DUMP,
+                ThreadCommand.ThreadColumn.NAME, true, true, null)));
+        assertThrows(IllegalArgumentException.class, () -> assertNotNull(t.threads(ThreadCommand.ThreadAction.DUMP,
+                ThreadCommand.ThreadColumn.NAME, true, true, -1L)));
 
         when(reader.read(100L)).thenReturn(113);
-        assertEquals("", t.threads(ThreadCommand.ThreadAction.LIST, ThreadCommand.ThreadColumn.NAME, true, false, null));
+        assertEquals("", t.threads(ThreadCommand.ThreadAction.LIST, ThreadCommand.ThreadColumn.NAME, true, false,
+                null));
 
         when(ter.getSize()).thenReturn(new Size(10, 10));
-        assertEquals("", t.threads(ThreadCommand.ThreadAction.LIST, ThreadCommand.ThreadColumn.NAME, true, false, null));
+        assertEquals("", t.threads(ThreadCommand.ThreadAction.LIST, ThreadCommand.ThreadColumn.NAME, true, false,
+                null));
     }
 }

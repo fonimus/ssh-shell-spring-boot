@@ -92,11 +92,16 @@ public class ActuatorCommand {
 
     private ThreadDumpEndpoint threaddump;
 
-    public ActuatorCommand(ApplicationContext applicationContext, Environment environment, SshShellProperties properties, SshShellHelper helper,
-                           @Lazy AuditEventsEndpoint audit, @Lazy BeansEndpoint beans, @Lazy ConditionsReportEndpoint conditions,
-                           @Lazy ConfigurationPropertiesReportEndpoint configprops, @Lazy EnvironmentEndpoint env, @Lazy HealthEndpoint health,
-                           @Lazy HttpTraceEndpoint httptrace, @Lazy InfoEndpoint info, @Lazy LoggersEndpoint loggers, @Lazy MetricsEndpoint metrics,
-                           @Lazy MappingsEndpoint mappings, @Lazy ScheduledTasksEndpoint scheduledtasks, @Lazy ShutdownEndpoint shutdown,
+    public ActuatorCommand(ApplicationContext applicationContext, Environment environment,
+                           SshShellProperties properties, SshShellHelper helper,
+                           @Lazy AuditEventsEndpoint audit, @Lazy BeansEndpoint beans,
+                           @Lazy ConditionsReportEndpoint conditions,
+                           @Lazy ConfigurationPropertiesReportEndpoint configprops, @Lazy EnvironmentEndpoint env,
+                           @Lazy HealthEndpoint health,
+                           @Lazy HttpTraceEndpoint httptrace, @Lazy InfoEndpoint info, @Lazy LoggersEndpoint loggers,
+                           @Lazy MetricsEndpoint metrics,
+                           @Lazy MappingsEndpoint mappings, @Lazy ScheduledTasksEndpoint scheduledtasks,
+                           @Lazy ShutdownEndpoint shutdown,
                            @Lazy ThreadDumpEndpoint threaddump) {
         this.applicationContext = applicationContext;
         this.environment = environment;
@@ -128,7 +133,8 @@ public class ActuatorCommand {
     @ShellMethod(key = "audit", value = "Display audit endpoint.")
     @ShellMethodAvailability("auditAvailability")
     public AuditEventsEndpoint.AuditEventsDescriptor audit(
-            @ShellOption(value = {"-p", "--principal"}, defaultValue = ShellOption.NULL, help = "Principal to filter on") String principal,
+            @ShellOption(value = {"-p", "--principal"}, defaultValue = ShellOption.NULL, help = "Principal to filter " +
+                    "on") String principal,
             @ShellOption(value = {"-t", "--type"}, defaultValue = ShellOption.NULL, help = "Type to filter on") String type) {
         return audit.events(principal, null, type);
     }
@@ -231,10 +237,12 @@ public class ActuatorCommand {
                 Method method = health.getClass().getMethod("health");
                 return method.invoke(health);
             } catch (NoSuchMethodException ex) {
-                LOGGER.debug("Unable to get method: health from HealthEndpoint class: {}", health.getClass().getName(), ex);
+                LOGGER.debug("Unable to get method: health from HealthEndpoint class: {}",
+                        health.getClass().getName(), ex);
                 throw e;
             } catch (IllegalAccessException | InvocationTargetException ex) {
-                LOGGER.trace("Unable to invoke method: health from HealthEndpoint class: {}", health.getClass().getName(), ex);
+                LOGGER.trace("Unable to invoke method: health from HealthEndpoint class: {}",
+                        health.getClass().getName(), ex);
                 throw e;
             }
         }
@@ -295,8 +303,10 @@ public class ActuatorCommand {
     @ShellMethodAvailability("loggersAvailability")
     public Object loggers(
             @ShellOption(value = {"-a", "--action"}, help = "Action to perform", defaultValue = "list") LoggerAction action,
-            @ShellOption(value = {"-n", "--name"}, help = "Logger name for configuration or display", defaultValue = ShellOption.NULL) String loggerName,
-            @ShellOption(value = {"-l", "--level"}, help = "Logger level for configuration", defaultValue = ShellOption.NULL) LogLevel loggerLevel) {
+            @ShellOption(value = {"-n", "--name"}, help = "Logger name for configuration or display", defaultValue =
+                    ShellOption.NULL) String loggerName,
+            @ShellOption(value = {"-l", "--level"}, help = "Logger level for configuration", defaultValue =
+                    ShellOption.NULL) LogLevel loggerLevel) {
         if ((action == LoggerAction.get || action == LoggerAction.conf) && loggerName == null) {
             throw new IllegalArgumentException("Logger name is mandatory for '" + action + "' action");
         }
@@ -334,7 +344,8 @@ public class ActuatorCommand {
     @ShellMethodAvailability("metricsAvailability")
     public Object metrics(
             @ShellOption(value = {"-n", "--name"}, help = "Metric name to get", defaultValue = ShellOption.NULL) String name,
-            @ShellOption(value = {"-t", "--tags"}, help = "Tags (key=value, separated by coma)", defaultValue = ShellOption.NULL) String tags
+            @ShellOption(value = {"-t", "--tags"}, help = "Tags (key=value, separated by coma)", defaultValue =
+                    ShellOption.NULL) String tags
     ) {
         if (name != null) {
             MetricsEndpoint.MetricResponse result = metrics.metric(name, tags != null ? Arrays.asList(tags.split(",")

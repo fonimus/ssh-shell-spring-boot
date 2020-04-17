@@ -12,27 +12,28 @@ import java.util.List;
  */
 @Slf4j
 public class HighlightPostProcessor
-		implements PostProcessor<String> {
+        implements PostProcessor<String> {
 
-	private static final SshShellHelper HELPER = new SshShellHelper();
+    private static final SshShellHelper HELPER = new SshShellHelper();
 
-	@Override
-	public String getName() {
-		return "highlight";
-	}
+    @Override
+    public String getName() {
+        return "highlight";
+    }
 
-	@Override
-	public String process(String result, List<String> parameters) {
-		if (parameters == null || parameters.isEmpty()) {
-			LOGGER.debug("Cannot use [{}] post processor without any parameters", getName());
-			return result;
-		} else {
-			String finalResult = result;
-			for (String toHighlight : parameters) {
-				finalResult = finalResult.replaceAll(toHighlight, HELPER.getBackgroundColored(toHighlight, PromptColor.YELLOW));
-			}
-			return finalResult;
-		}
-	}
+    @Override
+    public String process(String result, List<String> parameters) {
+        if (parameters == null || parameters.isEmpty()) {
+            LOGGER.debug("Cannot use [{}] post processor without any parameters", getName());
+            return result;
+        } else {
+            String finalResult = result;
+            for (String toHighlight : parameters) {
+                finalResult = finalResult.replaceAll(toHighlight, HELPER.getBackgroundColored(toHighlight,
+                        PromptColor.YELLOW));
+            }
+            return finalResult;
+        }
+    }
 
 }

@@ -31,7 +31,8 @@ public class AnyOsFileValueProvider extends ValueProviderSupport {
     }
 
     @Override
-    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext, String[] hints) {
+    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext,
+                                             String[] hints) {
         String input = completionContext.currentWordUpToCursor();
         int lastSlash = input.lastIndexOf("/");
         File currentDir = lastSlash > -1 ? new File(input.substring(0, lastSlash + 1)) : new File("./");

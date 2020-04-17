@@ -28,7 +28,8 @@ public class TypePostProcessorResultHandler
         if (postProcessorList != null) {
             for (PostProcessor postProcessor : postProcessorList) {
                 if (this.postProcessorMap.containsKey(postProcessor.getName())) {
-                    LOGGER.warn("Unable to register post processor for name [{}], it has already been registered", postProcessor.getName());
+                    LOGGER.warn("Unable to register post processor for name [{}], it has already been registered",
+                            postProcessor.getName());
                 } else {
                     this.postProcessorMap.put(postProcessor.getName(), postProcessor);
                     LOGGER.debug("Post processor with name [{}] registered", postProcessor.getName());
@@ -55,12 +56,14 @@ public class TypePostProcessorResultHandler
                     printLogWarn("Unknown post processor [" + name + "]");
                     continue;
                 }
-                Class<?> cls = ((Class) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
+                Class<?> cls =
+                        ((Class) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
                 if (!cls.isAssignableFrom(obj.getClass())) {
                     printLogWarn("Post processor [" + name + "] can only apply to class [" + cls.getName() +
                             "] (current object class is " + obj.getClass().getName() + ")");
                 } else {
-                    LOGGER.debug("Applying post processor [{}] with parameters {}", name, postProcessorObject.getParameters());
+                    LOGGER.debug("Applying post processor [{}] with parameters {}", name,
+                            postProcessorObject.getParameters());
                     try {
                         obj = postProcessor.process(obj, postProcessorObject.getParameters());
                     } catch (PostProcessorException e) {
@@ -80,6 +83,7 @@ public class TypePostProcessorResultHandler
     }
 
     private void printError(String error) {
-        resultHandler.handleResult(new AttributedString(error, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)).toAnsi());
+        resultHandler.handleResult(new AttributedString(error,
+                AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)).toAnsi());
     }
 }

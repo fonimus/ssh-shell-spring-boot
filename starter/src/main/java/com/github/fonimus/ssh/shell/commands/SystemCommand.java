@@ -1,22 +1,14 @@
 package com.github.fonimus.ssh.shell.commands;
 
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
+import com.github.fonimus.ssh.shell.SshShellHelper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.table.ArrayTableModel;
-import org.springframework.shell.table.BorderStyle;
-import org.springframework.shell.table.SimpleHorizontalAligner;
-import org.springframework.shell.table.SimpleVerticalAligner;
-import org.springframework.shell.table.SizeConstraints;
-import org.springframework.shell.table.Table;
-import org.springframework.shell.table.TableBuilder;
-import org.springframework.shell.table.TableModel;
+import org.springframework.shell.table.*;
 
-import com.github.fonimus.ssh.shell.SshShellHelper;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static com.github.fonimus.ssh.shell.SshShellHelper.at;
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
@@ -27,10 +19,10 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
 @ConditionalOnProperty(
-    value = {
-        SSH_SHELL_PREFIX + ".default-commands.jvm",
-        SSH_SHELL_PREFIX + ".defaultCommands.jvm"
-    }, havingValue = "true", matchIfMissing = true
+        value = {
+                SSH_SHELL_PREFIX + ".default-commands.jvm",
+                SSH_SHELL_PREFIX + ".defaultCommands.jvm"
+        }, havingValue = "true", matchIfMissing = true
 )
 public class SystemCommand {
 
@@ -65,7 +57,8 @@ public class SystemCommand {
 
     @ShellMethod(key = "jvm-properties", value = "List system properties.")
     public Object jvmProperties(boolean simpleView) {
-        Map<String, String> map = System.getProperties().entrySet().stream().filter(e -> e.getKey() != null).collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue() != null ? e.getValue().toString() : ""));
+        Map<String, String> map =
+                System.getProperties().entrySet().stream().filter(e -> e.getKey() != null).collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue() != null ? e.getValue().toString() : ""));
         if (simpleView) {
             return buildSimple(map);
         }

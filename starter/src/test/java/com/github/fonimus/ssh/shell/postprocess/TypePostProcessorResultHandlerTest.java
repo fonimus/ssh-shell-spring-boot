@@ -1,17 +1,16 @@
 package com.github.fonimus.ssh.shell.postprocess;
 
-import java.util.Arrays;
-import java.util.Collections;
-
+import com.github.fonimus.ssh.shell.SshContext;
+import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
+import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.shell.ResultHandler;
 
-import com.github.fonimus.ssh.shell.SshContext;
-import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
-import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 import static org.junit.jupiter.api.Assertions.assertEquals;

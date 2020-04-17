@@ -37,7 +37,8 @@ public class SshContext {
      * @param lineReader       ssh line reader
      * @param authentication   (optional) spring authentication objects
      */
-    public SshContext(SshShellRunnable sshShellRunnable, Terminal terminal, LineReader lineReader, SshAuthentication authentication) {
+    public SshContext(SshShellRunnable sshShellRunnable, Terminal terminal, LineReader lineReader,
+                      SshAuthentication authentication) {
         this.sshShellRunnable = sshShellRunnable;
         this.terminal = terminal;
         this.lineReader = lineReader;
