@@ -25,6 +25,7 @@ import org.jline.utils.AttributedString;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -229,5 +230,27 @@ class SshShellHelperTest extends AbstractShellHelperTest {
     @Test
     void test() {
         assertNotNull(SshShellHelper.at(1, 2));
+    }
+
+    @Test
+    void table() {
+        String top = "┌──────────┬──────────┬──────────┐\n";
+        String headers = top +
+                "│   col1   │   col2   │   col3   │\n";
+        String middle = "├──────────┼──────────┼──────────┤\n";
+        String body = "│line1 col1│line1 col2│line1 col3│\n" +
+                "├──────────┼──────────┼──────────┤\n" +
+                "│line2 col1│line2 col2│line2 col3│\n" +
+                "└──────────┴──────────┴──────────┘\n";
+        SimpleTable.SimpleTableBuilder builder = SimpleTable.builder()
+                .column("col1")
+                .column("col2")
+                .column("col3")
+                .line(Arrays.asList("line1 col1", "line1 col2", "line1 col3"))
+                .line(Arrays.asList("line2 col1", "line2 col2", "line2 col3"));
+        String table = h.renderTable(builder.build());
+        assertEquals(headers + middle + body, table);
+        table = h.renderTable(builder.displayHeaders(false).build());
+        assertEquals(top + body, table);
     }
 }

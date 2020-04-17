@@ -373,6 +373,47 @@ public class DemoCommand {
 }
 ```
 
+### Table
+
+A builder `com.github.fonimus.ssh.shell.SimpleTableBuilder` is available to quickly set up print table.
+
+Quick example:
+
+````java
+helper.renderTable(SimpleTable.builder()
+    .column("col1")
+    .column("col2")
+    .column("col3")
+    .column("col4")
+    .line(Arrays.asList("line1 col1", "line1 col2", "line1 col3", "line1 col4"))
+    .line(Arrays.asList("line2 col1", "line2 col2", "line2 col3", "line2 col4"))
+    .line(Arrays.asList("line3 col1", "line3 col2", "line3 col3", "line3 col4"))
+    .line(Arrays.asList("line4 col1", "line4 col2", "line4 col3", "line4 col4"))
+    .line(Arrays.asList("line5 col1", "line5 col2", "line5 col3", "line5 col4"))
+    .line(Arrays.asList("line6 col1", "line6 col2", "line6 col3", "line6 col4"))
+.build());
+````
+
+Result :
+
+````text
+┌──────────┬──────────┬──────────┬──────────┐
+│   col1   │   col2   │   col3   │   col4   │
+├──────────┼──────────┼──────────┼──────────┤
+│line1 col1│line1 col2│line1 col3│line1 col4│
+├──────────┼──────────┼──────────┼──────────┤
+│line2 col1│line2 col2│line2 col3│line2 col4│
+├──────────┼──────────┼──────────┼──────────┤
+│line3 col1│line3 col2│line3 col3│line3 col4│
+├──────────┼──────────┼──────────┼──────────┤
+│line4 col1│line4 col2│line4 col3│line4 col4│
+├──────────┼──────────┼──────────┼──────────┤
+│line5 col1│line5 col2│line5 col3│line5 col4│
+├──────────┼──────────┼──────────┼──────────┤
+│line6 col1│line6 col2│line6 col3│line6 col4│
+└──────────┴──────────┴──────────┴──────────┘
+````
+
 ### Interactive
 
 This method takes an interface to display lines at regular interval.
@@ -507,6 +548,7 @@ public class ApplicationTest {}
 
 * Add property `ssh.shell.authorized-public-keys-file` to specify authorized public keys to login via ssh.
   This file is a standard `authorized_keys` format (one key per line, starting with **ssh-rsa**)
+* Add some methods in helper to help build table with `com.github.fonimus.ssh.shell.SimpleTableBuilder`
 
 ### 1.2.1
 

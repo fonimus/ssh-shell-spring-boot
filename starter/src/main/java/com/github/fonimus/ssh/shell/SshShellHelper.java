@@ -30,7 +30,7 @@ import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.impl.AbstractPosixTerminal;
 import org.jline.utils.*;
-import org.springframework.shell.table.CellMatcher;
+import org.springframework.shell.table.*;
 
 import java.io.PrintWriter;
 import java.util.*;
@@ -49,6 +49,10 @@ public class SshShellHelper {
     public static final String EXIT = "_EXIT";
 
     public static final List<String> DEFAULT_CONFIRM_WORDS = Arrays.asList("y", "yes");
+
+    private static final List<Aligner> DEFAULT_ALIGNERS = Arrays.asList(
+            SimpleHorizontalAligner.center, SimpleVerticalAligner.middle
+    );
 
     private final List<String> confirmWords;
 
@@ -241,6 +245,87 @@ public class SshShellHelper {
             toPrint = getColored(message, color);
         }
         terminal().writer().println(toPrint);
+    }
+
+    /**
+     * Renders table in current terminal
+     *
+     * @param simpleTable simple table
+     * @return table as string
+     */
+    public String renderTable(SimpleTable simpleTable) {
+        return renderTable(buildTable(simpleTable));
+    }
+
+    /**
+     * Renders table in current terminal
+     *
+     * @param table built table
+     * @return table as string
+     */
+    public String renderTable(Table table) {
+        return table.render(terminalSize().getRows());
+    }
+
+    /**
+     * Build table from simple builder
+     *
+     * @param simpleTable simple table
+     * @return table
+     */
+    public Table buildTable(SimpleTable simpleTable) {
+        int nbLines = simpleTable.getLines().size();
+        if (simpleTable.isDisplayHeaders()) {
+            nbLines++;
+        }
+        String[][] data = new String[nbLines][simpleTable.getColumns().size()];
+        TableModel model = new ArrayTableModel(data);
+        TableBuilder tableBuilder = new TableBuilder(model);
+        int i = 0;
+        if (simpleTable.isDisplayHeaders()) {
+            // let first line for headers
+            i = 1;
+            int c = 0;
+            if (simpleTable.getHeaderAligners() == null || simpleTable.getHeaderAligners().isEmpty()) {
+                simpleTable.setHeaderAligners(DEFAULT_ALIGNERS);
+            }
+            for (String header : simpleTable.getColumns()) {
+                data[0][c] = header;
+                for (Aligner headerAligner : simpleTable.getHeaderAligners()) {
+                    tableBuilder.on(at(0, c)).addAligner(headerAligner);
+                }
+                c++;
+            }
+        }
+        if (simpleTable.getLineAligners() == null || simpleTable.getLineAligners().isEmpty()) {
+            simpleTable.setLineAligners(DEFAULT_ALIGNERS);
+        }
+        for (List<Object> line : simpleTable.getLines()) {
+            int c = 0;
+            for (Object objValue : line) {
+                String value = "";
+                if (objValue != null) {
+                    if (objValue instanceof String) {
+                        value = (String) objValue;
+                    } else {
+                        value = objValue.toString();
+                    }
+                }
+                data[i][c] = value;
+                for (Aligner lineAligner : simpleTable.getLineAligners()) {
+                    tableBuilder.on(at(i, c)).addAligner(lineAligner);
+                }
+                c++;
+            }
+            i++;
+        }
+        if (simpleTable.getTableBuilderListener() != null) {
+            simpleTable.getTableBuilderListener().onBuilt(tableBuilder);
+        }
+        if (simpleTable.isUseFullBorder()) {
+            tableBuilder.addFullBorder(simpleTable.getBorderStyle());
+        }
+        return tableBuilder.build();
     }
 
     /**
