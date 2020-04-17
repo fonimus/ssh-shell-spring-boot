@@ -14,9 +14,22 @@ or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.
 * [Getting started](#getting-started)
 * [Actuator commands](#actuator-commands)
 * [Post processors](#post-processors)
+    * [Save](#save)
+    * [Pretty](#pretty)
+    * [Json](#json)
+    * [Grep](#grep)
+    * [Highlight](#highlight)
+    * [Custom](#custom)
 * [Parameter providers](#parameter-providers)
+    * [Enum](#enum)
+    * [File](#file)
+    * [Custom](#custom-values)
 * [Custom authentication](#custom-authentication)
 * [Command helper](#command-helper)
+    * [Print output](#print-output)
+    * [Read input](#read-input)
+    * [Table](#table)
+    * [Confirmation](#confirmation)
 * [Banner](#banner)
 * [Tests](#tests)
 * [Samples](#samples)
@@ -236,7 +249,7 @@ Thanks to [AnyOsFileValueProvider.java](./starter/src/main/java/com/github/fonim
 (or FileValueProvider is deactivated), auto completion is available
 for `java.io.File` option parameters.
 
-### Custom
+### Custom values
 
 To enable auto completion for a parameter, declare a **valueProvider** class.
 
@@ -373,7 +386,7 @@ public class DemoCommand {
 }
 ```
 
-### Table
+#### Table
 
 A builder `com.github.fonimus.ssh.shell.SimpleTableBuilder` is available to quickly set up print table.
 
