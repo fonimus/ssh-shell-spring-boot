@@ -541,6 +541,18 @@ An interface is provided in order to receive events on ssh sessions : ``com.gith
 
 Implement it and define a spring bean in order to receive events.
 
+_Example_
+
+````java
+@Bean
+public SshShellListener sshShellListener() {
+    return event -> LOGGER.info("[listener] event '{}' [id={}, ip={}]",
+            event.getType(),
+            event.getSession().getServerSession().getIoSession().getId(),
+            event.getSession().getServerSession().getIoSession().getRemoteAddress());
+}
+````
+
 ## Tests
 
 It can be annoying to load ssh server during spring boot tests.
