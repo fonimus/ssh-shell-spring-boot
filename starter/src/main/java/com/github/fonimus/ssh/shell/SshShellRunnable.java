@@ -25,6 +25,7 @@ import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.Signal;
 import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
+import org.apache.sshd.server.session.ServerSession;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -201,6 +202,10 @@ public class SshShellRunnable
     @Override
     public void setChannelSession(ChannelSession session) {
         this.session = session;
+    }
+
+    public ServerSession getSshSession() {
+        return session.getSession();
     }
 
     @Override

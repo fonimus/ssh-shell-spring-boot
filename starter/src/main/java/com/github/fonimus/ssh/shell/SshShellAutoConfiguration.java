@@ -19,6 +19,8 @@ package com.github.fonimus.ssh.shell;
 import com.github.fonimus.ssh.shell.auth.SshShellAuthenticationProvider;
 import com.github.fonimus.ssh.shell.auth.SshShellPasswordAuthenticationProvider;
 import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
+import com.github.fonimus.ssh.shell.listeners.SshShellListener;
+import com.github.fonimus.ssh.shell.listeners.SshShellListenerService;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
 import com.github.fonimus.ssh.shell.postprocess.provided.*;
@@ -29,6 +31,7 @@ import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -199,6 +202,17 @@ public class SshShellAutoConfiguration {
     public PromptProvider sshPromptProvider(SshShellProperties properties) {
         return () -> new AttributedString(properties.getPrompt().getText(),
                 AttributedStyle.DEFAULT.foreground(properties.getPrompt().getColor().toJlineAttributedStyle()));
+    }
+
+    /**
+     * Creates ssh listener service
+     *
+     * @param listeners found listeners in context
+     * @return listener service
+     */
+    @Bean
+    public SshShellListenerService sshShellListenerService(@Autowired(required = false) List<SshShellListener> listeners) {
+        return new SshShellListenerService(listeners);
     }
 
     /**

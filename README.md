@@ -31,6 +31,7 @@ or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.
     * [Table](#table)
     * [Confirmation](#confirmation)
 * [Banner](#banner)
+* [Listeners](#listeners)
 * [Tests](#tests)
 * [Samples](#samples)
 * [Release notes](#release-notes)
@@ -533,6 +534,13 @@ public class DemoCommand {
 If a banner is found in spring context and `display-banner` is set to true, 
 it will be used as welcome prompt message.
 
+## Listeners
+
+An interface is provided in order to receive events on ssh sessions : ``com.github.fonimus.ssh.shell.listeners
+.SshShellListener``.
+
+Implement it and define a spring bean in order to receive events.
+
 ## Tests
 
 It can be annoying to load ssh server during spring boot tests.
@@ -556,6 +564,11 @@ public class ApplicationTest {}
 
 
 ## Release notes
+
+### 1.3.0
+
+* Bump to spring boot 2.3.0.RELEASE
+* Add [listeners mechanism](#listeners)
 
 ### 1.2.2
 

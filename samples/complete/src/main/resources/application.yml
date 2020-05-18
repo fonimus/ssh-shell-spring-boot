@@ -10,6 +10,7 @@ ssh:
     default-commands:
       jvm: false
       threads: false
+    host: 0.0.0.0
 
 management:
   endpoints:

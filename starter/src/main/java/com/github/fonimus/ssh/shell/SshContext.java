@@ -20,6 +20,7 @@ import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.sshd.server.session.ServerSession;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
@@ -68,5 +69,14 @@ public class SshContext {
      */
     public boolean isLocalPrompt() {
         return sshShellRunnable == null;
+    }
+
+    /**
+     * Return current ssh session
+     *
+     * @return ssh session, or null of is local prompt
+     */
+    public ServerSession getSshSession() {
+        return isLocalPrompt() ? null : sshShellRunnable.getSshSession();
     }
 }

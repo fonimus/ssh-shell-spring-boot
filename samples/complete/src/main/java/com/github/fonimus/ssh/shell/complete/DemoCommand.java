@@ -16,12 +16,14 @@
 
 package com.github.fonimus.ssh.shell.complete;
 
+import com.github.fonimus.ssh.shell.SimpleTable;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import com.github.fonimus.ssh.shell.interactive.Interactive;
 import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
+import org.apache.sshd.server.session.ServerSession;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
@@ -214,6 +216,27 @@ public class DemoCommand {
     @ShellMethod("Authentication command")
     public SshAuthentication authentication() {
         return helper.getAuthentication();
+    }
+
+    /**
+     * Displays ssh session information
+     */
+    @ShellMethod("Displays ssh session information")
+    public String displaySshSession() {
+        ServerSession session = helper.getSshSession();
+        if (session == null) {
+            return helper.getWarning("Not in a ssh session");
+        }
+
+        return helper.renderTable(SimpleTable.builder()
+                .column("Property").column("Value")
+                .line(Arrays.asList("Session id", session.getIoSession().getId()))
+                .line(Arrays.asList("Local address", session.getIoSession().getLocalAddress()))
+                .line(Arrays.asList("Remote address", session.getIoSession().getRemoteAddress()))
+                .line(Arrays.asList("Acceptance address", session.getIoSession().getAcceptanceAddress()))
+                .line(Arrays.asList("Server version", session.getServerVersion()))
+                .line(Arrays.asList("Client version", session.getClientVersion()))
+                .build());
     }
 
     /**

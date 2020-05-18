@@ -16,6 +16,7 @@
 
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.listeners.SshShellListenerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.channel.ChannelSession;
@@ -51,6 +52,8 @@ public class SshShellCommandFactory
 
     public static final ThreadLocal<SshContext> SSH_THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
 
+    private SshShellListenerService shellListenerService;
+
     private Banner shellBanner;
 
     private PromptProvider promptProvider;
@@ -74,20 +77,24 @@ public class SshShellCommandFactory
     /**
      * Constructor
      *
-     * @param banner           shell banner
-     * @param promptProvider   prompt provider
-     * @param shell            spring shell
-     * @param completerAdapter completer adapter
-     * @param parser           jline parser
-     * @param environment      spring environment
-     * @param historyFile      history file location
-     * @param properties       ssh shell properties
+     * @param shellListenerService shell listener service
+     * @param banner               shell banner
+     * @param promptProvider       prompt provider
+     * @param shell                spring shell
+     * @param completerAdapter     completer adapter
+     * @param parser               jline parser
+     * @param environment          spring environment
+     * @param historyFile          history file location
+     * @param properties           ssh shell properties
      */
-    public SshShellCommandFactory(@Autowired(required = false) Banner banner, @Lazy PromptProvider promptProvider,
+    public SshShellCommandFactory(SshShellListenerService shellListenerService,
+                                  @Autowired(required = false) Banner banner,
+                                  @Lazy PromptProvider promptProvider,
                                   Shell shell,
                                   JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser,
                                   Environment environment,
                                   @Qualifier(HISTORY_FILE) File historyFile, SshShellProperties properties) {
+        this.shellListenerService = shellListenerService;
         this.shellBanner = banner;
         this.promptProvider = promptProvider;
         this.shell = shell;
@@ -114,6 +121,7 @@ public class SshShellCommandFactory
                 "ssh-session-" + System.nanoTime());
         sshThread.start();
         threads.put(channelSession, sshThread);
+        shellListenerService.onSessionStarted(channelSession);
         LOGGER.debug("{}: started [{} session(s) currently active]", channelSession, threads.size());
     }
 
@@ -123,6 +131,7 @@ public class SshShellCommandFactory
         if (sshThread != null) {
             sshThread.interrupt();
         }
+        shellListenerService.onSessionStopped(channelSession);
         LOGGER.debug("{}: destroyed [{} session(s) currently active]", channelSession, threads.size());
     }
 

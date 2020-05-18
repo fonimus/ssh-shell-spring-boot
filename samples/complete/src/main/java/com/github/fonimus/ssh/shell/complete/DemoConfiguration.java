@@ -16,7 +16,9 @@
 
 package com.github.fonimus.ssh.shell.complete;
 
+import com.github.fonimus.ssh.shell.listeners.SshShellListener;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,11 +27,12 @@ import java.util.List;
 /**
  * Demo configuration
  */
+@Slf4j
 @Configuration
 public class DemoConfiguration {
 
     @Bean
-    public PostProcessor quotePostProcessor() {
+    public PostProcessor<String> quotePostProcessor() {
         return new PostProcessor<String>() {
 
             @Override
@@ -38,9 +41,17 @@ public class DemoConfiguration {
             }
 
             @Override
-            public String process(String result, List parameters) {
+            public String process(String result, List<String> parameters) {
                 return "'" + result + "'";
             }
         };
+    }
+
+    @Bean
+    public SshShellListener sshShellListener() {
+        return event -> LOGGER.info("[listener] event '{}' [id={}, ip={}]",
+                event.getType(),
+                event.getSession().getServerSession().getIoSession().getId(),
+                event.getSession().getServerSession().getIoSession().getRemoteAddress());
     }
 }
