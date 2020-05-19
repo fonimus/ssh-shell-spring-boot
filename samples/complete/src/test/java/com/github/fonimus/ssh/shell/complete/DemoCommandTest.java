@@ -67,10 +67,8 @@ public class DemoCommandTest {
         when(terminal.reader()).thenReturn(reader);
         when(terminal.getType()).thenReturn("osx");
         auth = new SshAuthentication("user", null, null, null);
-        SshContext ctx = new SshContext(
-                new SshShellRunnable(null, null, null, null, null, null, null, null, null, false, null, null, null,
-                        null),
-                terminal, lr, auth);
+        SshContext ctx = new SshContext(new SshShellRunnable(null, null, null, null, null, null, null, null, null,
+                null, false, null, null, null, null), terminal, lr, auth);
         SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
     }
 

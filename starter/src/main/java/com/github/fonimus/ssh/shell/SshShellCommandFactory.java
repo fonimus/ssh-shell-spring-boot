@@ -114,14 +114,12 @@ public class SshShellCommandFactory
     @Override
     public void start(ChannelSession channelSession, org.apache.sshd.server.Environment env) {
         SshIO sshIO = SSH_IO_CONTEXT.get();
-        Thread sshThread = new Thread(new ThreadGroup("ssh-shell"),
-                new SshShellRunnable(channelSession, shellBanner, promptProvider, shell, completerAdapter, parser,
-                        environment, historyFile, env,
-                        displayBanner, this, sshIO.getIs(), sshIO.getOs(), sshIO.getEc()),
+        Thread sshThread = new Thread(new ThreadGroup("ssh-shell"), new SshShellRunnable(channelSession,
+                shellListenerService, shellBanner, promptProvider, shell, completerAdapter, parser, environment,
+                historyFile, env, displayBanner, this, sshIO.getIs(), sshIO.getOs(), sshIO.getEc()),
                 "ssh-session-" + System.nanoTime());
         sshThread.start();
         threads.put(channelSession, sshThread);
-        shellListenerService.onSessionStarted(channelSession);
         LOGGER.debug("{}: started [{} session(s) currently active]", channelSession, threads.size());
     }
 
@@ -131,7 +129,6 @@ public class SshShellCommandFactory
         if (sshThread != null) {
             sshThread.interrupt();
         }
-        shellListenerService.onSessionStopped(channelSession);
         LOGGER.debug("{}: destroyed [{} session(s) currently active]", channelSession, threads.size());
     }
 

@@ -20,5 +20,5 @@ package com.github.fonimus.ssh.shell.listeners;
  * Event types
  */
 public enum SshShellEventType {
-    SESSION_STARTED, SESSION_STOPPED
+    SESSION_STARTED, SESSION_STOPPED, SESSION_STOPPED_UNEXPECTEDLY
 }

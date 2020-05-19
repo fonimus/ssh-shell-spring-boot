@@ -18,6 +18,7 @@ package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
+import com.github.fonimus.ssh.shell.listeners.SshShellListenerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.server.ChannelSessionAware;
@@ -61,6 +62,8 @@ public class SshShellRunnable
 
     private ChannelSession session;
 
+    private SshShellListenerService shellListenerService;
+
     private Banner shellBanner;
 
     private PromptProvider promptProvider;
@@ -87,13 +90,15 @@ public class SshShellRunnable
 
     private ExitCallback ec;
 
-    public SshShellRunnable(ChannelSession session, Banner shellBanner, PromptProvider promptProvider, Shell shell,
+    public SshShellRunnable(ChannelSession session, SshShellListenerService shellListenerService, Banner shellBanner,
+                            PromptProvider promptProvider, Shell shell,
                             JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser,
                             Environment environment, File historyFile,
                             org.apache.sshd.server.Environment sshEnv, boolean displayBanner,
                             SshShellCommandFactory sshShellCommandFactory, InputStream is,
                             OutputStream os, ExitCallback ec) {
         this.session = session;
+        this.shellListenerService = shellListenerService;
         this.shellBanner = shellBanner;
         this.promptProvider = promptProvider;
         this.shell = shell;
@@ -180,10 +185,13 @@ public class SshShellRunnable
                 }
 
                 SSH_THREAD_CONTEXT.set(new SshContext(this, terminal, reader, authentication));
+                shellListenerService.onSessionStarted(session);
                 shell.run(new SshShellInputProvider(reader, promptProvider));
+                shellListenerService.onSessionStopped(session);
                 LOGGER.debug("{}: closing", session.toString());
                 quit(0);
             } catch (Throwable e) {
+                shellListenerService.onSessionError(session);
                 LOGGER.error("{}: unexpected exception", session.toString(), e);
                 quit(1);
             }

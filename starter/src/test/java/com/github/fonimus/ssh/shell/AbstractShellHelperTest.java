@@ -62,8 +62,7 @@ public abstract class AbstractShellHelperTest {
         IoSession ioSession = mock(IoSession.class);
         when(serverSession.getIoSession()).thenReturn(ioSession);
         SshContext ctx = new SshContext(new SshShellRunnable(session, null, null, null, null, null, null, null, null,
-                false, null, null, null, null), ter,
-                lr, new SshAuthentication("user", null, null, auth));
+                null, false, null, null, null, null), ter, lr, new SshAuthentication("user", null, null, auth));
         SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
         when(ter.getType()).thenReturn("osx");
         when(ter.getSize()).thenReturn(new Size(123, 40));

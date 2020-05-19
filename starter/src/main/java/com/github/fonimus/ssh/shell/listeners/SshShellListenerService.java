@@ -53,6 +53,15 @@ public class SshShellListenerService {
         notify(new SshShellEvent(SshShellEventType.SESSION_STOPPED, channelSession));
     }
 
+    /**
+     * Session stopped with error
+     *
+     * @param channelSession ssh channel session
+     */
+    public void onSessionError(ChannelSession channelSession) {
+        notify(new SshShellEvent(SshShellEventType.SESSION_STOPPED_UNEXPECTEDLY, channelSession));
+    }
+
     private void notify(SshShellEvent event) {
         for (SshShellListener listener : this.listeners) {
             try {
