@@ -35,10 +35,7 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
 @ConditionalOnProperty(
-        value = {
-                SSH_SHELL_PREFIX + ".default-commands.jvm",
-                SSH_SHELL_PREFIX + ".defaultCommands.jvm"
-        }, havingValue = "true", matchIfMissing = true
+        value = SSH_SHELL_PREFIX + ".default-commands.jvm", havingValue = "true", matchIfMissing = true
 )
 public class SystemCommand {
 

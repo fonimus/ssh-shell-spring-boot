@@ -45,10 +45,7 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
 @ConditionalOnProperty(
-        value = {
-                SSH_SHELL_PREFIX + ".default-commands.threads",
-                SSH_SHELL_PREFIX + ".defaultCommands.threads"
-        }, havingValue = "true", matchIfMissing = true
+        value = {SSH_SHELL_PREFIX + ".default-commands.threads"}, havingValue = "true", matchIfMissing = true
 )
 public class ThreadCommand {
 

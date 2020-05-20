@@ -14,26 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.fonimus.ssh.shell.listeners;
+package com.github.fonimus.ssh.shell.commands;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.sshd.server.channel.ChannelSession;
+class ManageSessionsCommandTest {
 
-/**
- * Ssh shell event
- */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class SshShellEvent {
-
-    private SshShellEventType type;
-
-    private ChannelSession session;
-
-    public long getSessionId() {
-        return session.getServerSession().getIoSession().getId();
-    }
+    // TODO
 }

@@ -143,6 +143,8 @@ public class SshShellProperties {
         private boolean postprocessors = true;
 
         private boolean threads = true;
+
+        private boolean manageSessions = false;
     }
 
 }

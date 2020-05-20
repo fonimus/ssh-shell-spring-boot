@@ -34,7 +34,7 @@
             configprops: Display configprops endpoint.
             env: Display env endpoint.
             health: Display health endpoint.
-            httptrace: Display httptrace endpoint.
+          * httptrace: Display httptrace endpoint.
             info: Display info endpoint.
             loggers: Display or configure loggers.
             mappings: Display mappings endpoint.
@@ -48,18 +48,16 @@
             clear: Clear the shell screen.
             exit, quit: Exit the shell.
             help: Display help about available commands.
-            history: Display or save the history of previously run commands.
-            jvm-env: List system env.
-            jvm-properties: List system properties.
-            postprocessors: Display the available post processors.
+            history: Display or save the history of previously run commands
+            postprocessors: Display the available post processors
             script: Read and execute commands from a file.
             stacktrace: Display the full stacktrace of the last error.
-            threads: Thread comman.
     
     Demo Command
             admin: Admin command
             authentication: Authentication command
             conf: Confirmation command
+            display-ssh-session: Displays ssh session information
             echo: Echo command
             ex: Ex command
             file: File command
@@ -67,6 +65,11 @@
             progress: Progress command
             size: Terminal size command
             welcome: Welcome command
+    
+    Manage Sessions Commands
+            manage-sessions-info: Displays session
+            manage-sessions-list: Displays active sessions
+            manage-sessions-stop: Stop session
     
     Commands marked with (*) are currently unavailable.
     Type `help <command>` to learn more.

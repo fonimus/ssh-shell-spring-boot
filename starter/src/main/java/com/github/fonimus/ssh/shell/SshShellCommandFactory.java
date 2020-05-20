@@ -35,6 +35,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Ssh shell command implementation, which starts threads of SshShellRunnable
@@ -142,5 +144,10 @@ public class SshShellCommandFactory
     @Override
     public void setOutputStream(OutputStream os) {
         SSH_IO_CONTEXT.get().setOs(os);
+    }
+
+    public Map<Long, ChannelSession> listSessions() {
+        return threads.keySet().stream()
+                .collect(Collectors.toMap(s -> s.getServerSession().getIoSession().getId(), Function.identity()));
     }
 }

@@ -7,7 +7,6 @@
 
 > Spring shell in spring boot application over ssh
 
-
 For more information please visit `spring shell` [website](https://projects.spring.io/spring-shell/) 
 or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.1.RELEASE/reference/htmlsingle/).
 
@@ -32,6 +31,7 @@ or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.
     * [Confirmation](#confirmation)
 * [Banner](#banner)
 * [Listeners](#listeners)
+* [Session Manager](#session-manager)
 * [Tests](#tests)
 * [Samples](#samples)
 * [Release notes](#release-notes)
@@ -48,7 +48,8 @@ or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.
 </dependency>
 ```
 
-**Note:** auto configuration `SshShellAutoConfiguration` (active by default) can be deactivated by property **ssh.shell.enable=false**.
+> **Note:** auto configuration `SshShellAutoConfiguration` (active by default) can be deactivated by property 
+> **ssh.shell.enable=false**.
 
 It means that the ssh server won't start and the commands won't be scanned. Unfortunately the application will still
 load the `spring-shell` auto configuration classes and display a shell at startup (shell:>). You can disable them with
@@ -84,26 +85,28 @@ ssh:
     # if authentication set to 'security' the AuthenticationProvider bean name
     # if not specified and only one AuthenticationProvider bean is present in the context, it will be used 
     auth-provider-bean-name:
-    # optional file containing authorized public keys (standard authorized_keys format, one key per line starting with 'ssh-rsa')
-    # takes precedence over authentication (simple or not)
+    # since 1.2.2, optional file containing authorized public keys (standard authorized_keys format, one key per line
+    # starting with 'ssh-rsa'), takes precedence over authentication (simple or not)
     authorized-public-keys-file:
     # for ssh helper 'confirm' method
     confirmation-words:
     - y    
     - yes
-    # set to false to disable following default built-in commands
+    # since 1.1.6, et to false to disable following default built-in commands
     default-commands:
       jvm: true
       postprocessors: true
       thread: true
+      # since 1.3.0, command which allows you to list ssh sessions, and stop them
+      manage-sessions: false
     display-banner: true
     # to use AnyOsFileValueProvider instead of spring shell FileValueProvider for all File option parameters
     # if set to false, it still can be used via '@ShellOption(valueProvider = AnyOsFileValueProvider.class) File file'
     any-os-file-provider: true
     history-file: <java.io.tmpdir>/sshShellHistory.log
-    # set to false to have one file per user (<history-directory>/sshShellHistory-<user>.log)
+    # since 1.3.0, set to false to have one file per user (<history-directory>/sshShellHistory-<user>.log)
     shared-history: true
-    # only if shared-history is set to false
+    # since 1.3.0, only if shared-history is set to false
     history-directory: <java.io.tmpdir>
     host: 127.0.0.1
     host-key-file: <java.io.tmpdir>/hostKey.ser
@@ -116,7 +119,7 @@ ssh:
       color: white
       text: 'shell>'
       local:
-        # to let default local spring shell prompt when application starts
+        # since 1.2.1, to let default local spring shell prompt when application starts
         enable: false
 ```
 
@@ -178,6 +181,8 @@ ssh:
 ``` 
 
 ## Post processors
+
+> **Note: since 1.0.6**
 
 Post processors can be used with '|' (pipe character) followed by the name of the post processor and the parameters.
 Also, custom ones can be added.
@@ -258,7 +263,7 @@ for `java.io.File` option parameters.
 
 To enable auto completion for a parameter, declare a **valueProvider** class.
 
-**Note:**  the value provider has to be in the spring context.
+> **Note:** the value provider has to be in the spring context.
 
 ````java
 
@@ -434,6 +439,8 @@ Result :
 
 ### Interactive
 
+> **Note: since 1.1.3**
+
 This method takes an interface to display lines at regular interval.
 
 Every **refresh delay** (here 2 seconds), `com.github.fonimus.ssh.shell.interactive.InteractiveInput.getLines` is called.
@@ -557,6 +564,42 @@ public SshShellListener sshShellListener() {
 }
 ````
 
+## Session Manager
+
+> **Note: since 1.3.0**`
+
+A session manager bean is available and allows you to:
+
+* list active sessions
+* get information about one session
+* stop a session
+
+**Note: you need to use @Lazy injection if you are using it in a command**
+
+_Example_
+
+````java
+...
+public MyCommand(@Lazy SshShellSessionManager sessionManager) {
+    this.sessionManager = sessionManager;
+}
+
+@ShellMethod("My command")
+public String myCommand() {
+    sessionManager.listSessions();
+    ...
+}
+...
+````
+
+### Manage sessions commands
+
+If activated `ssh.shell.default-commands.manage-sessions=true`, the following commands are available :
+
+* `manage-sessions-info`: Displays information about single session
+* `manage-sessions-list`: Displays active sessions
+* `manage-sessions-stop`: Stop single specific session
+
 ## Tests
 
 It can be annoying to load ssh server during spring boot tests.
@@ -585,6 +628,8 @@ public class ApplicationTest {}
 
 * Bump to spring boot 2.3.0.RELEASE
 * Add [listeners mechanism](#listeners)
+* Add [session manager](#session-manager)
+    * Add possibility to activate `manage-sessions-*` commands`
 * Add possibility to have history per user (`ssh.shell.shared-history=false`)
 
 ### 1.2.2

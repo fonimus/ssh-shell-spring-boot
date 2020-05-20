@@ -10,6 +10,7 @@ ssh:
     default-commands:
       jvm: false
       threads: false
+      manage-sessions: true
     host: 0.0.0.0
     shared-history: false
     history-directory: ./target
