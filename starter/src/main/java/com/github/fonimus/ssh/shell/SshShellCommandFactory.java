@@ -23,7 +23,6 @@ import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
 import org.jline.reader.Parser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.Banner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
@@ -32,13 +31,10 @@ import org.springframework.shell.jline.JLineShellAutoConfiguration;
 import org.springframework.shell.jline.PromptProvider;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.github.fonimus.ssh.shell.SshShellHistoryAutoConfiguration.HISTORY_FILE;
 
 /**
  * Ssh shell command implementation, which starts threads of SshShellRunnable
@@ -51,6 +47,8 @@ public class SshShellCommandFactory
         implements Command {
 
     public static final ThreadLocal<SshContext> SSH_THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
+
+    private SshShellProperties properties;
 
     private SshShellListenerService shellListenerService;
 
@@ -66,10 +64,6 @@ public class SshShellCommandFactory
 
     private Environment environment;
 
-    private File historyFile;
-
-    private boolean displayBanner;
-
     public static final ThreadLocal<SshIO> SSH_IO_CONTEXT = ThreadLocal.withInitial(SshIO::new);
 
     private Map<ChannelSession, Thread> threads = new ConcurrentHashMap<>();
@@ -84,7 +78,6 @@ public class SshShellCommandFactory
      * @param completerAdapter     completer adapter
      * @param parser               jline parser
      * @param environment          spring environment
-     * @param historyFile          history file location
      * @param properties           ssh shell properties
      */
     public SshShellCommandFactory(SshShellListenerService shellListenerService,
@@ -93,7 +86,7 @@ public class SshShellCommandFactory
                                   Shell shell,
                                   JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser,
                                   Environment environment,
-                                  @Qualifier(HISTORY_FILE) File historyFile, SshShellProperties properties) {
+                                  SshShellProperties properties) {
         this.shellListenerService = shellListenerService;
         this.shellBanner = banner;
         this.promptProvider = promptProvider;
@@ -101,8 +94,7 @@ public class SshShellCommandFactory
         this.completerAdapter = completerAdapter;
         this.parser = parser;
         this.environment = environment;
-        this.historyFile = historyFile;
-        this.displayBanner = properties.isDisplayBanner();
+        this.properties = properties;
     }
 
     /**
@@ -114,9 +106,9 @@ public class SshShellCommandFactory
     @Override
     public void start(ChannelSession channelSession, org.apache.sshd.server.Environment env) {
         SshIO sshIO = SSH_IO_CONTEXT.get();
-        Thread sshThread = new Thread(new ThreadGroup("ssh-shell"), new SshShellRunnable(channelSession,
-                shellListenerService, shellBanner, promptProvider, shell, completerAdapter, parser, environment,
-                historyFile, env, displayBanner, this, sshIO.getIs(), sshIO.getOs(), sshIO.getEc()),
+        Thread sshThread = new Thread(new ThreadGroup("ssh-shell"), new SshShellRunnable(properties,
+                channelSession, shellListenerService, shellBanner, promptProvider, shell, completerAdapter, parser,
+                environment, env, this, sshIO.getIs(), sshIO.getOs(), sshIO.getEc()),
                 "ssh-session-" + System.nanoTime());
         sshThread.start();
         threads.put(channelSession, sshThread);

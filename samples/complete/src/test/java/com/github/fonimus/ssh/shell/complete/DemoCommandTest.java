@@ -16,10 +16,7 @@
 
 package com.github.fonimus.ssh.shell.complete;
 
-import com.github.fonimus.ssh.shell.SshContext;
-import com.github.fonimus.ssh.shell.SshShellCommandFactory;
-import com.github.fonimus.ssh.shell.SshShellHelper;
-import com.github.fonimus.ssh.shell.SshShellRunnable;
+import com.github.fonimus.ssh.shell.*;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
@@ -66,9 +63,9 @@ public class DemoCommandTest {
         reader = mock(NonBlockingReader.class);
         when(terminal.reader()).thenReturn(reader);
         when(terminal.getType()).thenReturn("osx");
-        auth = new SshAuthentication("user", null, null, null);
-        SshContext ctx = new SshContext(new SshShellRunnable(null, null, null, null, null, null, null, null, null,
-                null, false, null, null, null, null), terminal, lr, auth);
+        auth = new SshAuthentication("user", "user", null, null, null);
+        SshContext ctx = new SshContext(new SshShellRunnable(new SshShellProperties(), null, null, null, null, null,
+                null, null, null, null, null, null, null, null), terminal, lr, auth);
         SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
     }
 

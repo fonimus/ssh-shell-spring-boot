@@ -101,6 +101,10 @@ ssh:
     # if set to false, it still can be used via '@ShellOption(valueProvider = AnyOsFileValueProvider.class) File file'
     any-os-file-provider: true
     history-file: <java.io.tmpdir>/sshShellHistory.log
+    # set to false to have one file per user (<history-directory>/sshShellHistory-<user>.log)
+    shared-history: true
+    # only if shared-history is set to false
+    history-directory: <java.io.tmpdir>
     host: 127.0.0.1
     host-key-file: <java.io.tmpdir>/hostKey.ser
     # displayed in log if generated
@@ -581,6 +585,7 @@ public class ApplicationTest {}
 
 * Bump to spring boot 2.3.0.RELEASE
 * Add [listeners mechanism](#listeners)
+* Add possibility to have history per user (`ssh.shell.shared-history=false`)
 
 ### 1.2.2
 

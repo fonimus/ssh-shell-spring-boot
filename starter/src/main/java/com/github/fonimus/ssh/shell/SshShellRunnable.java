@@ -60,6 +60,8 @@ import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CON
 public class SshShellRunnable
         implements Factory<Command>, ChannelSessionAware, Runnable {
 
+    private SshShellProperties properties;
+
     private ChannelSession session;
 
     private SshShellListenerService shellListenerService;
@@ -76,11 +78,7 @@ public class SshShellRunnable
 
     private Environment environment;
 
-    private File historyFile;
-
     private org.apache.sshd.server.Environment sshEnv;
-
-    private boolean displayBanner;
 
     private SshShellCommandFactory sshShellCommandFactory;
 
@@ -90,13 +88,14 @@ public class SshShellRunnable
 
     private ExitCallback ec;
 
-    public SshShellRunnable(ChannelSession session, SshShellListenerService shellListenerService, Banner shellBanner,
+    public SshShellRunnable(SshShellProperties properties, ChannelSession session,
+                            SshShellListenerService shellListenerService, Banner shellBanner,
                             PromptProvider promptProvider, Shell shell,
                             JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser,
-                            Environment environment, File historyFile,
-                            org.apache.sshd.server.Environment sshEnv, boolean displayBanner,
+                            Environment environment, org.apache.sshd.server.Environment sshEnv,
                             SshShellCommandFactory sshShellCommandFactory, InputStream is,
                             OutputStream os, ExitCallback ec) {
+        this.properties = properties;
         this.session = session;
         this.shellListenerService = shellListenerService;
         this.shellBanner = shellBanner;
@@ -105,9 +104,7 @@ public class SshShellRunnable
         this.completerAdapter = completerAdapter;
         this.parser = parser;
         this.environment = environment;
-        this.historyFile = historyFile;
         this.sshEnv = sshEnv;
-        this.displayBanner = displayBanner;
         this.sshShellCommandFactory = sshShellCommandFactory;
         this.is = is;
         this.os = os;
@@ -142,7 +139,7 @@ public class SshShellRunnable
                     terminal.raise(Terminal.Signal.WINCH);
                 }, Signal.WINCH);
 
-                if (displayBanner && shellBanner != null) {
+                if (properties.isDisplayBanner() && shellBanner != null) {
                     shellBanner.printBanner(environment, this.getClass(), ps);
                 }
                 resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
@@ -172,7 +169,6 @@ public class SshShellRunnable
                         })
                         .parser(parser)
                         .build();
-                reader.setVariable(LineReader.HISTORY_FILE, historyFile.toPath());
 
                 Object authenticationObject = session.getSession().getIoSession().getAttribute(
                         SshShellSecurityAuthenticationProvider.AUTHENTICATION_ATTRIBUTE);
@@ -183,6 +179,13 @@ public class SshShellRunnable
                     }
                     authentication = (SshAuthentication) authenticationObject;
                 }
+
+                File historyFile = properties.getHistoryFile();
+                if (!properties.isSharedHistory()) {
+                    String user = authentication != null ? authentication.getName() : "unknown";
+                    historyFile = new File(properties.getHistoryDirectory(), "sshShellHistory-" + user + ".log");
+                }
+                reader.setVariable(LineReader.HISTORY_FILE, historyFile.toPath());
 
                 SSH_THREAD_CONTEXT.set(new SshContext(this, terminal, reader, authentication));
                 shellListenerService.onSessionStarted(session);

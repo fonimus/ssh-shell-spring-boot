@@ -84,6 +84,13 @@ public class SshShellProperties {
 
     private File historyFile = new File(System.getProperty("java.io.tmpdir"), "sshShellHistory.log");
 
+    private boolean sharedHistory = true;
+
+    /**
+     * Note: only used if @link {@link SshShellProperties#sharedHistory}} set to false
+     */
+    private File historyDirectory = new File(System.getProperty("java.io.tmpdir"));
+
     private List<String> confirmationWords;
 
     public enum AuthenticationType {

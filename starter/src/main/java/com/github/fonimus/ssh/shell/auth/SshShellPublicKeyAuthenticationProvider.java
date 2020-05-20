@@ -44,7 +44,7 @@ public class SshShellPublicKeyAuthenticationProvider
     @Override
     public boolean authenticate(String username, PublicKey key, ServerSession session) {
         boolean authenticated = super.authenticate(username, key, session);
-        session.getIoSession().setAttribute(AUTHENTICATION_ATTRIBUTE, new SshAuthentication(username));
+        session.getIoSession().setAttribute(AUTHENTICATION_ATTRIBUTE, new SshAuthentication(username, username));
         return authenticated;
     }
 }

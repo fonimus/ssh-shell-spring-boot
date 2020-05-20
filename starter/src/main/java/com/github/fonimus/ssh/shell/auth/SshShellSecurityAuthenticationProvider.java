@@ -94,8 +94,8 @@ public class SshShellSecurityAuthenticationProvider
             LOGGER.debug("User {} authenticated with authorities: {}", username, auth.getAuthorities());
             List<String> authorities =
                     auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-            serverSession.getIoSession().setAttribute(AUTHENTICATION_ATTRIBUTE,
-                    new SshAuthentication(auth.getPrincipal(), auth.getDetails(), auth.getCredentials(), authorities));
+            serverSession.getIoSession().setAttribute(AUTHENTICATION_ATTRIBUTE, new SshAuthentication(username,
+                    auth.getPrincipal(), auth.getDetails(), auth.getCredentials(), authorities));
             return auth.isAuthenticated();
         } catch (AuthenticationException e) {
             LOGGER.error("Unable to authenticate user [{}] : {}", username, e.getMessage());

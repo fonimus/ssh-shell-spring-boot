@@ -11,6 +11,8 @@ ssh:
       jvm: false
       threads: false
     host: 0.0.0.0
+    shared-history: false
+    history-directory: ./target
 
 management:
   endpoints:

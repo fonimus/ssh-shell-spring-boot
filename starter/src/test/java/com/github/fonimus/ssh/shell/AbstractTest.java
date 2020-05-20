@@ -94,9 +94,9 @@ public abstract class AbstractTest {
     protected ThreadDumpEndpoint threaddump;
 
     protected void setRole(String role) {
-        SshShellCommandFactory.SSH_THREAD_CONTEXT.set(new SshContext(new SshShellRunnable(null, null, null, null, null,
-                null, null, null, null, null, false, null, null, null, null), null, null, new SshAuthentication("user"
-                , null, null, Collections.singletonList(role))));
+        SshShellCommandFactory.SSH_THREAD_CONTEXT.set(new SshContext(new SshShellRunnable(properties, null, null,
+                null, null, null, null, null, null, null, null, null, null, null), null, null, new SshAuthentication(
+                "user", "user", null, null, Collections.singletonList(role))));
     }
 
     protected void setActuatorRole() {

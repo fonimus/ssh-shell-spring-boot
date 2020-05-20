@@ -32,6 +32,9 @@ import java.util.List;
 public class SshAuthentication {
 
     @NonNull
+    private final String name;
+
+    @NonNull
     private final Object principal;
 
     private Object details;
