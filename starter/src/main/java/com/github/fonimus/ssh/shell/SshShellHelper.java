@@ -25,7 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.session.ServerSession;
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
+import org.jline.reader.History;
 import org.jline.reader.LineReader;
+import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
@@ -470,6 +472,15 @@ public class SshShellHelper {
     }
 
     /**
+     * Return the terminal reader history
+     *
+     * @return history
+     */
+    public History getHistory() {
+        return new DefaultHistory(this.reader());
+    }
+
+    /**
      * Interactive
      *
      * @param interactive interactive built command
@@ -661,5 +672,4 @@ public class SshShellHelper {
         }
         return sshContext.getLineReader();
     }
-
 }
