@@ -60,6 +60,8 @@ public class SshHelperTest {
             channel.connect();
             try {
                 executor.execute(pis, pos);
+            } catch (Exception e) {
+                fail(e.toString());
             } finally {
                 pis.close();
                 pos.close();
@@ -106,6 +108,6 @@ public class SshHelperTest {
     @FunctionalInterface
     public interface Executor {
 
-        void execute(InputStream is, OutputStream os) throws IOException;
+        void execute(InputStream is, OutputStream os) throws Exception;
     }
 }

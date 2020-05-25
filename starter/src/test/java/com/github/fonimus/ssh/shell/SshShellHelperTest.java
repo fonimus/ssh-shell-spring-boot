@@ -259,4 +259,9 @@ class SshShellHelperTest extends AbstractShellHelperTest {
         table = h.renderTable(builder.displayHeaders(false).build());
         assertEquals(top + body, table);
     }
+
+    @Test
+    void testGetHistory() {
+        assertNotNull(h.getHistory());
+    }
 }

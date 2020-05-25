@@ -17,6 +17,9 @@
 package com.github.fonimus.ssh.shell;
 
 import org.apache.sshd.common.channel.PtyMode;
+import org.apache.sshd.common.io.IoSession;
+import org.apache.sshd.server.channel.ChannelSession;
+import org.apache.sshd.server.session.ServerSession;
 import org.jline.terminal.Attributes;
 import org.junit.jupiter.api.Test;
 
@@ -24,8 +27,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-class SshShellUtilsTest {
+public class SshShellUtilsTest {
 
     @Test
     void testFillAttributes() {
@@ -36,5 +41,15 @@ class SshShellUtilsTest {
         }
         SshShellUtils.fill(attributes, map);
         assertFalse(attributes.getControlChars().isEmpty());
+    }
+
+    public static ChannelSession mockChannelSession(Long id) {
+        ChannelSession session = mock(ChannelSession.class);
+        ServerSession serverSession = mock(ServerSession.class);
+        when(session.getSession()).thenReturn(serverSession);
+        IoSession ioSession = mock(IoSession.class);
+        when(serverSession.getIoSession()).thenReturn(ioSession);
+        when(ioSession.getId()).thenReturn(id);
+        return session;
     }
 }

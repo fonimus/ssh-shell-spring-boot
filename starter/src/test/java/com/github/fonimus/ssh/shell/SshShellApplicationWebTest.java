@@ -16,7 +16,9 @@
 
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.commands.ManageSessionsCommand;
 import com.github.fonimus.ssh.shell.conf.SshShellSessionConfigurationTest;
+import com.github.fonimus.ssh.shell.manage.SshShellSessionManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +26,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.github.fonimus.ssh.shell.SshHelperTest.call;
+import static com.github.fonimus.ssh.shell.SshHelperTest.write;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -31,6 +35,8 @@ import static org.junit.jupiter.api.Assertions.*;
         properties = {
                 "ssh.shell.port=2346",
                 "ssh.shell.password=pass",
+                "ssh.shell.shared-history=false",
+                "ssh.shell.default-commands.manage-sessions=true",
                 "management.endpoints.web.exposure.include=*"
         }
 )
@@ -68,5 +74,24 @@ public class SshShellApplicationWebTest
                 () -> assertFalse(cmd.shutdownAvailability().isAvailable()),
                 () -> assertFalse(cmd.threaddumpAvailability().isAvailable())
         );
+    }
+
+    @Test
+    void testManageSessions() {
+        ManageSessionsCommand manageSessionsCommand = context.getBean(ManageSessionsCommand.class);
+        SshShellSessionManager sshShellSessionManager = context.getBean(SshShellSessionManager.class);
+
+        call("user", "pass", properties, (is, os) -> {
+            write(os, "help");
+            Thread.sleep(1000);
+            // to set
+            setCtx("");
+            assertNotNull(manageSessionsCommand.manageSessionsList());
+            Long oneId = sshShellSessionManager.listSessions().keySet().iterator().next();
+            assertTrue(manageSessionsCommand.manageSessionsInfo(0L).contains("not found"));
+            assertTrue(manageSessionsCommand.manageSessionsInfo(oneId).contains("/127.0.0.1"));
+            assertTrue(manageSessionsCommand.manageSessionsStop(0L).contains("Unable to stop session"));
+            assertTrue(manageSessionsCommand.manageSessionsStop(oneId).contains("stopped"));
+        });
     }
 }

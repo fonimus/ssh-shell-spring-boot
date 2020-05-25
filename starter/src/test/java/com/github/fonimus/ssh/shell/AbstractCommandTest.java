@@ -19,6 +19,7 @@ package com.github.fonimus.ssh.shell;
 import com.github.fonimus.ssh.shell.commands.actuator.ActuatorCommand;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
+import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.when;
 public abstract class AbstractCommandTest
         extends AbstractTest {
 
-    void commonCommandAvailability() {
+    protected void commonCommandAvailability() {
         assertAll(
                 // since spring boot 2.2 audit,httptrace disabled by default
                 // more info: https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2
@@ -184,10 +185,11 @@ public abstract class AbstractCommandTest
         assertThrows(NoSuchBeanDefinitionException.class, () -> cmd.shutdown());
     }
 
-    private void setCtx(String response) throws Exception {
+    protected void setCtx(String response) throws Exception {
         LineReader lr = mock(LineReader.class);
         Terminal t = mock(Terminal.class);
         when(lr.getTerminal()).thenReturn(t);
+        when(t.getSize()).thenReturn(new Size(300, 20));
         when(t.writer()).thenReturn(new PrintWriter("target/rh.tmp"));
         ParsedLine pl = mock(ParsedLine.class);
         when(pl.line()).thenReturn(response);

@@ -16,9 +16,14 @@
 
 package com.github.fonimus.ssh.shell.listeners;
 
+import org.apache.sshd.server.channel.ChannelSession;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+
+import static com.github.fonimus.ssh.shell.SshShellUtilsTest.mockChannelSession;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class SshShellListenerServiceTest {
 
@@ -26,14 +31,21 @@ class SshShellListenerServiceTest {
     void name() {
         SshShellListenerService service = new SshShellListenerService(Arrays.asList(
                 event -> {
-                    // nothing
+                    assertNotNull(event);
+                    assertNotNull(event.toString());
+                    assertNotNull(event.getType());
+                    assertNotNull(event.getSession());
+                    assertEquals(123L, event.getSessionId());
                 }, event -> {
                     throw new IllegalArgumentException("[TEST]");
                 }
         ));
 
-        service.onSessionStarted(null);
-        service.onSessionStopped(null);
+        ChannelSession session = mockChannelSession(123L);
+
+        service.onSessionStarted(session);
+        service.onSessionStopped(session);
+        service.onSessionError(session);
 
         // no exception during executions event with illegal argument exception -> only error log
     }
