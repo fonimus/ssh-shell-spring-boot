@@ -60,6 +60,12 @@ import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CON
 public class SshShellRunnable
         implements Factory<Command>, ChannelSessionAware, Runnable {
 
+    private static final String SSH_ENV_COLUMNS = "COLUMNS";
+
+    private static final String SSH_ENV_LINES = "LINES";
+
+    private static final String SSH_ENV_TERM = "TERM";
+
     private SshShellProperties properties;
 
     private ChannelSession session;
@@ -117,12 +123,29 @@ public class SshShellRunnable
     @Override
     public void run() {
         LOGGER.debug("{}: running...", session.toString());
-        Size size = new Size(Integer.parseInt(sshEnv.getEnv().get("COLUMNS")), Integer.parseInt(sshEnv.getEnv().get(
-                "LINES")));
+        TerminalBuilder terminalBuilder = TerminalBuilder.builder().system(false).streams(is, os);
+        boolean sizeAvailable = false;
+        if (sshEnv.getEnv().containsKey(SSH_ENV_COLUMNS) && sshEnv.getEnv().containsKey(SSH_ENV_LINES)) {
+            try {
+                terminalBuilder.size(new Size(
+                        Integer.parseInt(sshEnv.getEnv().get(SSH_ENV_COLUMNS)),
+                        Integer.parseInt(sshEnv.getEnv().get(SSH_ENV_LINES))
+                ));
+                sizeAvailable = true;
+            } catch (NumberFormatException e) {
+                if (!LOGGER.isTraceEnabled()) {
+                    LOGGER.debug("Unable to get terminal size : {}:{}", e.getClass().getSimpleName(), e.getMessage());
+                } else {
+                    LOGGER.trace("Unable to get terminal size", e);
+                }
+            }
+        }
+        if (sshEnv.getEnv().containsKey(SSH_ENV_LINES)) {
+            terminalBuilder.type(sshEnv.getEnv().get(SSH_ENV_TERM));
+        }
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
-             Terminal terminal = TerminalBuilder.builder().system(false).size(size).type(sshEnv.getEnv().get("TERM"))
-                     .streams(is, os).build()) {
+             Terminal terminal = terminalBuilder.build()) {
 
             try {
                 DefaultResultHandler resultHandler = new DefaultResultHandler();
@@ -132,12 +155,14 @@ public class SshShellRunnable
                 SshShellUtils.fill(attr, sshEnv.getPtyModes());
                 terminal.setAttributes(attr);
 
-                sshEnv.addSignalListener((channel, signal) -> {
-                    terminal.setSize(new Size(
-                            Integer.parseInt(sshEnv.getEnv().get("COLUMNS")),
-                            Integer.parseInt(sshEnv.getEnv().get("LINES"))));
-                    terminal.raise(Terminal.Signal.WINCH);
-                }, Signal.WINCH);
+                if (sizeAvailable) {
+                    sshEnv.addSignalListener((channel, signal) -> {
+                        terminal.setSize(new Size(
+                                Integer.parseInt(sshEnv.getEnv().get("COLUMNS")),
+                                Integer.parseInt(sshEnv.getEnv().get("LINES"))));
+                        terminal.raise(Terminal.Signal.WINCH);
+                    }, Signal.WINCH);
+                }
 
                 if (properties.isDisplayBanner() && shellBanner != null) {
                     shellBanner.printBanner(environment, this.getClass(), ps);
