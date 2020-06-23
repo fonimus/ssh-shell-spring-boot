@@ -624,6 +624,10 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.3.1
+
+* Bump to sshd 2.5.0
+
 ### 1.3.0
 
 * Bump to spring boot 2.3.0.RELEASE
@@ -634,6 +638,7 @@ public class ApplicationTest {}
 
 ### 1.2.2
 
+* Bump to sshd 2.4.0
 * Add property `ssh.shell.authorized-public-keys-file` to specify authorized public keys to login via ssh.
   This file is a standard `authorized_keys` format (one key per line, starting with **ssh-rsa**)
 * Add some methods in helper to help build table with `com.github.fonimus.ssh.shell.SimpleTableBuilder`
