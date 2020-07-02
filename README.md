@@ -626,7 +626,7 @@ public class ApplicationTest {}
 
 ### 1.3.1
 
-* Bump to sshd 2.5.0
+* Bump to sshd 2.5.1
 
 ### 1.3.0
 
