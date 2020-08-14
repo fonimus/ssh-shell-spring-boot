@@ -23,6 +23,7 @@ import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import com.github.fonimus.ssh.shell.interactive.Interactive;
 import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
+import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.session.ServerSession;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
@@ -216,6 +217,25 @@ public class DemoCommand {
     @ShellMethod("Authentication command")
     public SshAuthentication authentication() {
         return helper.getAuthentication();
+    }
+
+    /**
+     * Displays ssh env information
+     **/
+    @ShellMethod("Displays ssh env information")
+    public String displaySshEnv() {
+        Environment env = helper.getSshEnvironment();
+        if (env == null) {
+            return helper.getWarning("Not in a ssh session");
+        }
+
+        SimpleTable.SimpleTableBuilder builder = SimpleTable.builder().column("Property").column("Value");
+
+        for (Map.Entry<String, String> e : env.getEnv().entrySet()) {
+            builder.line(Arrays.asList(e.getKey(), e.getValue()));
+        }
+
+        return helper.renderTable(builder.build());
     }
 
     /**

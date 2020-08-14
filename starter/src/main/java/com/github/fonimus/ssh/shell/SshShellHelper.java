@@ -22,6 +22,7 @@ import com.github.fonimus.ssh.shell.interactive.InteractiveInput;
 import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import com.github.fonimus.ssh.shell.interactive.KeyBindingInput;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.session.ServerSession;
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
@@ -359,6 +360,15 @@ public class SshShellHelper {
      */
     public ServerSession getSshSession() {
         return SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getSshSession();
+    }
+
+    /**
+     * Get ssh environment
+     *
+     * @return current ssh environment, or null if local prompt
+     */
+    public Environment getSshEnvironment() {
+        return SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getSshEnv();
     }
 
     /**

@@ -315,7 +315,7 @@ public class CustomPasswordConfiguration {
 
 A `com.github.fonimus.ssh.shell.SshShellHelper` bean is provided in context to help for additional functionalities.
 
-You can either autowire it or inject it in constructor:
+You can either autowire it or inject it in a constructor:
 
 ```java
 import com.github.fonimus.ssh.shell.SshShellHelper;
@@ -626,7 +626,9 @@ public class ApplicationTest {}
 
 ### 1.3.1
 
+* Bump to spring boot 2.3.3.RELEASE
 * Bump to sshd 2.5.1
+* Add method SshShellHelper#getSshEnvironment() to retrieve information about ssh environment
 
 ### 1.3.0
 

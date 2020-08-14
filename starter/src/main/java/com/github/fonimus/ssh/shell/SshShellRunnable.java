@@ -244,6 +244,10 @@ public class SshShellRunnable
         return session.getSession();
     }
 
+    public org.apache.sshd.server.Environment getSshEnv() {
+        return sshEnv;
+    }
+
     @Override
     public Command create() {
         return sshShellCommandFactory;

@@ -17,6 +17,7 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import org.apache.sshd.server.Environment;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
@@ -55,9 +56,10 @@ public abstract class AbstractShellHelperTest {
         when(ter.reader()).thenReturn(reader);
         when(lr.getTerminal()).thenReturn(ter);
 
+        Environment sshEnv = mock(Environment.class);
         SshContext ctx = new SshContext(new SshShellRunnable(new SshShellProperties(), mockChannelSession(4L), null,
                 null, null,
-                null, null, null, null, null, null, null, null, null), ter, lr,
+                null, null, null, null, sshEnv, null, null, null, null), ter, lr,
                 new SshAuthentication("user", "user", null, null, auth));
         SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
         when(ter.getType()).thenReturn("osx");

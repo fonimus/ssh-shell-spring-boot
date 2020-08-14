@@ -161,6 +161,11 @@ class SshShellHelperTest extends AbstractShellHelperTest {
     }
 
     @Test
+    void getSshEnv() {
+        assertNotNull(h.getSshEnvironment());
+    }
+
+    @Test
     void terminalSize() {
         assertEquals(123, h.terminalSize().getColumns());
         assertEquals(40, h.terminalSize().getRows());
