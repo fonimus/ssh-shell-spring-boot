@@ -25,7 +25,6 @@ import org.springframework.shell.table.Aligner;
  */
 public class ColorAligner implements Aligner {
 
-    private SshShellHelper helper;
     private PromptColor color;
 
     /**
@@ -34,7 +33,6 @@ public class ColorAligner implements Aligner {
      * @param color the cell text color
      */
     public ColorAligner(PromptColor color) {
-        this.helper = new SshShellHelper();
         this.color = color;
     }
 
@@ -42,7 +40,7 @@ public class ColorAligner implements Aligner {
     public String[] align(String[] text, int cellWidth, int cellHeight) {
         String[] result = new String[text.length];
         for (int i = 0; i < text.length; i++) {
-            result[i] = helper.getColored(text[i], color);
+            result[i] = SshShellHelper.getColoredMessage(text[i], color);
         }
         return result;
     }

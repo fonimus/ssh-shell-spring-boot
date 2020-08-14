@@ -16,7 +16,6 @@
 
 package com.github.fonimus.ssh.shell.commands.actuator;
 
-import com.github.fonimus.ssh.shell.SshContext;
 import com.github.fonimus.ssh.shell.SshShellCommandFactory;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
@@ -484,12 +483,11 @@ public class ActuatorCommand {
 
     private Availability availability(String name, Class<?> clazz, boolean defaultValue) {
         if (!"info".equals(name)) {
-            SshContext sshContext = SshShellCommandFactory.SSH_THREAD_CONTEXT.get();
-            if (sshContext.isLocalPrompt()) {
+            if (helper.isLocalPrompt()) {
                 LOGGER.debug("Not an ssh session -> local prompt -> giving all rights");
                 return Availability.available();
             }
-            SshAuthentication auth = sshContext.getAuthentication();
+            SshAuthentication auth = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthentication();
             List<String> authorities = auth != null ? auth.getAuthorities() : null;
             if (!helper.checkAuthorities(properties.getActuator().getAuthorizedRoles(), authorities,
                     properties.getAuthentication() == SshShellProperties.AuthenticationType.simple)) {

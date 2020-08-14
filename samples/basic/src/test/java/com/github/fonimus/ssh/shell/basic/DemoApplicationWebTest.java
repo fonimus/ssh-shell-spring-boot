@@ -39,7 +39,7 @@ public class DemoApplicationWebTest {
     @Test
     void testApplicationStartup() {
         assertEquals("message", demo.echo("message", null));
-        assertEquals(new SshShellHelper().getColored("message", PromptColor.CYAN),
+        assertEquals(SshShellHelper.getColoredMessage("message", PromptColor.CYAN),
                 demo.echo("message", PromptColor.CYAN));
         assertNotNull(demo.pojo());
     }

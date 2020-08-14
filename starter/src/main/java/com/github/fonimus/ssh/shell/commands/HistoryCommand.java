@@ -17,7 +17,8 @@
 package com.github.fonimus.ssh.shell.commands;
 
 import com.github.fonimus.ssh.shell.SshShellHelper;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import com.github.fonimus.ssh.shell.SshShellProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -27,24 +28,33 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
-
 /**
  * Override history command to get history per user if not shared
  */
+@Slf4j
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
-@ConditionalOnProperty(name = SSH_SHELL_PREFIX + ".shared-history", havingValue = "false")
 public class HistoryCommand implements History.Command {
+
+    private SshShellProperties properties;
 
     private SshShellHelper helper;
 
-    public HistoryCommand(SshShellHelper helper) {
+    private org.jline.reader.History history;
+
+    public HistoryCommand(SshShellProperties properties, SshShellHelper helper, org.jline.reader.History history) {
+        this.properties = properties;
         this.helper = helper;
+        this.history = history;
     }
 
     @ShellMethod(value = "Display or save the history of previously run commands")
     public List<String> history(@ShellOption(help = "A file to save history to.", defaultValue = ShellOption.NULL) File file) throws IOException {
-        return new History(helper.getHistory()).history(file);
+        org.jline.reader.History historyToUse = this.history;
+        if (!properties.isSharedHistory() && !helper.isLocalPrompt()) {
+            LOGGER.debug("History is not shared and this is not from local prompt, getting specific user history");
+            historyToUse = helper.getHistory();
+        }
+        return new History(historyToUse).history(file);
     }
 }

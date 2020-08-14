@@ -32,8 +32,6 @@ class HighlightPostProcessorTest {
 
     public static final String TEST = "test\ntoto\ntiti\ntest";
 
-    private static final SshShellHelper HELPER = new SshShellHelper();
-
     private static HighlightPostProcessor processor;
 
     @BeforeAll
@@ -46,14 +44,13 @@ class HighlightPostProcessorTest {
         assertAll("highlight",
                 () -> assertEquals(TEST, processor.process(TEST, null)),
                 () -> assertEquals(TEST, processor.process(TEST, Collections.singletonList(""))),
-                () -> assertEquals(TEST.replaceAll("test", HELPER.getBackgroundColored("test", PromptColor.YELLOW)),
-                        processor.process(TEST, Collections.singletonList("test"))),
-                () -> assertEquals(TEST.replaceAll("toto", HELPER.getBackgroundColored("toto", PromptColor.YELLOW)),
-                        processor.process(TEST, Collections.singletonList("toto"))),
-                () -> assertEquals(TEST
-                                .replaceAll("test", HELPER.getBackgroundColored("test", PromptColor.YELLOW))
-                                .replaceAll("toto", HELPER.getBackgroundColored("toto", PromptColor.YELLOW)),
-                        processor.process(TEST, Arrays.asList("test", "toto")))
+                () -> assertEquals(TEST.replaceAll("test", SshShellHelper.getBackgroundColoredMessage("test",
+                        PromptColor.YELLOW)), processor.process(TEST, Collections.singletonList("test"))),
+                () -> assertEquals(TEST.replaceAll("toto", SshShellHelper.getBackgroundColoredMessage("toto",
+                        PromptColor.YELLOW)), processor.process(TEST, Collections.singletonList("toto"))),
+                () -> assertEquals(TEST.replaceAll("test", SshShellHelper.getBackgroundColoredMessage("test",
+                        PromptColor.YELLOW)).replaceAll("toto", SshShellHelper.getBackgroundColoredMessage("toto",
+                        PromptColor.YELLOW)), processor.process(TEST, Arrays.asList("test", "toto")))
         );
     }
 }

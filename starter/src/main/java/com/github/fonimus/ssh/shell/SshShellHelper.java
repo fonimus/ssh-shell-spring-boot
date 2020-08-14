@@ -76,6 +76,17 @@ public class SshShellHelper {
      * @return colored message
      */
     public String getColored(String message, PromptColor color) {
+        return getColoredMessage(message, color);
+    }
+
+    /**
+     * Color message with given color
+     *
+     * @param message message to return
+     * @param color   color to print
+     * @return colored message
+     */
+    public static String getColoredMessage(String message, PromptColor color) {
         return new AttributedStringBuilder().append(message,
                 AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
     }
@@ -88,6 +99,17 @@ public class SshShellHelper {
      * @return colored message
      */
     public String getBackgroundColored(String message, PromptColor backgroundColor) {
+        return getBackgroundColoredMessage(message, backgroundColor);
+    }
+
+    /**
+     * Color message with given background color
+     *
+     * @param message         message to return
+     * @param backgroundColor background color to print
+     * @return colored message
+     */
+    public static String getBackgroundColoredMessage(String message, PromptColor backgroundColor) {
         return new AttributedStringBuilder().append(message,
                 AttributedStyle.DEFAULT.background(backgroundColor.toJlineAttributedStyle())).toAnsi();
     }
@@ -372,18 +394,28 @@ public class SshShellHelper {
     }
 
     /**
+     * @return true if current command executed in a local prompt
+     */
+    public boolean isLocalPrompt() {
+        SshContext sshContext = SshShellCommandFactory.SSH_THREAD_CONTEXT.get();
+        if (sshContext == null) {
+            return true;
+        }
+        return sshContext.isLocalPrompt();
+    }
+
+    /**
      * Check that one of the roles is in current authorities
      *
      * @param authorizedRoles authorized roles
      * @return true if role found in authorities
      */
     public boolean checkAuthorities(List<String> authorizedRoles) {
-        SshContext sshContext = SshShellCommandFactory.SSH_THREAD_CONTEXT.get();
-        if (sshContext.isLocalPrompt()) {
+        if (isLocalPrompt()) {
             LOGGER.debug("Not an ssh session -> local prompt -> giving all rights");
             return true;
         }
-        SshAuthentication auth = sshContext.getAuthentication();
+        SshAuthentication auth = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthentication();
         return checkAuthorities(authorizedRoles, auth != null ? auth.getAuthorities() : null, false);
     }
 

@@ -25,6 +25,7 @@ import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
 import com.github.fonimus.ssh.shell.postprocess.provided.*;
 import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.SshServer;
 import org.jline.reader.LineReader;
 import org.jline.reader.Parser;
@@ -53,6 +54,7 @@ import org.springframework.shell.jline.InteractiveShellApplicationRunner;
 import org.springframework.shell.jline.PromptProvider;
 import org.springframework.shell.standard.ValueProvider;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
@@ -63,6 +65,7 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
  * <p>Ssh shell auto configuration</p>
  * <p>Can be disabled by property <b>ssh.shell.enable=false</b></p>
  */
+@Slf4j
 @Configuration
 @ConditionalOnClass(SshServer.class)
 @ConditionalOnProperty(name = SSH_SHELL_ENABLE, havingValue = "true", matchIfMissing = true)
@@ -104,9 +107,29 @@ public class SshShellAutoConfiguration {
 
     private ConfigurableEnvironment environment;
 
-    public SshShellAutoConfiguration(ApplicationContext context, ConfigurableEnvironment environment) {
+    private SshShellProperties properties;
+
+    public SshShellAutoConfiguration(ApplicationContext context, ConfigurableEnvironment environment,
+                                     SshShellProperties properties) {
         this.context = context;
         this.environment = environment;
+        this.properties = properties;
+    }
+
+    /**
+     * Initialize ssh shell auto config
+     */
+    @PostConstruct
+    public void init() {
+        if (context.getEnvironment().getProperty("spring.main.lazy-initialization", Boolean.class, false)) {
+            LOGGER.info("Lazy initialization enabled, calling configuration bean explicitly to start ssh server");
+            context.getBean(SshShellConfiguration.class);
+            // also need to get terminal to initialize thread context of main thread
+            context.getBean(Terminal.class);
+        }
+        if (!properties.getPrompt().getLocal().isEnable()) {
+            InteractiveShellApplicationRunner.disable(environment);
+        }
     }
 
     @Bean
@@ -118,7 +141,7 @@ public class SshShellAutoConfiguration {
     // value providers
 
     @Bean
-    public ValueProvider anyOsFileValueProvider(SshShellProperties properties) {
+    public ValueProvider anyOsFileValueProvider() {
         return new AnyOsFileValueProvider(properties.isAnyOsFileProvider());
     }
 
@@ -152,7 +175,7 @@ public class SshShellAutoConfiguration {
     }
 
     @Bean
-    public SshShellHelper sshShellHelper(SshShellProperties properties) {
+    public SshShellHelper sshShellHelper() {
         return new SshShellHelper(properties.getConfirmationWords());
     }
 
@@ -160,14 +183,14 @@ public class SshShellAutoConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnClass(name = "org.springframework.security.authentication.AuthenticationManager")
     @ConditionalOnProperty(value = SSH_SHELL_PREFIX + ".authentication", havingValue = "security")
-    public SshShellAuthenticationProvider sshShellSecurityAuthenticationProvider(SshShellProperties properties) {
+    public SshShellAuthenticationProvider sshShellSecurityAuthenticationProvider() {
         return new SshShellSecurityAuthenticationProvider(context, properties.getAuthProviderBeanName());
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(value = SSH_SHELL_PREFIX + ".authentication", havingValue = "simple", matchIfMissing = true)
-    public SshShellAuthenticationProvider sshShellSimpleAuthenticationProvider(SshShellProperties properties) {
+    public SshShellAuthenticationProvider sshShellSimpleAuthenticationProvider() {
         return new SshShellPasswordAuthenticationProvider(properties.getUser(), properties.getPassword());
     }
 
@@ -176,17 +199,14 @@ public class SshShellAutoConfiguration {
      *
      * @param terminal   jline terminal
      * @param lineReader jline line reader
-     * @param properties ssh shell properties
      * @return terminal
      */
     @Bean(TERMINAL_DELEGATE)
     @Primary
-    public Terminal terminal(Terminal terminal, LineReader lineReader, SshShellProperties properties) {
+    public Terminal terminal(Terminal terminal, LineReader lineReader) {
         if (properties.getPrompt().getLocal().isEnable()) {
             // local prompt enable, add ssh context in main thread
             SSH_THREAD_CONTEXT.set(new SshContext(null, terminal, lineReader, null));
-        } else {
-            InteractiveShellApplicationRunner.disable(environment);
         }
         return new SshShellTerminalDelegate(terminal);
     }
@@ -194,12 +214,11 @@ public class SshShellAutoConfiguration {
     /**
      * Primary prompt provider
      *
-     * @param properties ssh shell properties
      * @return prompt provider
      */
     @Bean
     @ConditionalOnMissingBean
-    public PromptProvider sshPromptProvider(SshShellProperties properties) {
+    public PromptProvider sshPromptProvider() {
         return () -> new AttributedString(properties.getPrompt().getText(),
                 AttributedStyle.DEFAULT.foreground(properties.getPrompt().getColor().toJlineAttributedStyle()));
     }

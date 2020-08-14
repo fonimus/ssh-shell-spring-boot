@@ -32,7 +32,6 @@ import org.springframework.shell.table.BorderStyle;
 import org.springframework.shell.table.SimpleHorizontalAligner;
 import org.springframework.shell.table.SimpleVerticalAligner;
 
-import java.security.SecureRandom;
 import java.util.Arrays;
 
 /**
@@ -42,8 +41,6 @@ import java.util.Arrays;
 public class DemoCommand {
 
     private final SshShellHelper helper;
-
-    private static final SecureRandom sr = new SecureRandom();
 
     public DemoCommand(SshShellHelper helper) {
         this.helper = helper;
