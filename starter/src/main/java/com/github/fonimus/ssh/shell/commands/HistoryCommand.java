@@ -19,6 +19,7 @@ package com.github.fonimus.ssh.shell.commands;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -42,7 +43,8 @@ public class HistoryCommand implements History.Command {
 
     private org.jline.reader.History history;
 
-    public HistoryCommand(SshShellProperties properties, SshShellHelper helper, org.jline.reader.History history) {
+    public HistoryCommand(SshShellProperties properties, SshShellHelper helper,
+                          @Lazy org.jline.reader.History history) {
         this.properties = properties;
         this.helper = helper;
         this.history = history;
