@@ -28,7 +28,7 @@
     AVAILABLE COMMANDS
     
     Actuator Commands
-          * audit: Display audit endpoint.
+            audit: Display audit endpoint.
             beans: Display beans endpoint.
             conditions: Display conditions endpoint.
             configprops: Display configprops endpoint.
@@ -42,7 +42,7 @@
             scheduledtasks: Display scheduledtasks endpoint.
           * sessions: Display sessions endpoint.
             shutdown: Shutdown application.
-          * threaddump: Display threaddump endpoint.
+            threaddump: Display threaddump endpoint.
     
     Built-In Commands
             clear: Clear the shell screen.
@@ -53,10 +53,17 @@
             script: Read and execute commands from a file.
             stacktrace: Display the full stacktrace of the last error.
     
+    Datasource Commands
+            datasource-list: List available datasources
+            datasource-properties: Datasource properties command. Executes 'show variables'
+            datasource-query: Datasource query command.
+            datasource-update: Datasource update command.
+    
     Demo Command
             admin: Admin command
             authentication: Authentication command
             conf: Confirmation command
+            display-ssh-env: Displays ssh env information
             display-ssh-session: Displays ssh session information
             echo: Echo command
             ex: Ex command
@@ -66,15 +73,21 @@
             size: Terminal size command
             welcome: Welcome command
     
+    Jmx Commands
+            jmx-info: Displays information about jmx mbean. Use -a option to query attribute values.
+            jmx-invoke: Invoke operation on object name.
+            jmx-list: List jmx mbeans.
+    
     Manage Sessions Commands
             manage-sessions-info: Displays session
             manage-sessions-list: Displays active sessions
             manage-sessions-stop: Stop session
     
+    System Commands
+            jvm-env: List system environment.
+            jvm-properties: List system properties.
+            threads: Thread command.
+    
     Commands marked with (*) are currently unavailable.
     Type `help <command>` to learn more.
-
-    
-    
-    complete::>
     ```

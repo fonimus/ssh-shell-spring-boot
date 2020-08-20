@@ -1,16 +1,27 @@
+spring:
+  jmx:
+    enabled: false
+  first-datasource:
+    url: jdbc:h2:mem:testdb
+  second-datasource:
+    url: jdbc:h2:mem:testdb2
+
 ssh:
   shell:
-    actuator:
-      excludes:
-        - audit
     authentication: security
     auth-provider-bean-name: customAuthManager
     authorized-public-keys-file: samples/public-keys-sample
     any-os-file-provider: false
-    default-commands:
-      jvm: false
-      threads: false
-      manage-sessions: true
+    commands:
+      actuator:
+        excludes:
+          - audit
+      jvm:
+        enable: false
+      threads:
+        enable: false
+      manage-sessions:
+        enable: true
     host: 0.0.0.0
     shared-history: false
     history-directory: ./target

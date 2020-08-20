@@ -18,10 +18,10 @@ package com.github.fonimus.ssh.shell.commands;
 
 import com.github.fonimus.ssh.shell.SimpleTable;
 import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.manage.SshShellSessionManager;
 import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.session.ServerSession;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
@@ -30,7 +30,6 @@ import org.springframework.shell.standard.ShellOption;
 import java.util.Arrays;
 import java.util.Map;
 
-import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 import static com.github.fonimus.ssh.shell.manage.SshShellSessionManager.sessionUserName;
 
 /**
@@ -38,16 +37,15 @@ import static com.github.fonimus.ssh.shell.manage.SshShellSessionManager.session
  */
 @SshShellComponent
 @ShellCommandGroup("Manage Sessions Commands")
-@ConditionalOnProperty(
-        value = SSH_SHELL_PREFIX + ".default-commands.manage-sessions", havingValue = "true"
-)
-public class ManageSessionsCommand {
+public class ManageSessionsCommand extends AbstractCommand {
 
     private final SshShellHelper helper;
 
     private final SshShellSessionManager sessionManager;
 
-    public ManageSessionsCommand(SshShellHelper helper, @Lazy SshShellSessionManager sessionManager) {
+    public ManageSessionsCommand(SshShellHelper helper, SshShellProperties properties,
+                                 @Lazy SshShellSessionManager sessionManager) {
+        super(helper, properties, properties.getCommands().getManageSessions());
         this.helper = helper;
         this.sessionManager = sessionManager;
     }

@@ -75,11 +75,6 @@ Please check class: [SshShellProperties.java](./starter/src/main/java/com/github
 ssh:
   shell:
     enable: true
-    actuator:
-      enable: true
-      # empty by default
-      excludes:
-      - ...
     # 'simple' or 'security'
     authentication: simple
     # if authentication set to 'security' the AuthenticationProvider bean name
@@ -92,13 +87,47 @@ ssh:
     confirmation-words:
     - y    
     - yes
-    # since 1.1.6, et to false to disable following default built-in commands
-    default-commands:
-      jvm: true
-      postprocessors: true
-      thread: true
+    # since 1.4.0, set enable to false to disable following default commands
+    commands:
+      actuator:
+        enable: true
+        restricted: true
+        # empty by default
+        excludes:
+          - ...
+        authorized-roles: 
+          - ACTUATOR
+      # since 1.4.0
+      jmx: 
+        enable: true
+        restricted: true
+        authorized-roles: 
+          - ADMIN
+      jvm: 
+        enable: true
+        restricted: true
+        authorized-roles: 
+          - ADMIN
+      # since 1.4.0
+      datasource: 
+        enable: true
+        restricted: true
+        authorized-roles: 
+          - ADMIN
+      postprocessors: 
+        enable: true
+        restricted: false
+      thread: 
+        enable: true
+        restricted: true
+        authorized-roles: 
+          - ADMIN
       # since 1.3.0, command which allows you to list ssh sessions, and stop them
-      manage-sessions: false
+      manage-sessions:
+        enable: false
+        restricted: true
+        authorized-roles: 
+          - ADMIN
     display-banner: true
     # to use AnyOsFileValueProvider instead of spring shell FileValueProvider for all File option parameters
     # if set to false, it still can be used via '@ShellOption(valueProvider = AnyOsFileValueProvider.class) File file'
@@ -624,12 +653,29 @@ public class ApplicationTest {}
 
 ## Release notes
 
-### 1.3.1
+### 1.4.0
 
 * Bump to spring boot 2.3.3.RELEASE
 * Bump to sshd 2.5.1
 * Add method ``SshShellHelper#getSshEnvironment()`` to retrieve information about ssh environment
-* Fixed start app failure in case of ``spring.main.lazy-initialization=true`` 
+* Fixed start app failure in case of ``spring.main.lazy-initialization=true``
+* Add jmx commands : 
+    * ``jmx-list``
+    * ``jmx-info``
+    * ``jmx-invoke``
+* Add datasource commands
+    * ``datasource-list``
+    * ``datasource-properties``
+    * ``datasource-query``
+    * ``datasource-update``
+* Add completion for post processors
+* Rework commands properties (check [configuration chapter](#configuration))
+    * ``default-commands`` becomes ``commands``
+    * Instead of just activation boolean, each command now has the following properties :
+        * ``enable`` with default value set to true, except said otherwise in config
+        * ``restricted`` with default value set to true, except said otherwise in config
+        * ``authorizedRoles`` with default value initialized with **ADMIN**, except said otherwise in config
+    * ``ssh.shell.actuator.*`` properties moved to ``ssh.shell.commands.actuator.*``
 
 ### 1.3.0
 

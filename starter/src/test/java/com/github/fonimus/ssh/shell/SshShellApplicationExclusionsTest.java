@@ -29,8 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes =
         SshShellApplicationExclusionsTest.class, properties = {
         "ssh.shell.port=2344",
-        "ssh.shell.actuator.excludes[0]=info",
-        "ssh.shell.actuator.excludes[1]=beans",
+        "ssh.shell.commands.actuator.excludes[0]=info",
+        "ssh.shell.commands.actuator.excludes[1]=beans",
         "ssh.shell.user=user",
         "ssh.shell.host=127.0.0.1",
         "ssh.shell.actuator.enable=true",

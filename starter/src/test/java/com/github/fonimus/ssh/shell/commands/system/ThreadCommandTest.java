@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.fonimus.ssh.shell.commands;
+package com.github.fonimus.ssh.shell.commands.system;
 
 import com.github.fonimus.ssh.shell.AbstractShellHelperTest;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import org.jline.terminal.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ class ThreadCommandTest extends AbstractShellHelperTest {
 
     @BeforeEach
     void setUp() {
-        t = new ThreadCommand(h);
+        t = new ThreadCommand(h, new SshShellProperties());
     }
 
     @Test

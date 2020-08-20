@@ -300,6 +300,10 @@ public class SshShellHelper {
      * @return table
      */
     public Table buildTable(SimpleTable simpleTable) {
+        int nbColumns = simpleTable.getColumns().size();
+        if (nbColumns == 0) {
+            throw new IllegalArgumentException("Table should have at least one column");
+        }
         int nbLines = simpleTable.getLines().size();
         if (simpleTable.isDisplayHeaders()) {
             nbLines++;
@@ -329,6 +333,10 @@ public class SshShellHelper {
         for (List<Object> line : simpleTable.getLines()) {
             int c = 0;
             for (Object objValue : line) {
+                // ensure we don't have more column in line than in column names
+                if (nbColumns != -1 && c >= nbColumns) {
+                    continue;
+                }
                 String value = "";
                 if (objValue != null) {
                     if (objValue instanceof String) {

@@ -16,6 +16,8 @@
 
 package com.github.fonimus.ssh.shell.commands;
 
+import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.provided.JsonPointerPostProcessor;
 import org.junit.jupiter.api.Test;
@@ -30,7 +32,8 @@ class PostprocessorsTest {
     void postprocessors() {
         GrepPostProcessor grep = new GrepPostProcessor();
         JsonPointerPostProcessor json = new JsonPointerPostProcessor();
-        String result = new Postprocessors(Arrays.asList(grep, json)).postprocessors().toString();
+        String result =
+                new Postprocessors(new SshShellHelper(), new SshShellProperties(), Arrays.asList(grep, json)).postprocessors().toString();
 
         assertTrue(result.startsWith("Available Post-Processors"));
         assertTrue(result.contains(grep.getName()));

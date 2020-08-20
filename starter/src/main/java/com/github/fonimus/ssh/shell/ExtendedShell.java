@@ -16,12 +16,11 @@
 
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.shell.Input;
-import org.springframework.shell.ResultHandler;
-import org.springframework.shell.Shell;
+import org.springframework.shell.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,22 +38,19 @@ import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CON
 public class ExtendedShell
         extends Shell {
 
+    private final List<String> postProcessorNames = new ArrayList<>();
+
     /**
      * Default constructor
      *
-     * @param resultHandler result handler
+     * @param resultHandler  result handler
+     * @param postProcessors post processors list
      */
-    public ExtendedShell(ResultHandler resultHandler) {
+    public ExtendedShell(ResultHandler resultHandler, List<PostProcessor> postProcessors) {
         super(resultHandler);
-    }
-
-    private static boolean isKeyCharInList(List<String> strList) {
-        for (String key : KEY_CHARS) {
-            if (strList.contains(key)) {
-                return true;
-            }
+        if (postProcessors != null) {
+            postProcessorNames.addAll(postProcessors.stream().map(PostProcessor::getName).collect(Collectors.toList()));
         }
-        return false;
     }
 
     @Override
@@ -93,5 +89,22 @@ public class ExtendedShell
             }
         }
         return toReturn;
+    }
+
+    @Override
+    public List<CompletionProposal> complete(CompletionContext context) {
+        if (context.getWords().contains("|")) {
+            return postProcessorNames.stream().map(CompletionProposal::new).collect(Collectors.toList());
+        }
+        return super.complete(context);
+    }
+
+    private static boolean isKeyCharInList(List<String> strList) {
+        for (String key : KEY_CHARS) {
+            if (strList.contains(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

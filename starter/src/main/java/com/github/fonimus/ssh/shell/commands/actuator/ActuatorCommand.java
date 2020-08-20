@@ -41,7 +41,6 @@ import org.springframework.boot.actuate.session.SessionsEndpoint;
 import org.springframework.boot.actuate.trace.http.HttpTraceEndpoint;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
@@ -66,7 +65,6 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @SshShellComponent
 @ShellCommandGroup("Actuator Commands")
 @ConditionalOnClass(Endpoint.class)
-@ConditionalOnProperty(value = SSH_SHELL_PREFIX + ".actuator.enable", havingValue = "true", matchIfMissing = true)
 public class ActuatorCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActuatorCommand.class);
@@ -109,13 +107,18 @@ public class ActuatorCommand {
 
     public ActuatorCommand(ApplicationContext applicationContext, Environment environment,
                            SshShellProperties properties, SshShellHelper helper,
-                           @Lazy AuditEventsEndpoint audit, @Lazy BeansEndpoint beans,
+                           @Lazy AuditEventsEndpoint audit,
+                           @Lazy BeansEndpoint beans,
                            @Lazy ConditionsReportEndpoint conditions,
-                           @Lazy ConfigurationPropertiesReportEndpoint configprops, @Lazy EnvironmentEndpoint env,
+                           @Lazy ConfigurationPropertiesReportEndpoint configprops,
+                           @Lazy EnvironmentEndpoint env,
                            @Lazy HealthEndpoint health,
-                           @Lazy HttpTraceEndpoint httptrace, @Lazy InfoEndpoint info, @Lazy LoggersEndpoint loggers,
+                           @Lazy HttpTraceEndpoint httptrace,
+                           @Lazy InfoEndpoint info,
+                           @Lazy LoggersEndpoint loggers,
                            @Lazy MetricsEndpoint metrics,
-                           @Lazy MappingsEndpoint mappings, @Lazy ScheduledTasksEndpoint scheduledtasks,
+                           @Lazy MappingsEndpoint mappings,
+                           @Lazy ScheduledTasksEndpoint scheduledtasks,
                            @Lazy ShutdownEndpoint shutdown,
                            @Lazy ThreadDumpEndpoint threaddump) {
         this.applicationContext = applicationContext;
@@ -482,6 +485,10 @@ public class ActuatorCommand {
     }
 
     private Availability availability(String name, Class<?> clazz, boolean defaultValue) {
+        if (!properties.getCommands().getActuator().isEnable()) {
+            return Availability.unavailable("command deactivated (please check property '" +
+                    SshShellProperties.SSH_SHELL_PREFIX + ".commands.actuator.enable" + "')");
+        }
         if (!"info".equals(name)) {
             if (helper.isLocalPrompt()) {
                 LOGGER.debug("Not an ssh session -> local prompt -> giving all rights");
@@ -489,7 +496,7 @@ public class ActuatorCommand {
             }
             SshAuthentication auth = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthentication();
             List<String> authorities = auth != null ? auth.getAuthorities() : null;
-            if (!helper.checkAuthorities(properties.getActuator().getAuthorizedRoles(), authorities,
+            if (!helper.checkAuthorities(properties.getCommands().getActuator().getAuthorizedRoles(), authorities,
                     properties.getAuthentication() == SshShellProperties.AuthenticationType.simple)) {
                 return Availability.unavailable("actuator commands are forbidden for current user");
             }
@@ -498,7 +505,7 @@ public class ActuatorCommand {
         if (!environment.getProperty(property, Boolean.TYPE, defaultValue)) {
             return Availability.unavailable("endpoint '" + name + "' deactivated (please check property '" + property
                     + "')");
-        } else if (properties.getActuator().getExcludes().contains(name)) {
+        } else if (properties.getCommands().getActuator().getExcludes().contains(name)) {
             return Availability.unavailable("command is present in exclusion (please check property '" +
                     SSH_SHELL_PREFIX + ".actuator.excludes')");
         }

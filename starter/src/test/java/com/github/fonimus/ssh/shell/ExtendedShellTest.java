@@ -21,6 +21,7 @@ import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
@@ -33,7 +34,7 @@ class ExtendedShellTest {
         SSH_THREAD_CONTEXT.set(new SshContext(null, null, null, null));
         ExtendedShell shell = new ExtendedShell(result -> {
             // do nothing
-        });
+        }, new ArrayList<>());
         shell.evaluate(() -> "one two three");
         assertNull(SSH_THREAD_CONTEXT.get().getPostProcessorsList());
 

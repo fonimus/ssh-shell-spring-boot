@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.fonimus.ssh.shell.commands;
+package com.github.fonimus.ssh.shell.commands.system;
 
 import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import org.jline.terminal.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,15 +25,15 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class SystemCommandTest {
+class JvmCommandTest {
 
-    private SystemCommand cmd;
+    private JvmCommand cmd;
 
     @BeforeEach
     void setUp() {
         SshShellHelper helper = mock(SshShellHelper.class);
         when(helper.terminalSize()).thenReturn(new Size(100, 100));
-        cmd = new SystemCommand(helper);
+        cmd = new JvmCommand(helper, new SshShellProperties());
     }
 
     @Test

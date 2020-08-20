@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.github.fonimus.ssh.shell.commands;
+package com.github.fonimus.ssh.shell.commands.system;
 
 import com.github.fonimus.ssh.shell.SshShellHelper;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import com.github.fonimus.ssh.shell.SshShellProperties;
+import com.github.fonimus.ssh.shell.commands.AbstractCommand;
+import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.table.*;
@@ -27,37 +29,21 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static com.github.fonimus.ssh.shell.SshShellHelper.at;
-import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
 /**
- * System command
+ * Jvm command
  */
 @SshShellComponent
-@ShellCommandGroup("Built-In Commands")
-@ConditionalOnProperty(
-        value = SSH_SHELL_PREFIX + ".default-commands.jvm", havingValue = "true", matchIfMissing = true
-)
-public class SystemCommand {
+@ShellCommandGroup("System Commands")
+public class JvmCommand extends AbstractCommand {
 
     public static final String SPLIT_REGEX = "[:;]";
 
     private SshShellHelper helper;
 
-    public SystemCommand(SshShellHelper helper) {
+    public JvmCommand(SshShellHelper helper, SshShellProperties properties) {
+        super(helper, properties, properties.getCommands().getJvm());
         this.helper = helper;
-    }
-
-    private static SizeConstraints.Extent extent(String[] raw, String regex) {
-        int max = 0;
-        int min = 0;
-        for (String line : raw) {
-            String[] words = line.split(regex);
-            for (String word : words) {
-                min = Math.max(min, word.length());
-            }
-            max = Math.max(max, line.length());
-        }
-        return new SizeConstraints.Extent(min, max);
     }
 
     @ShellMethod(key = "jvm-env", value = "List system environment.")
@@ -71,7 +57,9 @@ public class SystemCommand {
     @ShellMethod(key = "jvm-properties", value = "List system properties.")
     public Object jvmProperties(boolean simpleView) {
         Map<String, String> map =
-                System.getProperties().entrySet().stream().filter(e -> e.getKey() != null).collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue() != null ? e.getValue().toString() : ""));
+                System.getProperties().entrySet().stream().filter(e -> e.getKey() != null)
+                        .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue() != null ?
+                                e.getValue().toString() : ""));
         if (simpleView) {
             return buildSimple(map);
         }
@@ -121,5 +109,18 @@ public class SystemCommand {
             i++;
         }
         return tableBuilder.addFullBorder(BorderStyle.fancy_double).build();
+    }
+
+    private static SizeConstraints.Extent extent(String[] raw, String regex) {
+        int max = 0;
+        int min = 0;
+        for (String line : raw) {
+            String[] words = line.split(regex);
+            for (String word : words) {
+                min = Math.max(min, word.length());
+            }
+            max = Math.max(max, line.length());
+        }
+        return new SizeConstraints.Extent(min, max);
     }
 }

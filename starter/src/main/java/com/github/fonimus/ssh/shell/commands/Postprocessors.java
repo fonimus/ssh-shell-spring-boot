@@ -16,6 +16,8 @@
 
 package com.github.fonimus.ssh.shell.commands;
 
+import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
@@ -35,17 +37,14 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
  */
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
-@ConditionalOnProperty(
-        value = {
-                SSH_SHELL_PREFIX + ".default-commands.postprocessors",
-                SSH_SHELL_PREFIX + ".defaultCommands.postprocessors"
-        }, havingValue = "true", matchIfMissing = true
-)
-public class Postprocessors {
+@ConditionalOnProperty(value = {SSH_SHELL_PREFIX + ".default-commands.postprocessors"}, havingValue = "true",
+        matchIfMissing = true)
+public class Postprocessors extends AbstractCommand {
 
     private List<PostProcessor> postProcessors;
 
-    public Postprocessors(List<PostProcessor> postProcessors) {
+    public Postprocessors(SshShellHelper helper, SshShellProperties properties, List<PostProcessor> postProcessors) {
+        super(helper, properties, properties.getCommands().getPostprocessors());
         this.postProcessors = new ArrayList<>(postProcessors);
         this.postProcessors.sort(Comparator.comparing(PostProcessor::getName));
     }

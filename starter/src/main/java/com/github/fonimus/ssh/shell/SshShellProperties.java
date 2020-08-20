@@ -16,8 +16,10 @@
 
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.commands.CommandProperties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
@@ -54,11 +56,7 @@ public class SshShellProperties {
 
     public static final String ACTUATOR_ROLE = "ACTUATOR";
 
-    private Prompt prompt = new Prompt();
-
-    private DefaultCommands defaultCommands = new DefaultCommands();
-
-    private Actuator actuator = new Actuator();
+    public static final String ADMIN_ROLE = "ADMIN";
 
     private boolean enable = true;
 
@@ -97,6 +95,10 @@ public class SshShellProperties {
         simple, security
     }
 
+    private Prompt prompt = new Prompt();
+
+    private Commands commands = new Commands();
+
     /**
      * Prompt configuration
      */
@@ -120,31 +122,43 @@ public class SshShellProperties {
     }
 
     /**
-     * Actuator configuration
+     * Commands configuration
      */
     @Data
-    public static class Actuator {
+    public static class Commands {
 
-        private boolean enable = true;
+        private ActuatorProperties actuator = new ActuatorProperties(Arrays.asList(ACTUATOR_ROLE));
 
-        private List<String> authorizedRoles = Arrays.asList(ACTUATOR_ROLE);
+        @NestedConfigurationProperty
+        private CommandProperties jmx = new CommandProperties();
 
-        private List<String> excludes = new ArrayList<>();
+        @NestedConfigurationProperty
+        private CommandProperties jvm = new CommandProperties();
+
+        @NestedConfigurationProperty
+        private CommandProperties datasource = new CommandProperties();
+
+        @NestedConfigurationProperty
+        private CommandProperties postprocessors = CommandProperties.notRestrictedByDefault();
+
+        @NestedConfigurationProperty
+        private CommandProperties threads = new CommandProperties();
+
+        @NestedConfigurationProperty
+        private CommandProperties manageSessions = CommandProperties.disabledByDefault();
     }
 
     /**
-     * Default commands configuration
+     * Actuator configuration
      */
     @Data
-    public static class DefaultCommands {
+    public static class ActuatorProperties extends CommandProperties {
 
-        private boolean jvm = true;
+        private List<String> excludes = new ArrayList<>();
 
-        private boolean postprocessors = true;
-
-        private boolean threads = true;
-
-        private boolean manageSessions = false;
+        public ActuatorProperties(List<String> authorizedRoles) {
+            super(authorizedRoles);
+        }
     }
 
 }
