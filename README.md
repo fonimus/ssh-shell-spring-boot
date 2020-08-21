@@ -659,6 +659,7 @@ public class ApplicationTest {}
 * Bump to sshd 2.5.1
 * Add method ``SshShellHelper#getSshEnvironment()`` to retrieve information about ssh environment
 * Fixed start app failure in case of ``spring.main.lazy-initialization=true``
+* Fixed the width in the helper table rendering
 * Add jmx commands : 
     * ``jmx-list``
     * ``jmx-info``

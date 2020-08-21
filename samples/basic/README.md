@@ -42,6 +42,7 @@
             pojo: Pojo command
             table-complex: Complex table command
             table-simple: Simple table command
+            table-simple-large: Simple table example command with more data in each columns
     
     Jmx Commands
             jmx-info: Displays information about jmx mbean. Use -a option to query attribute values.

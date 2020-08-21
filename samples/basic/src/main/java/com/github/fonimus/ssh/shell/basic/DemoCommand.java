@@ -103,6 +103,26 @@ public class DemoCommand {
                 .line(Arrays.asList("line6 col1", "line6 col2", "line6 col3", "line6 col4"))
                 .build());
     }
+    /**
+     * Simple table example command with more data in each columns
+     *
+     * @return principal
+     */
+    @ShellMethod("Simple table command")
+    public String tableSimpleLarge() {
+        return helper.renderTable(SimpleTable.builder()
+                .column("col1")
+                .column("col2")
+                .column("col3")
+                .column("col4")
+                .line(Arrays.asList("Table with a lot more data in line1 col1", "Table with a lot more data in line1 col2", "Table with a lot more data in line1 col3", "Table with a lot more data in line1 col4"))
+                .line(Arrays.asList("Table with a lot more data in line2 col1", "Table with a lot more data in line2 col2", "Table with a lot more data in line2 col3", "Table with a lot more data in line2 col4"))
+                .line(Arrays.asList("Table with a lot more data in line3 col1", "Table with a lot more data in line3 col2", "Table with a lot more data in line3 col3", "Table with a lot more data in line3 col4"))
+                .line(Arrays.asList("Table with a lot more data in line4 col1", "Table with a lot more data in line4 col2", "Table with a lot more data in line4 col3", "Table with a lot more data in line4 col4"))
+                .line(Arrays.asList("Table with a lot more data in line5 col1", "Table with a lot more data in line5 col2", "Table with a lot more data in line5 col3", "Table with a lot more data in line5 col4"))
+                .line(Arrays.asList("Table with a lot more data in line6 col1", "Table with a lot more data in line6 col2", "Table with a lot more data in line6 col3", "Table with a lot more data in line6 col4"))
+                .build());
+    }
 
     /**
      * Complex table example command
