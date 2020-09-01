@@ -290,7 +290,7 @@ public class SshShellHelper {
      * @return table as string
      */
     public String renderTable(Table table) {
-        return table.render(terminalSize().getRows());
+        return table.render(terminalSize().getColumns());
     }
 
     /**
@@ -334,8 +334,8 @@ public class SshShellHelper {
             int c = 0;
             for (Object objValue : line) {
                 // ensure we don't have more column in line than in column names
-                if (nbColumns != -1 && c >= nbColumns) {
-                    continue;
+                if (c >= nbColumns) {
+                    break;
                 }
                 String value = "";
                 if (objValue != null) {
