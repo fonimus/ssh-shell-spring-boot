@@ -16,6 +16,7 @@
 
 package com.github.fonimus.ssh.shell.providers;
 
+import com.github.fonimus.ssh.shell.ExtendedCompletionProposal;
 import org.springframework.core.MethodParameter;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
@@ -28,13 +29,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Fixed file value provider (mostly for windows)
+ * Fixed file value provider (mostly for windows) and allow to not put space after proposal when directory
  */
-public class AnyOsFileValueProvider extends ValueProviderSupport {
+public class ExtendedFileValueProvider extends ValueProviderSupport {
 
     private boolean replaceAll;
 
-    public AnyOsFileValueProvider(boolean replaceAll) {
+    public ExtendedFileValueProvider(boolean replaceAll) {
         this.replaceAll = replaceAll;
     }
 
@@ -59,7 +60,12 @@ public class AnyOsFileValueProvider extends ValueProviderSupport {
             return Collections.emptyList();
         }
         return Arrays.stream(files)
-                .map(f -> new CompletionProposal(f.getPath().replaceAll("\\\\", "/")))
+                .map(f -> new ExtendedCompletionProposal(path(f), f.isFile()))
                 .collect(Collectors.toList());
+    }
+
+    private static String path(File f) {
+        String path = f.getPath().replaceAll("\\\\", "/");
+        return f.isDirectory() ? path + "/" : path;
     }
 }

@@ -70,7 +70,7 @@ public class SshShellProperties {
 
     private boolean displayBanner = true;
 
-    private boolean anyOsFileProvider = true;
+    private boolean extendedFileProvider = true;
 
     private AuthenticationType authentication = AuthenticationType.simple;
 

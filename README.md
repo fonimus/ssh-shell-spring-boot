@@ -129,9 +129,9 @@ ssh:
         authorized-roles: 
           - ADMIN
     display-banner: true
-    # to use AnyOsFileValueProvider instead of spring shell FileValueProvider for all File option parameters
-    # if set to false, it still can be used via '@ShellOption(valueProvider = AnyOsFileValueProvider.class) File file'
-    any-os-file-provider: true
+    # to use ExtendedFileValueProviderTest instead of spring shell FileValueProvider for all File option parameters
+    # if set to false, it still can be used via '@ShellOption(valueProvider = ExtendedFileValueProviderTest.class) File file'
+    extended-file-provider: true
     history-file: <java.io.tmpdir>/sshShellHistory.log
     # since 1.3.0, set to false to have one file per user (<history-directory>/sshShellHistory-<user>.log)
     shared-history: true
@@ -284,7 +284,8 @@ Enumeration option parameters have auto completion by default.
 
 ### File
 
-Thanks to [AnyOsFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/AnyOsFileValueProvider.java) 
+Thanks to [ExtendedFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers
+/ExtendedFileValueProvider.java) 
 (or FileValueProvider is deactivated), auto completion is available
 for `java.io.File` option parameters.
 
@@ -652,6 +653,13 @@ public class ApplicationTest {}
 
 
 ## Release notes
+
+### 1.4.1
+
+* AnyOsFileValueProvider replaced by [ExtendedFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/ExtendedFileValueProvider.java)
+    * Do not add space after directory proposal (allows following directories directly)
+    * Supports Windows OS in addition to Unix
+    * Can be deactivated by `ssh.shell.extendedfile-provider`
 
 ### 1.4.0
 

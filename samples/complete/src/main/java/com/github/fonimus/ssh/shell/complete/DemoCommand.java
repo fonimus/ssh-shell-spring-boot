@@ -22,7 +22,7 @@ import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import com.github.fonimus.ssh.shell.interactive.Interactive;
 import com.github.fonimus.ssh.shell.interactive.KeyBinding;
-import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
+import com.github.fonimus.ssh.shell.providers.ExtendedFileValueProvider;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.session.ServerSession;
 import org.jline.terminal.Size;
@@ -96,16 +96,16 @@ public class DemoCommand {
     /**
      * File provider command example
      *
-     * @param file  file to get info from
-     * @param anyOs any os file to get info from
+     * @param file     file to get info from
+     * @param extended extended provider file to get info from
      */
     @ShellMethod("File command")
     public void file(
             @ShellOption(defaultValue = ShellOption.NULL) File file,
-            @ShellOption(valueProvider = AnyOsFileValueProvider.class, defaultValue = ShellOption.NULL) File anyOs) {
+            @ShellOption(valueProvider = ExtendedFileValueProvider.class, defaultValue = ShellOption.NULL) File extended) {
 
         info(file);
-        info(anyOs);
+        info(extended);
     }
 
     private void info(File file) {
