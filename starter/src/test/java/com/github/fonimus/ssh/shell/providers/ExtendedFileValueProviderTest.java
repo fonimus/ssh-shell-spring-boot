@@ -29,11 +29,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AnyOsFileValueProviderTest {
+class ExtendedFileValueProviderTest {
 
     @Test
     void complete() {
-        AnyOsFileValueProvider provider = new AnyOsFileValueProvider(true);
+        ExtendedFileValueProvider provider = new ExtendedFileValueProvider(true);
         List<CompletionProposal> result = provider.complete(null,
                 new CompletionContext(Arrays.asList("--file", "src"), 1, 3), null);
         assertNotEquals(0, result.size());
@@ -44,7 +44,7 @@ class AnyOsFileValueProviderTest {
 
     @Test
     void testSupport() throws Exception {
-        AnyOsFileValueProvider providerForAll = new AnyOsFileValueProvider(true);
+        ExtendedFileValueProvider providerForAll = new ExtendedFileValueProvider(true);
 
         Method method = TestCommand.class.getDeclaredMethod("test", File.class, File.class, String.class);
 
@@ -56,7 +56,7 @@ class AnyOsFileValueProviderTest {
         assertTrue(providerForAll.supports(paramWithoutProvider, null));
         assertFalse(providerForAll.supports(paramNotFile, null));
 
-        AnyOsFileValueProvider providerForDeclaredOnly = new AnyOsFileValueProvider(false);
+        ExtendedFileValueProvider providerForDeclaredOnly = new ExtendedFileValueProvider(false);
         assertTrue(providerForDeclaredOnly.supports(paramFileWithProvider, null));
         assertFalse(providerForDeclaredOnly.supports(paramWithoutProvider, null));
         assertFalse(providerForDeclaredOnly.supports(paramNotFile, null));
@@ -64,7 +64,7 @@ class AnyOsFileValueProviderTest {
 
     private static class TestCommand {
 
-        private void test(@ShellOption(valueProvider = AnyOsFileValueProvider.class) File file, File otherFile,
+        private void test(@ShellOption(valueProvider = ExtendedFileValueProvider.class) File file, File otherFile,
                           String notAFile) {
 
         }

@@ -11,7 +11,7 @@ ssh:
     authentication: security
     auth-provider-bean-name: customAuthManager
     authorized-public-keys-file: samples/public-keys-sample
-    any-os-file-provider: false
+    extended-file-provider: false
     commands:
       actuator:
         excludes:

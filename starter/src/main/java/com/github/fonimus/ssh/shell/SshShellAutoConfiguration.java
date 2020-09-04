@@ -24,7 +24,7 @@ import com.github.fonimus.ssh.shell.listeners.SshShellListenerService;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
 import com.github.fonimus.ssh.shell.postprocess.provided.*;
-import com.github.fonimus.ssh.shell.providers.AnyOsFileValueProvider;
+import com.github.fonimus.ssh.shell.providers.ExtendedFileValueProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.SshServer;
 import org.jline.reader.LineReader;
@@ -138,11 +138,17 @@ public class SshShellAutoConfiguration {
         return new ExtendedShell(new TypePostProcessorResultHandler(resultHandler, postProcessors), postProcessors);
     }
 
+    @Bean
+    @Primary
+    public ExtendedCompleterAdapter sshCompleter(Shell shell) {
+        return new ExtendedCompleterAdapter(shell);
+    }
+
     // value providers
 
     @Bean
-    public ValueProvider anyOsFileValueProvider() {
-        return new AnyOsFileValueProvider(properties.isAnyOsFileProvider());
+    public ValueProvider extendedFileValueProvider() {
+        return new ExtendedFileValueProvider(properties.isExtendedFileProvider());
     }
 
     // post processors
