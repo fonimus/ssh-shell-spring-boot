@@ -659,7 +659,7 @@ public class ApplicationTest {}
 * AnyOsFileValueProvider replaced by [ExtendedFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/ExtendedFileValueProvider.java)
     * Do not add space after directory proposal (allows following directories directly)
     * Supports Windows OS in addition to Unix
-    * Can be deactivated by `ssh.shell.extendedfile-provider`
+    * Can be deactivated by `ssh.shell.extended-file-provider`
 
 ### 1.4.0
 
