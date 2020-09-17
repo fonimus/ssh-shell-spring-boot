@@ -20,7 +20,11 @@ import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.shell.*;
+import org.springframework.shell.CompletionContext;
+import org.springframework.shell.CompletionProposal;
+import org.springframework.shell.Input;
+import org.springframework.shell.ResultHandler;
+import org.springframework.shell.Shell;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +32,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.github.fonimus.ssh.shell.ExtendedInput.*;
+import static com.github.fonimus.ssh.shell.ExtendedInput.ARROW;
+import static com.github.fonimus.ssh.shell.ExtendedInput.KEY_CHARS;
+import static com.github.fonimus.ssh.shell.ExtendedInput.PIPE;
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 
 /**

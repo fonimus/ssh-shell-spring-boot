@@ -24,7 +24,14 @@ import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.table.*;
+import org.springframework.shell.table.ArrayTableModel;
+import org.springframework.shell.table.BorderStyle;
+import org.springframework.shell.table.SimpleHorizontalAligner;
+import org.springframework.shell.table.SimpleVerticalAligner;
+import org.springframework.shell.table.SizeConstraints;
+import org.springframework.shell.table.Table;
+import org.springframework.shell.table.TableBuilder;
+import org.springframework.shell.table.TableModel;
 
 import java.util.Map;
 import java.util.TreeMap;

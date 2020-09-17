@@ -24,12 +24,31 @@ import org.springframework.core.MethodParameter;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.*;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
+import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.standard.ValueProviderSupport;
 import org.springframework.stereotype.Component;
 
-import javax.management.*;
+import javax.management.InstanceNotFoundException;
+import javax.management.JMException;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanFeatureInfo;
+import javax.management.MBeanInfo;
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanParameterInfo;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

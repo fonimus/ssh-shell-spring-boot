@@ -31,9 +31,15 @@ import org.springframework.boot.logging.LogLevel;
 import java.io.PrintWriter;
 import java.util.Collections;
 
-import static com.github.fonimus.ssh.shell.SshHelperTest.*;
+import static com.github.fonimus.ssh.shell.SshHelperTest.call;
+import static com.github.fonimus.ssh.shell.SshHelperTest.verifyResponse;
+import static com.github.fonimus.ssh.shell.SshHelperTest.write;
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

@@ -16,7 +16,11 @@
 
 package com.github.fonimus.ssh.shell;
 
-import org.jline.terminal.*;
+import org.jline.terminal.Attributes;
+import org.jline.terminal.Cursor;
+import org.jline.terminal.MouseEvent;
+import org.jline.terminal.Size;
+import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 import org.jline.utils.NonBlockingReader;
 

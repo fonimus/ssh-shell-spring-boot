@@ -70,13 +70,12 @@ public class ExtendedCompleterAdapter extends JLineShellAutoConfiguration.Comple
      * line continuations, <em>etc.</em>)
      * See @{@link org.springframework.shell.jline.JLineShellAutoConfiguration}
      */
-    static List<String> sanitizeInput(List<String> words) {
-        words = words.stream()
+    private static List<String> sanitizeInput(List<String> words) {
+        return words.stream()
                 // CR at beginning/end of line introduced by backslash
                 .map(s -> s.replaceAll("^\\n+|\\n+$", ""))
                 // CR in middle of word introduced by return inside a quoted string
                 .map(s -> s.replaceAll("\\n+", " "))
                 .collect(Collectors.toList());
-        return words;
     }
 }
