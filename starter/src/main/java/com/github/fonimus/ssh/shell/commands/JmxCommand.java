@@ -21,12 +21,10 @@ import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
+import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.shell.standard.*;
 import org.springframework.stereotype.Component;
 
 import javax.management.*;
@@ -40,6 +38,11 @@ import java.util.stream.Collectors;
 @SshShellComponent
 @ShellCommandGroup("Jmx Commands")
 public class JmxCommand extends AbstractCommand {
+
+    private static final String GROUP = "jmx";
+    private static final String COMMAND_JMX_LIST = GROUP + "-list";
+    private static final String COMMAND_JMX_INFO = GROUP + "-info";
+    private static final String COMMAND_JMX_INVOKE = GROUP + "-invoke";
 
     private static final String OBJECT_NAME_EXAMPLE = "org.springframework.boot:type=Endpoint,name=Info";
 
@@ -55,7 +58,8 @@ public class JmxCommand extends AbstractCommand {
      *
      * @param pattern (optional) allows you to narrow search
      */
-    @ShellMethod("List jmx mbeans.")
+    @ShellMethod(key = COMMAND_JMX_LIST, value = "List jmx mbeans.")
+    @ShellMethodAvailability("jmxListAvailability")
     public void jmxList(
             @ShellOption(
                     help = "Pattern to search for (ex: org.springframework.boot:*, org.springframework" +
@@ -85,7 +89,9 @@ public class JmxCommand extends AbstractCommand {
      * @param allAttributesValues set to true to displays attributes values, false by default
      * @throws JMException if error occurs with jmx server
      */
-    @ShellMethod("Displays information about jmx mbean. Use -a option to query attribute values.")
+    @ShellMethod(key = COMMAND_JMX_INFO, value = "Displays information about jmx mbean. Use -a option to query " +
+            "attribute values.")
+    @ShellMethodAvailability("jmxInfoAvailability")
     public void jmxInfo(
             @ShellOption(value = {"-n", "--object-name"}, help = "Object name (ex: " + OBJECT_NAME_EXAMPLE
                     + ")", valueProvider = ObjectNameValuesProvider.class) String objectName,
@@ -162,7 +168,8 @@ public class JmxCommand extends AbstractCommand {
      * @return result of invocation, or null if operation is void type
      * @throws JMException if error occurs with jmx server
      */
-    @ShellMethod("Invoke operation on object name.")
+    @ShellMethod(key = COMMAND_JMX_INVOKE, value = "Invoke operation on object name.")
+    @ShellMethodAvailability("jmxInvokeAvailability")
     public Object jmxInvoke(
             @ShellOption(value = {"-n", "--object-name"}, help = "Object name (ex: " + OBJECT_NAME_EXAMPLE
                     + ")", valueProvider = ObjectNameValuesProvider.class) String objectName,
@@ -218,6 +225,18 @@ public class JmxCommand extends AbstractCommand {
             default:
                 return "(" + impact + ")";
         }
+    }
+
+    private Availability jmxListAvailability() {
+        return availability(GROUP, COMMAND_JMX_LIST);
+    }
+
+    private Availability jmxInfoAvailability() {
+        return availability(GROUP, COMMAND_JMX_INFO);
+    }
+
+    private Availability jmxInvokeAvailability() {
+        return availability(GROUP, COMMAND_JMX_INVOKE);
     }
 }
 

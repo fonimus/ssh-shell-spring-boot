@@ -23,8 +23,10 @@ import com.github.fonimus.ssh.shell.manage.SshShellSessionManager;
 import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.session.ServerSession;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.ShellOption;
 
 import java.util.Arrays;
@@ -39,6 +41,11 @@ import static com.github.fonimus.ssh.shell.manage.SshShellSessionManager.session
 @ShellCommandGroup("Manage Sessions Commands")
 public class ManageSessionsCommand extends AbstractCommand {
 
+    private static final String GROUP = "manage-sessions";
+    private static final String COMMAND_MANAGE_SESSIONS_LIST = GROUP + "-list";
+    private static final String COMMAND_MANAGE_SESSIONS_INFO = GROUP + "-info";
+    private static final String COMMAND_MANAGE_SESSIONS_STOP = GROUP + "-stop";
+
     private final SshShellHelper helper;
 
     private final SshShellSessionManager sessionManager;
@@ -50,7 +57,8 @@ public class ManageSessionsCommand extends AbstractCommand {
         this.sessionManager = sessionManager;
     }
 
-    @ShellMethod("Displays active sessions")
+    @ShellMethod(key = COMMAND_MANAGE_SESSIONS_LIST, value = "Displays active sessions")
+    @ShellMethodAvailability("manageSessionsListAvailability")
     public String manageSessionsList() {
         Map<Long, ChannelSession> sessions = sessionManager.listSessions();
 
@@ -68,7 +76,8 @@ public class ManageSessionsCommand extends AbstractCommand {
         return helper.renderTable(builder.build());
     }
 
-    @ShellMethod("Displays session")
+    @ShellMethod(key = COMMAND_MANAGE_SESSIONS_INFO, value = "Displays session")
+    @ShellMethodAvailability("manageSessionsInfoAvailability")
     public String manageSessionsInfo(@ShellOption(value = {"-i", "--session-id"}) long sessionId) {
         ChannelSession session = sessionManager.getSession(sessionId);
         if (session == null) {
@@ -77,7 +86,8 @@ public class ManageSessionsCommand extends AbstractCommand {
         return helper.getSuccess(sessionTable(session.getServerSession()));
     }
 
-    @ShellMethod("Stop session")
+    @ShellMethod(key = COMMAND_MANAGE_SESSIONS_STOP, value = "Stop session")
+    @ShellMethodAvailability("manageSessionsStopAvailability")
     public String manageSessionsStop(@ShellOption(value = {"-i", "--session-id"}) long sessionId) {
         return sessionManager.stopSession(sessionId) ?
                 helper.getSuccess("Session [" + sessionId + "] stopped") :
@@ -93,5 +103,17 @@ public class ManageSessionsCommand extends AbstractCommand {
                 .line(Arrays.asList("Server version", session.getServerVersion()))
                 .line(Arrays.asList("Client version", session.getClientVersion()))
                 .build());
+    }
+
+    private Availability manageSessionsListAvailability() {
+        return availability(GROUP, COMMAND_MANAGE_SESSIONS_LIST);
+    }
+
+    private Availability manageSessionsInfoAvailability() {
+        return availability(GROUP, COMMAND_MANAGE_SESSIONS_INFO);
+    }
+
+    private Availability manageSessionsStopAvailability() {
+        return availability(GROUP, COMMAND_MANAGE_SESSIONS_STOP);
     }
 }

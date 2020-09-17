@@ -23,11 +23,11 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
+import static com.github.fonimus.ssh.shell.commands.DatasourceCommand.COMMAND_DATA_SOURCE_UPDATE;
 
 /**
  * Ssh shell properties (prefix : {@link SshShellProperties#SSH_SHELL_PREFIX})
@@ -127,7 +127,8 @@ public class SshShellProperties {
     @Data
     public static class Commands {
 
-        private ActuatorProperties actuator = new ActuatorProperties(Arrays.asList(ACTUATOR_ROLE));
+        @NestedConfigurationProperty
+        private CommandProperties actuator = CommandProperties.withAuthorizedRoles(Arrays.asList(ACTUATOR_ROLE));
 
         @NestedConfigurationProperty
         private CommandProperties jmx = new CommandProperties();
@@ -136,7 +137,8 @@ public class SshShellProperties {
         private CommandProperties jvm = new CommandProperties();
 
         @NestedConfigurationProperty
-        private CommandProperties datasource = new CommandProperties();
+        private CommandProperties datasource =
+                CommandProperties.withExcludedByDefault(Arrays.asList(COMMAND_DATA_SOURCE_UPDATE));
 
         @NestedConfigurationProperty
         private CommandProperties postprocessors = CommandProperties.notRestrictedByDefault();
@@ -146,19 +148,6 @@ public class SshShellProperties {
 
         @NestedConfigurationProperty
         private CommandProperties manageSessions = CommandProperties.disabledByDefault();
-    }
-
-    /**
-     * Actuator configuration
-     */
-    @Data
-    public static class ActuatorProperties extends CommandProperties {
-
-        private List<String> excludes = new ArrayList<>();
-
-        public ActuatorProperties(List<String> authorizedRoles) {
-            super(authorizedRoles);
-        }
     }
 
 }

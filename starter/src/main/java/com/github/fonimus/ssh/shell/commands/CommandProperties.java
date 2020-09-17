@@ -37,11 +37,18 @@ public class CommandProperties {
 
     private boolean restricted = true;
 
+    // Do not change to singleton, it will become unmodifiable
     private List<String> authorizedRoles = Arrays.asList(ADMIN_ROLE);
 
-    public CommandProperties(List<String> authorizedRoles) {
-        this.authorizedRoles = authorizedRoles;
-    }
+    /**
+     * Possibility to include some sub commands only
+     */
+    private List<String> includes;
+
+    /**
+     * Possibility to exclude some sub commands only
+     */
+    private List<String> excludes;
 
     public static CommandProperties disabledByDefault() {
         CommandProperties properties = new CommandProperties();
@@ -49,10 +56,22 @@ public class CommandProperties {
         return properties;
     }
 
+    public static CommandProperties withAuthorizedRoles(List<String> authorizedRoles) {
+        CommandProperties properties = new CommandProperties();
+        properties.setAuthorizedRoles(authorizedRoles);
+        return properties;
+    }
+
     public static CommandProperties notRestrictedByDefault() {
         CommandProperties properties = new CommandProperties();
         properties.setRestricted(false);
         properties.setAuthorizedRoles(null);
+        return properties;
+    }
+
+    public static CommandProperties withExcludedByDefault(List<String> excludes) {
+        CommandProperties properties = new CommandProperties();
+        properties.setExcludes(excludes);
         return properties;
     }
 }

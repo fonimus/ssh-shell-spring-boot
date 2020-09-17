@@ -22,7 +22,6 @@ import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.Availability;
-import org.springframework.shell.standard.ShellMethodAvailability;
 
 import java.util.List;
 
@@ -44,13 +43,20 @@ public class AbstractCommand {
         this.commandProperties = commandProperties;
     }
 
-    @ShellMethodAvailability
-    protected Availability availability() {
+    protected Availability availability(String commandGroup, String commandName) {
         try {
             preAvailability();
             if (!commandProperties.isEnable()) {
                 return Availability.unavailable("command deactivated (please check property '" +
-                        SshShellProperties.SSH_SHELL_PREFIX + ".commands.<command>.enable" + "')");
+                        SshShellProperties.SSH_SHELL_PREFIX + ".commands." + commandGroup + ".enable" + "')");
+            }
+            if (commandProperties.getExcludes() != null && commandProperties.getExcludes().contains(commandName)) {
+                return Availability.unavailable("command is excluded (please check property '" +
+                        SshShellProperties.SSH_SHELL_PREFIX + ".commands." + commandGroup + ".excludes" + "')");
+            }
+            if (commandProperties.getIncludes() != null && !commandProperties.getIncludes().contains(commandName)) {
+                return Availability.unavailable("command not included (please check property '" +
+                        SshShellProperties.SSH_SHELL_PREFIX + ".commands." + commandGroup + ".includes" + "')");
             }
             if (helper.isLocalPrompt()) {
                 LOGGER.debug("Not an ssh session -> local prompt -> giving all rights");
