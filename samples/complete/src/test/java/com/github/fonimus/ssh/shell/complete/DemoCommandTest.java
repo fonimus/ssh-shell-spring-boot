@@ -16,7 +16,11 @@
 
 package com.github.fonimus.ssh.shell.complete;
 
-import com.github.fonimus.ssh.shell.*;
+import com.github.fonimus.ssh.shell.SshContext;
+import com.github.fonimus.ssh.shell.SshShellCommandFactory;
+import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
+import com.github.fonimus.ssh.shell.SshShellRunnable;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;

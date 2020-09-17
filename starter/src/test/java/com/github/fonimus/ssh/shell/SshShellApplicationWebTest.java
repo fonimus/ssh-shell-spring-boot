@@ -28,7 +28,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.github.fonimus.ssh.shell.SshHelperTest.call;
 import static com.github.fonimus.ssh.shell.SshHelperTest.write;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {SshShellApplicationWebTest.class, SshShellSessionConfigurationTest.class},

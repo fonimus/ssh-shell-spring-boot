@@ -24,7 +24,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static com.github.fonimus.ssh.shell.SshHelperTest.*;
+import static com.github.fonimus.ssh.shell.SshHelperTest.call;
+import static com.github.fonimus.ssh.shell.SshHelperTest.verifyResponse;
+import static com.github.fonimus.ssh.shell.SshHelperTest.write;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
         classes = {SshShellApplicationCustomAuthenticatorTest.class, SshShellPasswordConfigurationTest.class},
