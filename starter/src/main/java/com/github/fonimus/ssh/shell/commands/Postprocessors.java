@@ -22,8 +22,10 @@ import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -41,6 +43,9 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
         matchIfMissing = true)
 public class Postprocessors extends AbstractCommand {
 
+    public static final String GROUP = "postprocessors";
+    public static final String COMMAND_POST_PROCESSORS = "postprocessors";
+
     private List<PostProcessor> postProcessors;
 
     public Postprocessors(SshShellHelper helper, SshShellProperties properties, List<PostProcessor> postProcessors) {
@@ -49,7 +54,8 @@ public class Postprocessors extends AbstractCommand {
         this.postProcessors.sort(Comparator.comparing(PostProcessor::getName));
     }
 
-    @ShellMethod(value = "Display the available post processors")
+    @ShellMethod(key = COMMAND_POST_PROCESSORS, value = "Display the available post processors")
+    @ShellMethodAvailability("postprocessorsAvailability")
     public CharSequence postprocessors() {
         AttributedStringBuilder result = new AttributedStringBuilder();
         result.append("Available Post-Processors\n\n", AttributedStyle.BOLD);
@@ -61,6 +67,10 @@ public class Postprocessors extends AbstractCommand {
         }
 
         return result;
+    }
+
+    private Availability postprocessorsAvailability() {
+        return availability(GROUP, COMMAND_POST_PROCESSORS);
     }
 
 }

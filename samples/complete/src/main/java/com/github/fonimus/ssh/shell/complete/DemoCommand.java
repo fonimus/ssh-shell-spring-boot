@@ -221,7 +221,9 @@ public class DemoCommand {
 
     /**
      * Displays ssh env information
-     **/
+     *
+     * @return table with ssh env information
+     */
     @ShellMethod("Displays ssh env information")
     public String displaySshEnv() {
         Environment env = helper.getSshEnvironment();
@@ -240,6 +242,8 @@ public class DemoCommand {
 
     /**
      * Displays ssh session information
+     *
+     * @return table with ssh session information
      */
     @ShellMethod("Displays ssh session information")
     public String displaySshSession() {

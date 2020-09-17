@@ -22,6 +22,8 @@ ssh:
         enable: false
       manage-sessions:
         enable: true
+      datasource:
+        excludes:
     host: 0.0.0.0
     shared-history: false
     history-directory: ./target

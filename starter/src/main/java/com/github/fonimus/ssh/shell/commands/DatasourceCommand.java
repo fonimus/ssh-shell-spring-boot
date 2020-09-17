@@ -21,14 +21,13 @@ import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.MethodParameter;
+import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.shell.standard.*;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -47,8 +46,15 @@ import java.util.stream.IntStream;
 @Slf4j
 @SshShellComponent
 @ShellCommandGroup("Datasource Commands")
+@ConditionalOnBean(DataSource.class)
 @ConditionalOnClass(DataSource.class)
 public class DatasourceCommand extends AbstractCommand {
+
+    private static final String GROUP = "datasource";
+    private static final String COMMAND_DATA_SOURCE_LIST = GROUP + "-list";
+    private static final String COMMAND_DATA_SOURCE_PROPERTIES = GROUP + "-properties";
+    private static final String COMMAND_DATA_SOURCE_QUERY = GROUP + "-query";
+    public static final String COMMAND_DATA_SOURCE_UPDATE = GROUP + "-update";
 
     private final SshShellHelper helper;
 
@@ -69,7 +75,8 @@ public class DatasourceCommand extends AbstractCommand {
      *
      * @return datasource list
      */
-    @ShellMethod(key = "datasource-list", value = "List available datasources")
+    @ShellMethod(key = COMMAND_DATA_SOURCE_LIST, value = "List available datasources")
+    @ShellMethodAvailability("datasourceListAvailability")
     public String datasourceList() {
         if (dataSourceByIndex.isEmpty()) {
             helper.printWarning("No datasource found in context.");
@@ -126,7 +133,9 @@ public class DatasourceCommand extends AbstractCommand {
      * @param filter filter properties according to pattern
      * @return server sql properties
      */
-    @ShellMethod(key = "datasource-properties", value = "Datasource properties command. Executes 'show variables'")
+    @ShellMethod(key = COMMAND_DATA_SOURCE_PROPERTIES, value = "Datasource properties command. Executes 'show " +
+            "variables'")
+    @ShellMethodAvailability("datasourcePropertiesAvailability")
     public String datasourceProperties(
             @ShellOption(value = {"-i", "--identifier"}, help = "Datasource identifier", valueProvider =
                     DatasourceIndexValuesProvider.class) int id,
@@ -146,7 +155,8 @@ public class DatasourceCommand extends AbstractCommand {
      * @param query sql query
      * @return query result in table
      */
-    @ShellMethod(key = "datasource-query", value = "Datasource query command.")
+    @ShellMethod(key = COMMAND_DATA_SOURCE_QUERY, value = "Datasource query command.")
+    @ShellMethodAvailability("datasourceQueryAvailability")
     public String datasourceQuery(
             @ShellOption(value = {"-i", "--identifier"}, help = "Datasource identifier", valueProvider =
                     DatasourceIndexValuesProvider.class) int id,
@@ -186,7 +196,8 @@ public class DatasourceCommand extends AbstractCommand {
      * @param id     datasource identifier
      * @param update sql update
      */
-    @ShellMethod(key = "datasource-update", value = "Datasource update command.")
+    @ShellMethod(key = COMMAND_DATA_SOURCE_UPDATE, value = "Datasource update command.")
+    @ShellMethodAvailability("datasourceUpdateAvailability")
     public void datasourceUpdate(
             @ShellOption(value = {"-i", "--identifier"}, help = "Datasource identifier", valueProvider =
                     DatasourceIndexValuesProvider.class) int id,
@@ -209,6 +220,22 @@ public class DatasourceCommand extends AbstractCommand {
             throw new IllegalArgumentException("Cannot find datasource with identifier [" + index + "]");
         }
         return ds;
+    }
+
+    private Availability datasourceListAvailability() {
+        return availability(GROUP, COMMAND_DATA_SOURCE_LIST);
+    }
+
+    private Availability datasourcePropertiesAvailability() {
+        return availability(GROUP, COMMAND_DATA_SOURCE_PROPERTIES);
+    }
+
+    private Availability datasourceQueryAvailability() {
+        return availability(GROUP, COMMAND_DATA_SOURCE_QUERY);
+    }
+
+    private Availability datasourceUpdateAvailability() {
+        return availability(GROUP, COMMAND_DATA_SOURCE_UPDATE);
     }
 }
 

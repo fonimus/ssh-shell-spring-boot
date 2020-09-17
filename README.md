@@ -114,6 +114,8 @@ ssh:
         restricted: true
         authorized-roles: 
           - ADMIN
+        excludes:
+          - datasource-update
       postprocessors: 
         enable: true
         restricted: false
@@ -155,6 +157,34 @@ ssh:
 * Add `spring-boot-starter-actuator` dependency to get actuator commands
 
 * Add `spring-boot-starter-security` dependency to configure `ssh.shell.authentication=security` with *AuthenticationProvider*
+
+#### Default behavior
+
+Some commands are disabled by default, it can be the whole group (like `manage-sessions`), or just
+one sub command (like `datasource-update` in group `datasource`).
+
+To enable a group, set the **enable** property to true :
+
+```yaml
+ssh:
+  shell:
+    commands:
+      manage-sessions:
+        enable: true
+      datasource:
+        excludes:
+```
+
+To un-exclude a sub command inside a group, set the **excludes** property to the new wanted 
+array. To include all sub commands, set new empty array :
+
+```yaml
+ssh:
+  shell:
+    commands:
+      datasource:
+        excludes:
+```
 
 ### Writing commands
 
@@ -654,6 +684,13 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.4.2
+
+* Rework commands properties (check [configuration chapter](#configuration)) to add the following :
+    * ``includes`` : to only include list of sub commands inside group (example: ``datasource-update`` in group
+     **datasource**)
+    * ``excludes`` : to excludes some sub commands inside group (example: ``datasource-update`` in group **datasource**)
+        
 ### 1.4.1
 
 * AnyOsFileValueProvider replaced by [ExtendedFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/ExtendedFileValueProvider.java)

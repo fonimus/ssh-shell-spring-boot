@@ -27,8 +27,10 @@ import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
+import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.table.ArrayTableModel;
 import org.springframework.shell.table.BorderStyle;
@@ -48,6 +50,9 @@ import static com.github.fonimus.ssh.shell.SshShellHelper.*;
 @ShellCommandGroup("System Commands")
 public class ThreadCommand extends AbstractCommand {
 
+    public static final String GROUP = "threads";
+    public static final String COMMAND_THREAD = "threads";
+
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm:ss");
 
     private SshShellHelper helper;
@@ -57,7 +62,8 @@ public class ThreadCommand extends AbstractCommand {
         this.helper = helper;
     }
 
-    @ShellMethod("Thread command.")
+    @ShellMethod(key = COMMAND_THREAD, value = "Thread command.")
+    @ShellMethodAvailability("threadsAvailability")
     public String threads(@ShellOption(defaultValue = "LIST") ThreadAction action,
                           @ShellOption(help = "Order by column. Default is: ID", defaultValue = "ID") ThreadColumn orderBy,
                           @ShellOption(help = "Reverse order by column. Default is: false") boolean reverseOrder,
@@ -245,6 +251,10 @@ public class ThreadCommand extends AbstractCommand {
             group = parent;
         }
         return group;
+    }
+
+    private Availability threadsAvailability() {
+        return availability(GROUP, COMMAND_THREAD);
     }
 
     enum ThreadColumn {

@@ -20,8 +20,10 @@ import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.commands.AbstractCommand;
 import com.github.fonimus.ssh.shell.commands.SshShellComponent;
+import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.table.*;
 
 import java.util.Map;
@@ -37,6 +39,10 @@ import static com.github.fonimus.ssh.shell.SshShellHelper.at;
 @ShellCommandGroup("System Commands")
 public class JvmCommand extends AbstractCommand {
 
+    private static final String GROUP = "jvm";
+    private static final String COMMAND_JVM_ENV = GROUP + "-env";
+    private static final String COMMAND_JVM_PROPERTIES = GROUP + "-properties";
+
     public static final String SPLIT_REGEX = "[:;]";
 
     private SshShellHelper helper;
@@ -46,7 +52,8 @@ public class JvmCommand extends AbstractCommand {
         this.helper = helper;
     }
 
-    @ShellMethod(key = "jvm-env", value = "List system environment.")
+    @ShellMethod(key = COMMAND_JVM_ENV, value = "List system environment.")
+    @ShellMethodAvailability("jvmEnvAvailability")
     public Object jvmEnv(boolean simpleView) {
         if (simpleView) {
             return buildSimple(System.getenv());
@@ -54,7 +61,8 @@ public class JvmCommand extends AbstractCommand {
         return buildTable(System.getenv()).render(helper.terminalSize().getRows());
     }
 
-    @ShellMethod(key = "jvm-properties", value = "List system properties.")
+    @ShellMethod(key = COMMAND_JVM_PROPERTIES, value = "List system properties.")
+    @ShellMethodAvailability("jvmPropertiesAvailability")
     public Object jvmProperties(boolean simpleView) {
         Map<String, String> map =
                 System.getProperties().entrySet().stream().filter(e -> e.getKey() != null)
@@ -122,5 +130,13 @@ public class JvmCommand extends AbstractCommand {
             max = Math.max(max, line.length());
         }
         return new SizeConstraints.Extent(min, max);
+    }
+
+    private Availability jvmEnvAvailability() {
+        return availability(GROUP, COMMAND_JVM_ENV);
+    }
+
+    private Availability jvmPropertiesAvailability() {
+        return availability(GROUP, COMMAND_JVM_PROPERTIES);
     }
 }

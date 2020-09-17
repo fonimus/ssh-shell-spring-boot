@@ -16,10 +16,9 @@
 
 package com.github.fonimus.ssh.shell.commands.actuator;
 
-import com.github.fonimus.ssh.shell.SshShellCommandFactory;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
-import com.github.fonimus.ssh.shell.auth.SshAuthentication;
+import com.github.fonimus.ssh.shell.commands.AbstractCommand;
 import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +53,7 @@ import org.springframework.shell.standard.ShellOption;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-
-import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
 /**
  * Actuator shell command
@@ -65,45 +61,47 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @SshShellComponent
 @ShellCommandGroup("Actuator Commands")
 @ConditionalOnClass(Endpoint.class)
-public class ActuatorCommand {
+public class ActuatorCommand extends AbstractCommand {
+
+    private static final String GROUP = "actuator";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActuatorCommand.class);
 
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
-    private Environment environment;
+    private final Environment environment;
 
-    private SshShellProperties properties;
+    private final SshShellProperties properties;
 
-    private SshShellHelper helper;
+    private final SshShellHelper helper;
 
-    private AuditEventsEndpoint audit;
+    private final AuditEventsEndpoint audit;
 
-    private BeansEndpoint beans;
+    private final BeansEndpoint beans;
 
-    private ConditionsReportEndpoint conditions;
+    private final ConditionsReportEndpoint conditions;
 
-    private ConfigurationPropertiesReportEndpoint configprops;
+    private final ConfigurationPropertiesReportEndpoint configprops;
 
-    private EnvironmentEndpoint env;
+    private final EnvironmentEndpoint env;
 
-    private HealthEndpoint health;
+    private final HealthEndpoint health;
 
-    private HttpTraceEndpoint httptrace;
+    private final HttpTraceEndpoint httptrace;
 
-    private InfoEndpoint info;
+    private final InfoEndpoint info;
 
-    private LoggersEndpoint loggers;
+    private final LoggersEndpoint loggers;
 
-    private MetricsEndpoint metrics;
+    private final MetricsEndpoint metrics;
 
-    private MappingsEndpoint mappings;
+    private final MappingsEndpoint mappings;
 
-    private ScheduledTasksEndpoint scheduledtasks;
+    private final ScheduledTasksEndpoint scheduledtasks;
 
-    private ShutdownEndpoint shutdown;
+    private final ShutdownEndpoint shutdown;
 
-    private ThreadDumpEndpoint threaddump;
+    private final ThreadDumpEndpoint threaddump;
 
     public ActuatorCommand(ApplicationContext applicationContext, Environment environment,
                            SshShellProperties properties, SshShellHelper helper,
@@ -121,6 +119,7 @@ public class ActuatorCommand {
                            @Lazy ScheduledTasksEndpoint scheduledtasks,
                            @Lazy ShutdownEndpoint shutdown,
                            @Lazy ThreadDumpEndpoint threaddump) {
+        super(helper, properties, properties.getCommands().getActuator());
         this.applicationContext = applicationContext;
         this.environment = environment;
         this.properties = properties;
@@ -485,29 +484,16 @@ public class ActuatorCommand {
     }
 
     private Availability availability(String name, Class<?> clazz, boolean defaultValue) {
-        if (!properties.getCommands().getActuator().isEnable()) {
-            return Availability.unavailable("command deactivated (please check property '" +
-                    SshShellProperties.SSH_SHELL_PREFIX + ".commands.actuator.enable" + "')");
-        }
-        if (!"info".equals(name)) {
-            if (helper.isLocalPrompt()) {
-                LOGGER.debug("Not an ssh session -> local prompt -> giving all rights");
-                return Availability.available();
-            }
-            SshAuthentication auth = SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getAuthentication();
-            List<String> authorities = auth != null ? auth.getAuthorities() : null;
-            if (!helper.checkAuthorities(properties.getCommands().getActuator().getAuthorizedRoles(), authorities,
-                    properties.getAuthentication() == SshShellProperties.AuthenticationType.simple)) {
-                return Availability.unavailable("actuator commands are forbidden for current user");
-            }
+        Availability av = availability(GROUP, name);
+        boolean forbidden = av.getReason() != null && av.getReason().contains("forbidden");
+        if (!av.isAvailable() && (!forbidden || !"info".equals(name))) {
+            // not available from abstract, and not forbidden, or if forbidden not info
+            return av;
         }
         String property = "management.endpoint." + name + ".enabled";
         if (!environment.getProperty(property, Boolean.TYPE, defaultValue)) {
             return Availability.unavailable("endpoint '" + name + "' deactivated (please check property '" + property
                     + "')");
-        } else if (properties.getCommands().getActuator().getExcludes().contains(name)) {
-            return Availability.unavailable("command is present in exclusion (please check property '" +
-                    SSH_SHELL_PREFIX + ".actuator.excludes')");
         }
         try {
             applicationContext.getBean(clazz);
