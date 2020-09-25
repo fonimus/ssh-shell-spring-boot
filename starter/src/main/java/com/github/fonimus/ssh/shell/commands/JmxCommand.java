@@ -65,11 +65,8 @@ public class JmxCommand extends AbstractCommand {
 
     private static final String OBJECT_NAME_EXAMPLE = "org.springframework.boot:type=Endpoint,name=Info";
 
-    private final SshShellHelper helper;
-
     public JmxCommand(SshShellHelper helper, SshShellProperties properties) {
         super(helper, properties, properties.getCommands().getJmx());
-        this.helper = helper;
     }
 
     /**

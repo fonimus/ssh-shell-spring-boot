@@ -11,24 +11,11 @@ For more information please visit `spring shell` [website](https://projects.spri
 or [2.0.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.0.1.RELEASE/reference/htmlsingle/).
 
 * [Getting started](#getting-started)
-* [Actuator commands](#actuator-commands)
+* [Commands](#commands)
 * [Post processors](#post-processors)
-    * [Save](#save)
-    * [Pretty](#pretty)
-    * [Json](#json)
-    * [Grep](#grep)
-    * [Highlight](#highlight)
-    * [Custom](#custom)
 * [Parameter providers](#parameter-providers)
-    * [Enum](#enum)
-    * [File](#file)
-    * [Custom](#custom-values)
 * [Custom authentication](#custom-authentication)
 * [Command helper](#command-helper)
-    * [Print output](#print-output)
-    * [Read input](#read-input)
-    * [Table](#table)
-    * [Confirmation](#confirmation)
 * [Banner](#banner)
 * [Listeners](#listeners)
 * [Session Manager](#session-manager)
@@ -103,7 +90,7 @@ ssh:
         restricted: true
         authorized-roles: 
           - ADMIN
-      jvm: 
+      system: 
         enable: true
         restricted: true
         authorized-roles: 
@@ -119,13 +106,14 @@ ssh:
       postprocessors: 
         enable: true
         restricted: false
-      thread: 
-        enable: true
+      # since 1.3.0, command which allows you to list ssh sessions, and stop them
+      manage-sessions:
+        enable: false
         restricted: true
         authorized-roles: 
           - ADMIN
-      # since 1.3.0, command which allows you to list ssh sessions, and stop them
-      manage-sessions:
+      # since 1.5.0
+      tasks:
         enable: false
         restricted: true
         authorized-roles: 
@@ -214,12 +202,37 @@ public class TestCommands {
 }
 ``` 
 
-## Actuator commands
+## Commands
+
+All commands group can be deactivated by enable property :
+
+```yaml
+ssh:
+  shell:
+    commands:
+      <command>:
+        enable: true
+```
+
+Sub commands in group can be also filtered by includes and excludes properties :
+
+```yaml
+ssh:
+  shell:
+    commands:
+      <command>:
+        includes:
+          - xxx
+        excludes:
+          - xxx
+```
+
+### Actuator
 
 If `org.springframework.boot:spring-boot-starter-actuator` dependency is present, actuator commands
 will be available. 
 
-Command availability is binded to endpoint activation.
+Command availability is also bind to endpoint activation.
 
 ```yaml
 management:
@@ -228,16 +241,60 @@ management:
       enabled: false
 ```
 
-It can also be deactivated by putting command name is exclusion list.
+### Tasks
 
-```yaml
-ssh:
-  shell:
-    actuator:
-      excludes:
-      - audit
-      - ...
-``` 
+Activated by default if you have ``@EnableScheduling``, 
+these commands allow you to interact with spring boot scheduled tasks :
+
+* `tasks-list` : List scheduled tasks
+* `tasks-stop` : Stop one or all scheduled tasks
+* `tasks-restart` : Restart one or all scheduled tasks
+
+#### Task scheduler
+
+Based on spring documentation ``org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor.setScheduler``
+the task scheduler used for scheduled tasks will be :
+
+If not specified, it will look for unique bean of type ``TaskScheduler``, or with name
+``taskScheduler``. Otherwise a local single-threaded will be created.
+
+The ``TasksCommand`` keep the same mechanism in order to be able to restart stopped scheduled tasks.
+It also provides a ``setTaskScheduler()`` in case you want to specify custom one. 
+
+##### Examples
+
+| Context                                                                                                                                                    | Task scheduler used in TaskCommand
+| ---                                                                                                                                                        | ---
+| No ``TaskScheduler`` bean in context                                                                                                                       | Local single-threaded
+| One ``TaskScheduler`` bean named **ts** in context                                                                                                         | **ts** bean
+| Multiple ``TaskScheduler`` beans named **ts1**, **ts2** in context                                                                                         | Local single-threaded (could not find name **taskScheduler**)
+| Multiple ``TaskScheduler`` beans named **taskScheduler**, **ts2**, **ts3** in context                                                                      | **taskScheduler** bean
+| Task scheduler specified in method ``SchedulingConfigurer#configureTasks``                                                                                 | Local single-threaded (not set in task)
+| Task scheduler specified in method ``SchedulingConfigurer#configureTasks`` **AND** ``com.github.fonimus.ssh.shell.commands.TasksCommand.setTaskScheduler`` | Scheduler manually set
+
+
+### Jmx
+
+* `jmx-info`: Displays information about jmx mbean. Use -a option to query attribute values.
+* `jmx-invoke`: Invoke operation on object name.
+* `jmx-list`: List jmx mbeans.
+
+### System
+
+* `system-env`: List system environment.
+* `system-properties`: List system properties.
+* `system-threads`: List jvm threads.
+        
+### Datasource
+
+* `datasource-list`: List available datasources
+* `datasource-properties`: Datasource properties command. Executes 'show variables'
+* `datasource-query`: Datasource query command.
+* `datasource-update`: Datasource update command.
+
+### Post processors
+
+* `postprocessors`: Display the available post processors
 
 ## Post processors
 
@@ -654,7 +711,7 @@ public String myCommand() {
 
 ### Manage sessions commands
 
-If activated `ssh.shell.default-commands.manage-sessions=true`, the following commands are available :
+If activated `ssh.shell.commands.manage-sessions.enable=true`, the following commands are available :
 
 * `manage-sessions-info`: Displays information about single session
 * `manage-sessions-list`: Displays active sessions
@@ -683,6 +740,17 @@ public class ApplicationTest {}
 
 
 ## Release notes
+
+### 1.5.0
+
+* Add tasks commands : 
+    * ``tasks-list``
+    * ``tasks-stop``
+    * ``tasks-restart``
+* Rename commands :
+    * ``system-env`` instead of _jvm-env_
+    * ``system-properties`` instead of _jvm-properties_
+    * ``system-threads`` instead of _threads_
 
 ### 1.4.2
 

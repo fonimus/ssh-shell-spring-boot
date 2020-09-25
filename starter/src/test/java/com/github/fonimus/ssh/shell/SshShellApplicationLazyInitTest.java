@@ -29,7 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
                 "ssh.shell.port=2347",
                 "ssh.shell.password=pass",
                 "ssh.shell.shared-history=false",
-                "ssh.shell.default-commands.manage-sessions=true",
+                "ssh.shell.commands.manage-sessions.enable=true",
                 "management.endpoints.web.exposure.include=*",
                 "spring.main.lazy-initialization=true"
         }

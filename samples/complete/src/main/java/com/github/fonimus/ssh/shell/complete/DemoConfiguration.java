@@ -16,6 +16,7 @@
 
 package com.github.fonimus.ssh.shell.complete;
 
+import com.github.fonimus.ssh.shell.commands.TasksCommand;
 import com.github.fonimus.ssh.shell.listeners.SshShellListener;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -33,7 +38,13 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-public class DemoConfiguration {
+public class DemoConfiguration implements SchedulingConfigurer {
+
+    private final TasksCommand tasksCommand;
+
+    public DemoConfiguration(TasksCommand tasksCommand) {
+        this.tasksCommand = tasksCommand;
+    }
 
     @Bean
     public PostProcessor<String> quotePostProcessor() {
@@ -83,5 +94,35 @@ public class DemoConfiguration {
     @ConfigurationProperties("spring.second-datasource.configuration")
     public DataSource secondDataSource() {
         return secondDsProps().initializeDataSourceBuilder().build();
+    }
+
+    @Bean
+    public TaskScheduler taskScheduler() {
+        ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setPoolSize(5);
+        threadPoolTaskScheduler.setThreadNamePrefix("my-pool-");
+        return threadPoolTaskScheduler;
+    }
+
+    @Bean
+    public TaskScheduler threadPoolTaskExecutor2() {
+        ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setPoolSize(6);
+        threadPoolTaskScheduler.setThreadNamePrefix("my-pool2-");
+        return threadPoolTaskScheduler;
+    }
+
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+
+        scheduler.setPoolSize(10);
+        scheduler.setThreadNamePrefix("my-scheduled-task-pool-");
+        scheduler.initialize();
+
+        taskRegistrar.setTaskScheduler(scheduler);
+        tasksCommand.setTaskScheduler(scheduler);
+
+        taskRegistrar.addCronTask(() -> LOGGER.info("In 'cron' scheduled task (registrar).."), "0/60 * * * * *");
     }
 }

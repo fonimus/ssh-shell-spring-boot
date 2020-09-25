@@ -46,14 +46,11 @@ public class ManageSessionsCommand extends AbstractCommand {
     private static final String COMMAND_MANAGE_SESSIONS_INFO = GROUP + "-info";
     private static final String COMMAND_MANAGE_SESSIONS_STOP = GROUP + "-stop";
 
-    private final SshShellHelper helper;
-
     private final SshShellSessionManager sessionManager;
 
     public ManageSessionsCommand(SshShellHelper helper, SshShellProperties properties,
                                  @Lazy SshShellSessionManager sessionManager) {
         super(helper, properties, properties.getCommands().getManageSessions());
-        this.helper = helper;
         this.sessionManager = sessionManager;
     }
 

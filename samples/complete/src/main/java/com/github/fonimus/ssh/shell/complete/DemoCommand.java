@@ -272,8 +272,24 @@ public class DemoCommand {
      * For scheduled command example
      */
     @Scheduled(initialDelay = 0, fixedDelay = 60000)
-    public void log() {
-        LOGGER.info("In scheduled task..");
+    public void logWithDelay() {
+        LOGGER.info("In 'fixed-delay' scheduled task..");
+    }
+
+    /**
+     * For scheduled command example
+     */
+    @Scheduled(initialDelay = 0, fixedRate = 60000)
+    public void logWithRate() {
+        LOGGER.info("In 'fixed-rate' scheduled task..");
+    }
+
+    /**
+     * For scheduled command example
+     */
+    @Scheduled(cron = "0/60 * * * * *")
+    public void logWithCron() {
+        LOGGER.info("In 'cron' scheduled task..");
     }
 }
 

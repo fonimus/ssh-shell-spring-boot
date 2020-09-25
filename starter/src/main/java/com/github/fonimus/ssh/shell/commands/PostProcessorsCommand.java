@@ -21,7 +21,6 @@ import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
@@ -32,23 +31,20 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
-
 /**
  * Command to list available post processors
  */
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
-@ConditionalOnProperty(value = {SSH_SHELL_PREFIX + ".default-commands.postprocessors"}, havingValue = "true",
-        matchIfMissing = true)
-public class Postprocessors extends AbstractCommand {
+public class PostProcessorsCommand extends AbstractCommand {
 
     public static final String GROUP = "postprocessors";
     public static final String COMMAND_POST_PROCESSORS = "postprocessors";
 
-    private List<PostProcessor> postProcessors;
+    private final List<PostProcessor> postProcessors;
 
-    public Postprocessors(SshShellHelper helper, SshShellProperties properties, List<PostProcessor> postProcessors) {
+    public PostProcessorsCommand(SshShellHelper helper, SshShellProperties properties,
+                                 List<PostProcessor> postProcessors) {
         super(helper, properties, properties.getCommands().getPostprocessors());
         this.postProcessors = new ArrayList<>(postProcessors);
         this.postProcessors.sort(Comparator.comparing(PostProcessor::getName));

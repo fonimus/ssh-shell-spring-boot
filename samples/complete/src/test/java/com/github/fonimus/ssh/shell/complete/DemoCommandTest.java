@@ -86,7 +86,8 @@ public class DemoCommandTest {
 
     @Test
     void testLog() {
-        cmd.log();
+        cmd.logWithCron();
+        cmd.logWithDelay();
     }
 
     @Test

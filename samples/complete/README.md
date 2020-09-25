@@ -20,7 +20,7 @@
             _         _        _ _
       _____| |_    __| |_  ___| | |
      (_-<_-< ' \  (_-< ' \/ -_) | |
-     /__/__/_||_| /__/_||_\___|_|_| v1.0.1-SNAPSHOT
+     /__/__/_||_| /__/_||_\___|_|_| v1.5.0-SNAPSHOT
     
     
     Please type `help` to see available commands
@@ -28,7 +28,7 @@
     AVAILABLE COMMANDS
     
     Actuator Commands
-            audit: Display audit endpoint.
+          * audit: Display audit endpoint.
             beans: Display beans endpoint.
             conditions: Display conditions endpoint.
             configprops: Display configprops endpoint.
@@ -42,7 +42,7 @@
             scheduledtasks: Display scheduledtasks endpoint.
           * sessions: Display sessions endpoint.
             shutdown: Shutdown application.
-            threaddump: Display threaddump endpoint.
+          * threaddump: Display threaddump endpoint.
     
     Built-In Commands
             clear: Clear the shell screen.
@@ -84,9 +84,14 @@
             manage-sessions-stop: Stop session
     
     System Commands
-            jvm-env: List system environment.
-            jvm-properties: List system properties.
-            threads: Thread command.
+            system-env: List system environment.
+            system-properties: List system properties.
+            system-threads: Thread command.
+    
+    Tasks Commands
+            tasks-list: Display the available scheduled tasks
+            tasks-restart: Restart all or specified task(s)
+            tasks-stop: Stop all or specified task(s)
     
     Commands marked with (*) are currently unavailable.
     Type `help <command>` to learn more.
