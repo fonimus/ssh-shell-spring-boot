@@ -26,14 +26,14 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class PostprocessorsTest {
+class PostProcessorsCommandTest {
 
     @Test
     void postprocessors() {
         GrepPostProcessor grep = new GrepPostProcessor();
         JsonPointerPostProcessor json = new JsonPointerPostProcessor();
         String result =
-                new Postprocessors(new SshShellHelper(), new SshShellProperties(), Arrays.asList(grep, json)).postprocessors().toString();
+                new PostProcessorsCommand(new SshShellHelper(), new SshShellProperties(), Arrays.asList(grep, json)).postprocessors().toString();
 
         assertTrue(result.startsWith("Available Post-Processors"));
         assertTrue(result.contains(grep.getName()));

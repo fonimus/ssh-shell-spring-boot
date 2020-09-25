@@ -35,7 +35,11 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.table.ArrayTableModel;
 import org.springframework.shell.table.BorderStyle;
 import org.springframework.shell.table.SimpleHorizontalAligner;
+import org.springframework.shell.table.SimpleVerticalAligner;
+import org.springframework.shell.table.SizeConstraints;
+import org.springframework.shell.table.Table;
 import org.springframework.shell.table.TableBuilder;
+import org.springframework.shell.table.TableModel;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,31 +48,114 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static com.github.fonimus.ssh.shell.SshShellHelper.INTERACTIVE_LONG_MESSAGE;
 import static com.github.fonimus.ssh.shell.SshShellHelper.INTERACTIVE_SHORT_MESSAGE;
 import static com.github.fonimus.ssh.shell.SshShellHelper.at;
 
 /**
- * Thread command
+ * Jvm command
  */
 @SshShellComponent
 @ShellCommandGroup("System Commands")
-public class ThreadCommand extends AbstractCommand {
+public class SystemCommand extends AbstractCommand {
 
-    public static final String GROUP = "threads";
-    public static final String COMMAND_THREAD = "threads";
+    private static final String GROUP = "system";
+    private static final String COMMAND_SYSTEM_ENV = GROUP + "-env";
+    private static final String COMMAND_SYSTEM_PROPERTIES = GROUP + "-properties";
+    private static final String COMMAND_SYSTEM_THREADS = GROUP + "-threads";
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm:ss");
 
-    private SshShellHelper helper;
+    public static final String SPLIT_REGEX = "[:;]";
 
-    public ThreadCommand(SshShellHelper helper, SshShellProperties properties) {
-        super(helper, properties, properties.getCommands().getThreads());
-        this.helper = helper;
+    public SystemCommand(SshShellHelper helper, SshShellProperties properties) {
+        super(helper, properties, properties.getCommands().getSystem());
     }
 
-    @ShellMethod(key = COMMAND_THREAD, value = "Thread command.")
+    @ShellMethod(key = COMMAND_SYSTEM_ENV, value = "List system environment.")
+    @ShellMethodAvailability("jvmEnvAvailability")
+    public Object jvmEnv(boolean simpleView) {
+        if (simpleView) {
+            return buildSimple(System.getenv());
+        }
+        return buildTable(System.getenv()).render(helper.terminalSize().getRows());
+    }
+
+    @ShellMethod(key = COMMAND_SYSTEM_PROPERTIES, value = "List system properties.")
+    @ShellMethodAvailability("jvmPropertiesAvailability")
+    public Object jvmProperties(boolean simpleView) {
+        Map<String, String> map =
+                System.getProperties().entrySet().stream().filter(e -> e.getKey() != null)
+                        .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue() != null ?
+                                e.getValue().toString() : ""));
+        if (simpleView) {
+            return buildSimple(map);
+        }
+        return buildTable(map).render(helper.terminalSize().getRows());
+    }
+
+    private String buildSimple(Map<String, String> mapParam) {
+        Map<String, String> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        map.putAll(mapParam);
+        int maxColumn = helper.terminalSize().getRows() - 3 / 2;
+        StringBuilder sb = new StringBuilder();
+        int max = -1;
+        for (String s : map.keySet()) {
+            if (s.length() > max && s.length() < maxColumn) {
+                max = s.length();
+            }
+        }
+
+        for (Map.Entry<String, String> e : map.entrySet()) {
+            sb.append(String.format("%-" + max + "s", e.getKey())).append(" | ").append(e.getValue()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private Table buildTable(Map<String, String> mapParam) {
+        Map<String, String> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        map.putAll(mapParam);
+        String[][] data = new String[map.size() + 1][2];
+        TableModel model = new ArrayTableModel(data);
+        TableBuilder tableBuilder = new TableBuilder(model);
+
+        data[0][0] = "Key";
+        data[0][1] = "Value";
+        tableBuilder.on(at(0, 0)).addAligner(SimpleHorizontalAligner.center);
+        tableBuilder.on(at(0, 1)).addAligner(SimpleHorizontalAligner.center);
+        int i = 1;
+        for (Map.Entry<String, String> e : map.entrySet()) {
+            data[i][0] = e.getKey();
+            data[i][1] = e.getValue();
+            tableBuilder.on(at(i, 0)).addAligner(SimpleHorizontalAligner.center);
+            tableBuilder.on(at(i, 0)).addAligner(SimpleVerticalAligner.middle);
+            if (e.getKey().toLowerCase().contains("path") || e.getKey().toLowerCase().contains("dirs")) {
+                tableBuilder.on(at(i, 1)).addSizer((raw, tableWidth, nbColumns) -> extent(raw, SPLIT_REGEX));
+                tableBuilder.on(at(i, 1)).addFormatter(value -> value == null ? new String[]{""}
+                        : value.toString().split(SPLIT_REGEX));
+            }
+            i++;
+        }
+        return tableBuilder.addFullBorder(BorderStyle.fancy_double).build();
+    }
+
+    private static SizeConstraints.Extent extent(String[] raw, String regex) {
+        int max = 0;
+        int min = 0;
+        for (String line : raw) {
+            String[] words = line.split(regex);
+            for (String word : words) {
+                min = Math.max(min, word.length());
+            }
+            max = Math.max(max, line.length());
+        }
+        return new SizeConstraints.Extent(min, max);
+    }
+
+    @ShellMethod(key = COMMAND_SYSTEM_THREADS, value = "List jvm threads.")
     @ShellMethodAvailability("threadsAvailability")
     public String threads(@ShellOption(defaultValue = "LIST") ThreadAction action,
                           @ShellOption(help = "Order by column. Default is: ID", defaultValue = "ID") ThreadColumn orderBy,
@@ -260,7 +347,7 @@ public class ThreadCommand extends AbstractCommand {
     }
 
     private Availability threadsAvailability() {
-        return availability(GROUP, COMMAND_THREAD);
+        return availability(GROUP, COMMAND_SYSTEM_THREADS);
     }
 
     enum ThreadColumn {
@@ -269,5 +356,13 @@ public class ThreadCommand extends AbstractCommand {
 
     enum ThreadAction {
         LIST, DUMP
+    }
+
+    private Availability jvmEnvAvailability() {
+        return availability(GROUP, COMMAND_SYSTEM_ENV);
+    }
+
+    private Availability jvmPropertiesAvailability() {
+        return availability(GROUP, COMMAND_SYSTEM_PROPERTIES);
     }
 }

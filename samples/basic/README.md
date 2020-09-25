@@ -30,12 +30,6 @@
             script: Read and execute commands from a file.
             stacktrace: Display the full stacktrace of the last error.
     
-    Datasource Commands
-            datasource-list: List available datasources
-            datasource-properties: Datasource properties command. Executes 'show variables'
-            datasource-query: Datasource query command.
-            datasource-update: Datasource update command.
-    
     Demo Command
             authentication: Authentication command
             echo: Echo command
@@ -55,9 +49,9 @@
           * manage-sessions-stop: Stop session
     
     System Commands
-            jvm-env: List system environment.
-            jvm-properties: List system properties.
-            threads: Thread command.
+            system-env: List system environment.
+            system-properties: List system properties.
+            system-threads: Thread command.
     
     Commands marked with (*) are currently unavailable.
     Type `help <command>` to learn more.

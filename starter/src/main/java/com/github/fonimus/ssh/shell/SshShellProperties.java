@@ -134,7 +134,10 @@ public class SshShellProperties {
         private CommandProperties jmx = new CommandProperties();
 
         @NestedConfigurationProperty
-        private CommandProperties jvm = new CommandProperties();
+        private CommandProperties system = new CommandProperties();
+
+        @NestedConfigurationProperty
+        private CommandProperties tasks = new CommandProperties();
 
         @NestedConfigurationProperty
         private CommandProperties datasource =
@@ -142,9 +145,6 @@ public class SshShellProperties {
 
         @NestedConfigurationProperty
         private CommandProperties postprocessors = CommandProperties.notRestrictedByDefault();
-
-        @NestedConfigurationProperty
-        private CommandProperties threads = new CommandProperties();
 
         @NestedConfigurationProperty
         private CommandProperties manageSessions = CommandProperties.disabledByDefault();

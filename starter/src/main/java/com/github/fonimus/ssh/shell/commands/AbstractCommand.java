@@ -31,11 +31,11 @@ import java.util.List;
 @Slf4j
 public class AbstractCommand {
 
-    private final SshShellHelper helper;
+    protected final SshShellHelper helper;
 
-    private final SshShellProperties properties;
+    protected final SshShellProperties properties;
 
-    private final CommandProperties commandProperties;
+    protected final CommandProperties commandProperties;
 
     public AbstractCommand(SshShellHelper helper, SshShellProperties properties, CommandProperties commandProperties) {
         this.helper = helper;

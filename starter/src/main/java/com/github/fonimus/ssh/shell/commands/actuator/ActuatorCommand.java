@@ -71,8 +71,6 @@ public class ActuatorCommand extends AbstractCommand {
 
     private final Environment environment;
 
-    private final SshShellHelper helper;
-
     private final AuditEventsEndpoint audit;
 
     private final BeansEndpoint beans;
@@ -120,7 +118,6 @@ public class ActuatorCommand extends AbstractCommand {
         super(helper, properties, properties.getCommands().getActuator());
         this.applicationContext = applicationContext;
         this.environment = environment;
-        this.helper = helper;
         this.audit = audit;
         this.beans = beans;
         this.conditions = conditions;

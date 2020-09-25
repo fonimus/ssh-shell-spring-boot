@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "ssh.shell.port=2346",
                 "ssh.shell.password=pass",
                 "ssh.shell.shared-history=false",
-                "ssh.shell.default-commands.manage-sessions=true",
+                "ssh.shell.commands.manage-sessions.enable=true",
                 "management.endpoints.web.exposure.include=*"
         }
 )

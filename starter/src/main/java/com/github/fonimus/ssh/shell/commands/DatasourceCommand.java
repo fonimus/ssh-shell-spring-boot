@@ -68,14 +68,11 @@ public class DatasourceCommand extends AbstractCommand {
     private static final String COMMAND_DATA_SOURCE_QUERY = GROUP + "-query";
     public static final String COMMAND_DATA_SOURCE_UPDATE = GROUP + "-update";
 
-    private final SshShellHelper helper;
-
     private final Map<Integer, DataSource> dataSourceByIndex = new HashMap<>();
 
     public DatasourceCommand(SshShellHelper helper, SshShellProperties properties,
                              @Autowired(required = false) List<DataSource> dataSourceList) {
         super(helper, properties, properties.getCommands().getDatasource());
-        this.helper = helper;
         if (dataSourceList != null) {
             this.dataSourceByIndex
                     .putAll(IntStream.range(0, dataSourceList.size()).boxed().collect(Collectors.toMap(Function.identity(), dataSourceList::get)));
