@@ -239,9 +239,14 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "health", value = "Display health endpoint.")
     @ShellMethodAvailability("healthAvailability")
-    public Object health() {
+    public Object health(@ShellOption(value = {"-p", "--path"}, defaultValue = ShellOption.NULL,
+            help = "Path to query health (component namen, group name)") String path) {
         try {
-            return health.health();
+            if (path != null) {
+                return health.healthForPath(path);
+            } else {
+                return health.health();
+            }
         } catch (NoSuchMethodError e) {
             // spring boot 1.9.x
             try {

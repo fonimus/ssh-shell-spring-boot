@@ -94,7 +94,7 @@ public abstract class AbstractCommandTest
 
     @Test
     void testHealth() {
-        HealthComponent healthComponent = (HealthComponent) cmd.health();
+        HealthComponent healthComponent = (HealthComponent) cmd.health(null);
         assertEquals(health.health().getStatus(), healthComponent.getStatus());
     }
 

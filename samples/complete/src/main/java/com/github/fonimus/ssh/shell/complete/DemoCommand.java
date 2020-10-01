@@ -31,6 +31,8 @@ import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.actuate.health.AbstractHealthIndicator;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.core.MethodParameter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.shell.Availability;
@@ -55,8 +57,8 @@ import java.util.stream.Collectors;
 /**
  * Demo command for example
  */
-@SshShellComponent
-public class DemoCommand {
+@SshShellComponent("demo-command")
+public class DemoCommand extends AbstractHealthIndicator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemoCommand.class);
 
@@ -290,6 +292,11 @@ public class DemoCommand {
     @Scheduled(cron = "0/60 * * * * *")
     public void logWithCron() {
         LOGGER.info("In 'cron' scheduled task..");
+    }
+
+    @Override
+    protected void doHealthCheck(Health.Builder builder) {
+        builder.up().withDetail("a-key", "a-value");
     }
 }
 

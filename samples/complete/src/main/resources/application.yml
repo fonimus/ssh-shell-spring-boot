@@ -38,6 +38,16 @@ management:
       enabled: true
     threaddump:
       enabled: false
+    health:
+      group:
+        nocommands:
+          include: '*'
+          exclude:
+            - demo-command
+        commands:
+          include:
+            - demo-command
+
 
 logging:
   level:

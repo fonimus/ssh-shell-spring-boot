@@ -741,6 +741,10 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.5.1
+
+* Add option for path (groups, components, etc) in health endpoint
+
 ### 1.5.0
 
 * Add tasks commands : 
