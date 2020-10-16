@@ -40,6 +40,7 @@ import org.springframework.boot.actuate.session.SessionsEndpoint;
 import org.springframework.boot.actuate.trace.http.HttpTraceEndpoint;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
@@ -61,9 +62,13 @@ import java.util.Map;
 @SshShellComponent
 @ShellCommandGroup("Actuator Commands")
 @ConditionalOnClass(Endpoint.class)
+@ConditionalOnProperty(
+        name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + ActuatorCommand.GROUP + ".create",
+        havingValue = "true", matchIfMissing = true
+)
 public class ActuatorCommand extends AbstractCommand {
 
-    private static final String GROUP = "actuator";
+    public static final String GROUP = "actuator";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActuatorCommand.class);
 

@@ -77,6 +77,7 @@ ssh:
     # since 1.4.0, set enable to false to disable following default commands
     commands:
       actuator:
+        create: true
         enable: true
         restricted: true
         # empty by default
@@ -86,17 +87,20 @@ ssh:
           - ACTUATOR
       # since 1.4.0
       jmx: 
+        create: true
         enable: true
         restricted: true
         authorized-roles: 
           - ADMIN
       system: 
+        create: true
         enable: true
         restricted: true
         authorized-roles: 
           - ADMIN
       # since 1.4.0
       datasource: 
+        create: true
         enable: true
         restricted: true
         authorized-roles: 
@@ -104,16 +108,19 @@ ssh:
         excludes:
           - datasource-update
       postprocessors: 
+        create: true
         enable: true
         restricted: false
       # since 1.3.0, command which allows you to list ssh sessions, and stop them
       manage-sessions:
+        create: true
         enable: false
         restricted: true
         authorized-roles: 
           - ADMIN
       # since 1.5.0
       tasks:
+        create: true
         enable: false
         restricted: true
         authorized-roles: 
@@ -740,6 +747,14 @@ public class ApplicationTest {}
 
 
 ## Release notes
+
+### 1.5.2
+
+* Add option to create group commands ``ssh.shell.commands.<command>.create``, which is true by default.
+  Setting a group command **create** property to false :
+    * won't create the associated commands in spring context
+    * won't display the associated commands in help
+    * the associated commands won't be accessible in shell
 
 ### 1.5.1
 

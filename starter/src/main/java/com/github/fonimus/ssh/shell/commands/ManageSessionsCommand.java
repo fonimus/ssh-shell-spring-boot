@@ -22,6 +22,7 @@ import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.manage.SshShellSessionManager;
 import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.session.ServerSession;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
@@ -39,9 +40,13 @@ import static com.github.fonimus.ssh.shell.manage.SshShellSessionManager.session
  */
 @SshShellComponent
 @ShellCommandGroup("Manage Sessions Commands")
+@ConditionalOnProperty(
+        name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + ManageSessionsCommand.GROUP + ".create",
+        havingValue = "true", matchIfMissing = true
+)
 public class ManageSessionsCommand extends AbstractCommand {
 
-    private static final String GROUP = "manage-sessions";
+    public static final String GROUP = "manage-sessions";
     private static final String COMMAND_MANAGE_SESSIONS_LIST = GROUP + "-list";
     private static final String COMMAND_MANAGE_SESSIONS_INFO = GROUP + "-info";
     private static final String COMMAND_MANAGE_SESSIONS_STOP = GROUP + "-stop";

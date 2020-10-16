@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodParameter;
 import org.springframework.scheduling.TaskScheduler;
@@ -67,6 +68,10 @@ import static org.springframework.scheduling.annotation.ScheduledAnnotationBeanP
 @SshShellComponent
 @ShellCommandGroup("Tasks Commands")
 @ConditionalOnBean({ScheduledTaskHolder.class})
+@ConditionalOnProperty(
+        name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + TasksCommand.GROUP + ".create",
+        havingValue = "true", matchIfMissing = true
+)
 public class TasksCommand extends AbstractCommand implements DisposableBean {
 
     public static final String GROUP = "tasks";
