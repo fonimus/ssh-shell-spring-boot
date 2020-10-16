@@ -27,6 +27,7 @@ import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
@@ -60,9 +61,13 @@ import static com.github.fonimus.ssh.shell.SshShellHelper.at;
  */
 @SshShellComponent
 @ShellCommandGroup("System Commands")
+@ConditionalOnProperty(
+        name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + SystemCommand.GROUP + ".create",
+        havingValue = "true", matchIfMissing = true
+)
 public class SystemCommand extends AbstractCommand {
 
-    private static final String GROUP = "system";
+    public static final String GROUP = "system";
     private static final String COMMAND_SYSTEM_ENV = GROUP + "-env";
     private static final String COMMAND_SYSTEM_PROPERTIES = GROUP + "-properties";
     private static final String COMMAND_SYSTEM_THREADS = GROUP + "-threads";

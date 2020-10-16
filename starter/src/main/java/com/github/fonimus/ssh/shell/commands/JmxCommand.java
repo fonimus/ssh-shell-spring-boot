@@ -20,6 +20,7 @@ import com.github.fonimus.ssh.shell.SimpleTable;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.MethodParameter;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
@@ -56,9 +57,13 @@ import java.util.stream.Collectors;
  */
 @SshShellComponent
 @ShellCommandGroup("Jmx Commands")
+@ConditionalOnProperty(
+        name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + JmxCommand.GROUP + ".create",
+        havingValue = "true", matchIfMissing = true
+)
 public class JmxCommand extends AbstractCommand {
 
-    private static final String GROUP = "jmx";
+    public static final String GROUP = "jmx";
     private static final String COMMAND_JMX_LIST = GROUP + "-list";
     private static final String COMMAND_JMX_INFO = GROUP + "-info";
     private static final String COMMAND_JMX_INVOKE = GROUP + "-invoke";

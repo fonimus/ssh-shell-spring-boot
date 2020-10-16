@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.MethodParameter;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
@@ -60,9 +61,13 @@ import java.util.stream.IntStream;
 @ShellCommandGroup("Datasource Commands")
 @ConditionalOnBean(DataSource.class)
 @ConditionalOnClass(DataSource.class)
+@ConditionalOnProperty(
+        name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + DatasourceCommand.GROUP + ".create",
+        havingValue = "true", matchIfMissing = true
+)
 public class DatasourceCommand extends AbstractCommand {
 
-    private static final String GROUP = "datasource";
+    public static final String GROUP = "datasource";
     private static final String COMMAND_DATA_SOURCE_LIST = GROUP + "-list";
     private static final String COMMAND_DATA_SOURCE_PROPERTIES = GROUP + "-properties";
     private static final String COMMAND_DATA_SOURCE_QUERY = GROUP + "-query";

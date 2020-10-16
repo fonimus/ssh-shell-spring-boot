@@ -5,6 +5,13 @@ ssh:
       text: 'basic::>'
     password: password
     authorized-public-keys-file: samples/public-keys-sample
+    commands:
+      jmx:
+        create: false
+      manage-sessions:
+        create: false
+      system:
+        create: false
 
 logging:
   level:

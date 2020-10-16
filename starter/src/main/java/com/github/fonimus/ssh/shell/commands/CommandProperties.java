@@ -33,6 +33,8 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.ADMIN_ROLE;
 @AllArgsConstructor
 public class CommandProperties {
 
+    private boolean create = true;
+
     private boolean enable = true;
 
     private boolean restricted = true;
