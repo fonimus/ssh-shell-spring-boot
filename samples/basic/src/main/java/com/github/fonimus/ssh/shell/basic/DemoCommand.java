@@ -24,6 +24,7 @@ import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.springframework.shell.standard.ShellMethod;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 /**
  * Demo command for example
  */
+@Slf4j
 @SshShellComponent
 public class DemoCommand {
 
@@ -60,6 +62,22 @@ public class DemoCommand {
                     AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
         }
         return message;
+    }
+
+    /**
+     * Wait for some time
+     *
+     * @param waitInMillis wait time
+     * @return message
+     */
+    @ShellMethod(key = "wait", value = "Wait command")
+    public String waitCmd(long waitInMillis) {
+        try {
+            Thread.sleep(waitInMillis);
+        } catch (InterruptedException e) {
+            LOGGER.warn("Got interrupted");
+        }
+        return "Waited " + waitInMillis + " milliseconds";
     }
 
     /**

@@ -22,12 +22,12 @@ import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class ExtendedShellTest {
@@ -39,7 +39,7 @@ class ExtendedShellTest {
             // do nothing
         }, new ArrayList<>());
         shell.evaluate(() -> "one two three");
-        assertNull(SSH_THREAD_CONTEXT.get().getPostProcessorsList());
+        assertEquals(Collections.emptyList(), SSH_THREAD_CONTEXT.get().getPostProcessorsList());
 
         shell.evaluate(() -> "one two three | grep test > /tmp/file");
         List<PostProcessorObject> postProcessors = SSH_THREAD_CONTEXT.get().getPostProcessorsList();

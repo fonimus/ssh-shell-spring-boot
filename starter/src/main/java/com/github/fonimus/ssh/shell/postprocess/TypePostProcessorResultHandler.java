@@ -89,7 +89,13 @@ public class TypePostProcessorResultHandler
                 }
             }
         }
-        resultHandler.handleResult(obj);
+        if (ctx == null || !ctx.isBackground()) {
+            // do not display anything if is background script
+            resultHandler.handleResult(obj);
+        }
+        if (ctx != null && ctx.isBackground()) {
+            ctx.incrementBackgroundCount();
+        }
     }
 
     private void printLogWarn(String warn) {

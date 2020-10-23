@@ -64,9 +64,9 @@ class TypePostProcessorResultHandlerTest {
 
     @Test
     void handleResultUnknownPostProcessor() {
-        SSH_THREAD_CONTEXT.get().setPostProcessorsList(Collections.singletonList(
-                new PostProcessorObject("unknown")
-        ));
+        SSH_THREAD_CONTEXT.get().getPostProcessorsList().add(
+                new PostProcessorObject("unknown"
+                ));
 
         rh.handleResult("result");
         assertEquals(2, captor.getAllValues().size());
@@ -76,9 +76,9 @@ class TypePostProcessorResultHandlerTest {
 
     @Test
     void handleResultWrongPostProcessorArgument() {
-        SSH_THREAD_CONTEXT.get().setPostProcessorsList(Collections.singletonList(
-                new PostProcessorObject("grep")
-        ));
+        SSH_THREAD_CONTEXT.get().getPostProcessorsList().add(
+                new PostProcessorObject("grep"
+                ));
 
         Object obj = new PostProcessorObject("test");
         rh.handleResult(obj);
@@ -89,8 +89,8 @@ class TypePostProcessorResultHandlerTest {
 
     @Test
     void handleResultPostProcessorError() {
-        SSH_THREAD_CONTEXT.get().setPostProcessorsList(Collections.singletonList(
-                new PostProcessorObject("save"))
+        SSH_THREAD_CONTEXT.get().getPostProcessorsList().add(
+                new PostProcessorObject("save")
         );
         rh.handleResult("result");
         assertEquals(1, captor.getAllValues().size());
@@ -99,8 +99,8 @@ class TypePostProcessorResultHandlerTest {
 
     @Test
     void handleResultNominal() {
-        SSH_THREAD_CONTEXT.get().setPostProcessorsList(Collections.singletonList(
-                new PostProcessorObject("grep", Collections.singletonList("result")))
+        SSH_THREAD_CONTEXT.get().getPostProcessorsList().add(
+                new PostProcessorObject("grep", Collections.singletonList("result"))
         );
         rh.handleResult("result");
         assertEquals(1, captor.getAllValues().size());

@@ -25,6 +25,7 @@ import org.apache.sshd.server.session.ServerSession;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,8 +42,12 @@ public class SshContext {
 
     private SshAuthentication authentication;
 
+    private final List<PostProcessorObject> postProcessorsList = new ArrayList<>();
+
     @Setter
-    private List<PostProcessorObject> postProcessorsList;
+    private boolean background;
+
+    private long backgroundCount = 0;
 
     public SshContext() {
     }
@@ -88,5 +93,9 @@ public class SshContext {
      */
     public Environment getSshEnv() {
         return isLocalPrompt() ? null : sshShellRunnable.getSshEnv();
+    }
+
+    public void incrementBackgroundCount() {
+        this.backgroundCount++;
     }
 }

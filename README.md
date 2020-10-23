@@ -748,6 +748,11 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.5.3
+
+* Rewrite script command to be usable in background with result file (options added to default command)
+* Add ``StoppableInteractiveInput`` to be able to stop the interactive mode with specific condition
+
 ### 1.5.2
 
 * Add option to create group commands ``ssh.shell.commands.<command>.create``, which is true by default.
