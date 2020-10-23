@@ -269,7 +269,7 @@ public class SshShellRunnable
         public Input readInput() {
             SshContext ctx = SSH_THREAD_CONTEXT.get();
             if (ctx != null) {
-                ctx.setPostProcessorsList(null);
+                ctx.getPostProcessorsList().clear();
             }
             try {
                 return super.readInput();

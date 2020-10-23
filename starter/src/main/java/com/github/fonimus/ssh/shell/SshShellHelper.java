@@ -19,8 +19,11 @@ package com.github.fonimus.ssh.shell;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.interactive.Interactive;
 import com.github.fonimus.ssh.shell.interactive.InteractiveInput;
+import com.github.fonimus.ssh.shell.interactive.InteractiveInputIO;
 import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import com.github.fonimus.ssh.shell.interactive.KeyBindingInput;
+import com.github.fonimus.ssh.shell.interactive.StoppableInteractiveInput;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.session.ServerSession;
@@ -570,7 +573,7 @@ public class SshShellHelper {
             if (size.getColumns() < previous) {
                 display.clear();
             }
-            maxLines[0] = display(interactive.getInput(), display, size, refreshDelay[0]);
+            maxLines[0] = display(interactive.getInput(), display, size, refreshDelay[0]).getLines();
         });
         Attributes attr = terminal.enterRawMode();
         try {
@@ -641,7 +644,8 @@ public class SshShellHelper {
 
             String op;
             do {
-                maxLines[0] = display(interactive.getInput(), display, size, refreshDelay[0]);
+                DisplayResult result = display(interactive.getInput(), display, size, refreshDelay[0]);
+                maxLines[0] = result.getLines();
                 checkInterrupted();
 
                 long delta = ((System.currentTimeMillis() - t0) / refreshDelay[0] + 1)
@@ -654,6 +658,8 @@ public class SshShellHelper {
                     op = EXIT;
                 } else if (ch != NonBlockingReader.READ_EXPIRED) {
                     op = bindingReader.readBinding(keys, null, false);
+                } else if (result.isStop()) {
+                    op = EXIT;
                 }
                 if (op == null) {
                     continue;
@@ -712,11 +718,20 @@ public class SshShellHelper {
         interactive(Interactive.builder().input(input).refreshDelay(delay).fullScreen(fullScreen).size(size).build());
     }
 
-    private int display(InteractiveInput input, Display display, Size size, long currentDelay) {
+    private DisplayResult display(InteractiveInput input, Display display, Size size, long currentDelay) {
         display.resize(size.getRows(), size.getColumns());
-        List<AttributedString> lines = input.getLines(size, currentDelay);
+        DisplayResult result = new DisplayResult();
+        List<AttributedString> lines;
+        if (input instanceof StoppableInteractiveInput) {
+            InteractiveInputIO io = ((StoppableInteractiveInput) input).getIO(size, currentDelay);
+            result.setStop(io.isStop());
+            lines = io.getLines();
+        } else {
+            lines = input.getLines(size, currentDelay);
+        }
         display.update(lines, 0);
-        return lines.size();
+        result.setLines(lines.size());
+        return result;
     }
 
     private void checkInterrupted() throws InterruptedException {
@@ -740,5 +755,13 @@ public class SshShellHelper {
             throw new IllegalStateException("Unable to find ssh context");
         }
         return sshContext.getLineReader();
+    }
+
+    @Data
+    public static class DisplayResult {
+
+        private int lines;
+
+        private boolean stop;
     }
 }
