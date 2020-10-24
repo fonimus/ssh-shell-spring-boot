@@ -106,7 +106,7 @@ public class ScriptCommand
             } else {
                 if (output == null) {
                     throw new IllegalArgumentException("Cannot use background option without output option for " +
-                            " commands results");
+                            "commands results");
                 } else if (output.isDirectory()) {
                     throw new IllegalArgumentException("Cannot use given output : it is a directory [" + output.getAbsolutePath() + "]");
                 } else if (!output.exists() && !output.createNewFile()) {
@@ -172,7 +172,7 @@ public class ScriptCommand
 
         }).fullScreen(false).refreshDelay(1000).build());
         if (status.getFuture().isDone() || status.getFuture().isCancelled()) {
-            helper.print("Script done. " + status.getTotal() + " commands executed.");
+            helper.print("Script done. " + status.getCount() + " commands executed.");
         }
     }
 

@@ -18,7 +18,9 @@ package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.interactive.Interactive;
 import com.github.fonimus.ssh.shell.interactive.InteractiveInput;
+import com.github.fonimus.ssh.shell.interactive.InteractiveInputIO;
 import com.github.fonimus.ssh.shell.interactive.KeyBinding;
+import com.github.fonimus.ssh.shell.interactive.StoppableInteractiveInput;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
@@ -218,21 +220,19 @@ class SshShellHelperTest extends AbstractShellHelperTest {
 
         }).build();
 
-        InteractiveInput input = (size, currentDelay) -> {
+        InteractiveInput input = (StoppableInteractiveInput) (size, currentDelay) -> {
             count[0]++;
-            return Collections.singletonList(AttributedString.EMPTY);
+            return new InteractiveInputIO(false, Collections.singletonList(AttributedString.EMPTY));
         };
-
         assertEquals(0, count[0]);
+
         h.interactive(Interactive.builder().binding(binding).binding(failingBinding).input(input).build());
         assertEquals(4, count[0]);
 
         h.interactive(Interactive.builder().input(input).fullScreen(false).build());
-
         assertEquals(5, count[0]);
 
-        h.interactive(input);
-
+        h.interactive(Interactive.builder().input(input).fullScreen(true).build());
         assertEquals(6, count[0]);
     }
 
