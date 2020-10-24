@@ -28,7 +28,6 @@ import org.springframework.shell.InputProvider;
 import org.springframework.shell.ResultHandler;
 import org.springframework.shell.Shell;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -67,22 +66,22 @@ public class ExtendedShell
 
 
     @Override
-    public void run(InputProvider inputProvider) throws IOException {
+    public void run(InputProvider inputProvider) {
         run(inputProvider, () -> false);
     }
 
     @SuppressWarnings("unchecked")
-    public void run(InputProvider inputProvider, ShellNotifier shellNotifier) throws IOException {
+    public void run(InputProvider inputProvider, ShellNotifier shellNotifier) {
         Object result = null;
         // Handles ExitRequest thrown from Quit command
         while (!(result instanceof ExitRequest) && !shellNotifier.shouldStop()) {
             Input input;
             try {
                 input = inputProvider.readInput();
+            } catch (ExitRequest e) {
+                // Handles ExitRequest thrown from hitting CTRL-C
+                break;
             } catch (Exception e) {
-                if (e instanceof ExitRequest) { // Handles ExitRequest thrown from hitting CTRL-C
-                    break;
-                }
                 resultHandler.handleResult(e);
                 continue;
             }
