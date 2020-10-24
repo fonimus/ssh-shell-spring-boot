@@ -22,7 +22,9 @@ import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
+import org.springframework.shell.ExitRequest;
 import org.springframework.shell.Input;
+import org.springframework.shell.InputProvider;
 import org.springframework.shell.ResultHandler;
 import org.springframework.shell.Shell;
 
@@ -44,6 +46,8 @@ import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CON
 public class ExtendedShell
         extends Shell {
 
+    private final ResultHandler resultHandler;
+
     private final List<String> postProcessorNames = new ArrayList<>();
 
     /**
@@ -54,8 +58,41 @@ public class ExtendedShell
      */
     public ExtendedShell(ResultHandler resultHandler, List<PostProcessor> postProcessors) {
         super(resultHandler);
+        this.resultHandler = resultHandler;
         if (postProcessors != null) {
             postProcessorNames.addAll(postProcessors.stream().map(PostProcessor::getName).collect(Collectors.toList()));
+        }
+    }
+
+
+    @Override
+    public void run(InputProvider inputProvider) {
+        run(inputProvider, () -> false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void run(InputProvider inputProvider, ShellNotifier shellNotifier) {
+        Object result = null;
+        // Handles ExitRequest thrown from Quit command
+        while (!(result instanceof ExitRequest) && !shellNotifier.shouldStop()) {
+            Input input;
+            try {
+                input = inputProvider.readInput();
+            } catch (ExitRequest e) {
+                // Handles ExitRequest thrown from hitting CTRL-C
+                break;
+            } catch (Exception e) {
+                resultHandler.handleResult(e);
+                continue;
+            }
+            if (input == null) {
+                break;
+            }
+
+            result = evaluate(input);
+            if (result != NO_INPUT && !(result instanceof ExitRequest)) {
+                resultHandler.handleResult(result);
+            }
         }
     }
 
@@ -65,11 +102,13 @@ public class ExtendedShell
         Object toReturn = super.evaluate(new ExtendedInput(input));
         SshContext ctx = SSH_THREAD_CONTEXT.get();
         if (ctx != null) {
-            ctx.setPostProcessorsList(null);
+            if (!ctx.isBackground()) {
+                // clear potential post processors from previous commands
+                ctx.getPostProcessorsList().clear();
+            }
             if (isKeyCharInList(words)) {
                 List<Integer> indexes =
                         IntStream.range(0, words.size()).filter(i -> KEY_CHARS.contains(words.get(i))).boxed().collect(Collectors.toList());
-                List<PostProcessorObject> postProcessors = new ArrayList<>();
                 for (Integer index : indexes) {
                     if (words.size() > index + 1) {
                         String keyChar = words.get(index);
@@ -83,15 +122,14 @@ public class ExtendedShell
                                 currentIndex++;
                                 word = words.size() > index + currentIndex ? words.get(index + currentIndex) : null;
                             }
-                            postProcessors.add(new PostProcessorObject(postProcessorName, params));
+                            ctx.getPostProcessorsList().add(new PostProcessorObject(postProcessorName, params));
                         } else if (keyChar.equals(ARROW)) {
-                            postProcessors.add(new PostProcessorObject(SavePostProcessor.SAVE,
+                            ctx.getPostProcessorsList().add(new PostProcessorObject(SavePostProcessor.SAVE,
                                     Collections.singletonList(words.get(index + 1))));
                         }
                     }
                 }
-                LOGGER.debug("Found {} post processors", postProcessors.size());
-                ctx.setPostProcessorsList(postProcessors);
+                LOGGER.debug("Found {} post processors", ctx.getPostProcessorsList().size());
             }
         }
         return toReturn;
@@ -112,5 +150,11 @@ public class ExtendedShell
             }
         }
         return false;
+    }
+
+    @FunctionalInterface
+    public interface ShellNotifier {
+
+        boolean shouldStop();
     }
 }

@@ -57,13 +57,7 @@ class SavePostProcessorTest {
                 assertThrows(PostProcessorException.class, () -> processor.process(TEST, Collections.singletonList(
                         "target/not-existing-dir/file.txt")))
                         .getMessage().startsWith("Unable to write to file:"));
-        assertTrue(processor.process(TEST, Collections.singletonList("target/test.txt")).startsWith("Result saved to " +
-                "file:"));
-        assertTrue(assertThrows(PostProcessorException.class, () -> processor.process(TEST,
-                Collections.singletonList("target/test.txt"))).getMessage()
-                .startsWith("File already exists:"));
-        assertTrue(assertThrows(PostProcessorException.class, () -> processor.process(TEST, Arrays.asList("target" +
-                "/test.txt", "dont-care"))).getMessage()
-                .startsWith("File already exists:"));
+        assertTrue(processor.process(TEST, Arrays.asList("target/test.txt", "other param ignored")).startsWith(
+                "Result saved to file:"));
     }
 }
