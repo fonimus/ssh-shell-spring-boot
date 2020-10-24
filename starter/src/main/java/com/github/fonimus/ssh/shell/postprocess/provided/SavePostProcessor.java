@@ -31,9 +31,11 @@ import static java.nio.file.StandardOpenOption.CREATE;
 
 @Slf4j
 public class SavePostProcessor
-        implements PostProcessor<String> {
+        implements PostProcessor<Object> {
 
     public static final String SAVE = "save";
+
+    private static final String REPLACE_REGEX = "(\\x1b\\x5b|\\x9b)[\\x30-\\x3f]*[\\x20-\\x2f]*[\\x40-\\x7e]";
 
     @Override
     public String getName() {
@@ -41,7 +43,7 @@ public class SavePostProcessor
     }
 
     @Override
-    public String process(String result, List<String> parameters) throws PostProcessorException {
+    public String process(Object result, List<String> parameters) throws PostProcessorException {
         if (parameters == null || parameters.isEmpty()) {
             throw new PostProcessorException("Cannot save without file path !");
         } else {
@@ -54,14 +56,25 @@ public class SavePostProcessor
             }
             File file = new File(path);
             try {
-                String toWrite =
-                        result.replaceAll("(\\x1b\\x5b|\\x9b)[\\x30-\\x3f]*[\\x20-\\x2f]*[\\x40-\\x7e]", "") + "\n";
+                String toWrite = string(result).replaceAll(REPLACE_REGEX, "") + "\n";
                 Files.write(file.toPath(), toWrite.getBytes(StandardCharsets.UTF_8), CREATE, APPEND);
                 return "Result saved to file: " + file.getAbsolutePath();
             } catch (IOException e) {
                 LOGGER.debug("Unable to write to file: " + file.getAbsolutePath(), e);
                 throw new PostProcessorException("Unable to write to file: " + file.getAbsolutePath() + ". " + e.getMessage(), e);
             }
+        }
+    }
+
+    private String string(Object result) {
+        if (result instanceof String) {
+            return (String) result;
+        } else if (result instanceof Throwable) {
+            return ((Throwable) result).getClass().getName() + ": " + ((Throwable) result).getMessage();
+        } else if (result != null) {
+            return result.toString();
+        } else {
+            return "";
         }
     }
 }
