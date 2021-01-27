@@ -44,6 +44,11 @@ public class DemoCommand {
 
     private final SshShellHelper helper;
 
+    /**
+     * Default constructor
+     *
+     * @param helper ssh shell helper
+     */
     public DemoCommand(SshShellHelper helper) {
         this.helper = helper;
     }

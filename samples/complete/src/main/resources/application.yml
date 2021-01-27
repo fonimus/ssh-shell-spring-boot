@@ -10,7 +10,7 @@ ssh:
   shell:
     authentication: security
     auth-provider-bean-name: customAuthManager
-    authorized-public-keys-file: samples/public-keys-sample
+    authorized-public-keys: classpath:.ssh/authorized.keys
     extended-file-provider: false
     commands:
       actuator:

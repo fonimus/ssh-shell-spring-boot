@@ -4,7 +4,7 @@ ssh:
       color: cyan
       text: 'basic::>'
     password: password
-    authorized-public-keys-file: samples/public-keys-sample
+    authorized-public-keys-file: samples/complete/src/main/resources/.ssh/authorized.keys
     commands:
       jmx:
         create: false

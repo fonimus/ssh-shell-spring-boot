@@ -78,18 +78,20 @@ public class SshShellConfiguration {
      * @return ssh server
      */
     @Bean
-    public SshServer sshServer() {
+    public SshServer sshServer() throws IOException {
         SshServer server = SshServer.setUpDefaultServer();
         server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(properties.getHostKeyFile().toPath()));
         server.setHost(properties.getHost());
         server.setPasswordAuthenticator(passwordAuthenticator);
         server.setPublickeyAuthenticator(RejectAllPublickeyAuthenticator.INSTANCE);
-        if (properties.getAuthorizedPublicKeysFile() != null) {
-            if (properties.getAuthorizedPublicKeysFile().exists() && properties.getAuthorizedPublicKeysFile().canRead()) {
-                server.setPublickeyAuthenticator(new SshShellPublicKeyAuthenticationProvider(properties.getAuthorizedPublicKeysFile()));
+        if (properties.getAuthorizedPublicKeys() != null) {
+            if (properties.getAuthorizedPublicKeys().exists()) {
+                server.setPublickeyAuthenticator(new SshShellPublicKeyAuthenticationProvider(properties.getAuthorizedPublicKeys().getFile()));
+                LOGGER.info("Using authorized public keys from : {}",
+                        properties.getAuthorizedPublicKeys().getDescription());
             } else {
-                LOGGER.warn("Could not read authorized public keys file [{}], public key authentication is disabled.",
-                        properties.getAuthorizedPublicKeysFile().getAbsolutePath());
+                LOGGER.warn("Could not read authorized public keys from : {}, public key authentication is disabled.",
+                        properties.getAuthorizedPublicKeys().getDescription());
             }
         }
         server.setPort(properties.getPort());

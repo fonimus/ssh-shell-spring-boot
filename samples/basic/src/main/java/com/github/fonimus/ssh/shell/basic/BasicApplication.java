@@ -26,6 +26,11 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 @SpringBootApplication
 public class BasicApplication {
 
+    /**
+     * Start basic application
+     *
+     * @param args main args
+     */
     public static void main(String[] args) {
         new SpringApplicationBuilder(BasicApplication.class).bannerMode(Banner.Mode.OFF).run(args);
     }
