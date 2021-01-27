@@ -27,6 +27,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class CompleteApplication {
 
+    /**
+     * Start complete application
+     *
+     * @param args main args
+     */
     public static void main(String[] args) {
         SpringApplication.run(CompleteApplication.class, args);
     }

@@ -748,6 +748,12 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.5.4
+
+* `authorizedPublicKeysFile` becomes `authorizedPublicKeys` and is now a spring resource ; you can now use :
+  * `ssh.shell.authorized-public-keys=<spring-resource-path>` (`file:<path>`, `classpath:<path>`, etc)
+  * `ssh.shell.authorized-public-keys-file=<file-path>`
+
 ### 1.5.3
 
 * Rewrite script command to be usable in background with result file (options added to default command)
