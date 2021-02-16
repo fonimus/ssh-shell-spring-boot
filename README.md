@@ -70,6 +70,10 @@ ssh:
     # since 1.2.2, optional file containing authorized public keys (standard authorized_keys format, one key per line
     # starting with 'ssh-rsa'), takes precedence over authentication (simple or not)
     authorized-public-keys-file:
+    # since 1.5.5, optional spring resource containing authorized public keys (file:, classpath: , etc)
+    # note: in case of a non file resource, a temporary file is created with given content and deleted on process exit
+    # this is due to ssh external library which only accepts file in api
+    authorized-public-keys:
     # for ssh helper 'confirm' method
     confirmation-words:
     - y    
@@ -747,6 +751,11 @@ public class ApplicationTest {}
 
 
 ## Release notes
+
+### 1.5.5
+
+* Fix potential circular dependency for `Windows` users
+* Fix classpath resource inside jar for authorized public keys file by using temporary file (ssh external library only accept files)
 
 ### 1.5.4
 

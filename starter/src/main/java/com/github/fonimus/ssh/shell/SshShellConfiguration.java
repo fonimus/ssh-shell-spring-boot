@@ -18,16 +18,21 @@ package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.auth.SshShellPublicKeyAuthenticationProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.sshd.common.util.io.IoUtils;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.RejectAllPublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Ssh shell configuration
@@ -86,7 +91,9 @@ public class SshShellConfiguration {
         server.setPublickeyAuthenticator(RejectAllPublickeyAuthenticator.INSTANCE);
         if (properties.getAuthorizedPublicKeys() != null) {
             if (properties.getAuthorizedPublicKeys().exists()) {
-                server.setPublickeyAuthenticator(new SshShellPublicKeyAuthenticationProvider(properties.getAuthorizedPublicKeys().getFile()));
+                server.setPublickeyAuthenticator(
+                        new SshShellPublicKeyAuthenticationProvider(getFile(properties.getAuthorizedPublicKeys()))
+                );
                 LOGGER.info("Using authorized public keys from : {}",
                         properties.getAuthorizedPublicKeys().getDescription());
             } else {
@@ -98,6 +105,21 @@ public class SshShellConfiguration {
         server.setShellFactory(channelSession -> shellCommandFactory);
         server.setCommandFactory((channelSession, s) -> shellCommandFactory);
         return server;
+    }
+
+    private File getFile(Resource authorizedPublicKeys) throws IOException {
+        if ("file".equals(authorizedPublicKeys.getURL().getProtocol())) {
+            return authorizedPublicKeys.getFile();
+        } else {
+            File tmp = Files.createTempFile("sshShellPubKeys-", ".tmp").toFile();
+            try (InputStream is = authorizedPublicKeys.getInputStream();
+                 OutputStream os = new FileOutputStream(tmp)) {
+                IoUtils.copy(is, os);
+            }
+            tmp.deleteOnExit();
+            LOGGER.info("Copying {} to following temporary file : {}", authorizedPublicKeys, tmp.getAbsolutePath());
+            return tmp;
+        }
     }
 
 }

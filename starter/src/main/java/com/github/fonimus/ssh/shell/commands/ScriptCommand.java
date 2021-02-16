@@ -30,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jline.reader.Parser;
 import org.jline.utils.AttributedString;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.shell.Shell;
 import org.springframework.shell.jline.FileInputProvider;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
@@ -58,6 +60,7 @@ import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CON
 @Slf4j
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
+@Lazy
 public class ScriptCommand
         implements Script.Command, DisposableBean {
 
