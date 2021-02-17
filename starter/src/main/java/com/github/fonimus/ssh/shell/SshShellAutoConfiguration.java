@@ -138,7 +138,7 @@ public class SshShellAutoConfiguration {
 
     @Bean
     @Primary
-    public Shell sshShell(@Qualifier("main") ResultHandler<Object> resultHandler, List<PostProcessor> postProcessors) {
+    public ExtendedShell sshShell(@Qualifier("main") ResultHandler<Object> resultHandler, List<PostProcessor> postProcessors) {
         return new ExtendedShell(new TypePostProcessorResultHandler(resultHandler, postProcessors), postProcessors);
     }
 
