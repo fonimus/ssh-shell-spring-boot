@@ -38,6 +38,7 @@ import org.springframework.scheduling.config.ScheduledTask;
 import org.springframework.scheduling.config.ScheduledTaskHolder;
 import org.springframework.scheduling.config.Task;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
+import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
@@ -49,6 +50,7 @@ import org.springframework.shell.standard.ValueProviderSupport;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,6 +80,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
     private static final String COMMAND_TASKS_LIST = GROUP + "-list";
     private static final String COMMAND_TASKS_STOP = GROUP + "-stop";
     private static final String COMMAND_TASKS_RESTART = GROUP + "-restart";
+    private static final SimpleDateFormat FORMATTER = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     private final Collection<ScheduledTaskHolder> scheduledTaskHolders;
 
@@ -146,7 +149,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
         }
 
         SimpleTable.SimpleTableBuilder builder = SimpleTable.builder()
-                .column("Task").column("Running").column("Type").column("Trigger");
+                .column("Task").column("Running").column("Type").column("Trigger").column("Next execution");
         for (TaskState state : this.statesByName.values()) {
             if (status == null || state.getStatus() == status) {
                 Task task = state.getScheduledTask().getTask();
@@ -155,15 +158,20 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                 line.add(state.getStatus());
                 if (task instanceof CronTask) {
                     line.add("cron");
-                    line.add("expression : " + ((CronTask) task).getExpression());
+                    CronTask cronTask = ((CronTask) task);
+                    line.add("expression : " + cronTask.getExpression());
+                    line.add(FORMATTER.format(cronTask.getTrigger().nextExecutionTime(new SimpleTriggerContext())));
                 } else if (task instanceof FixedDelayTask) {
                     line.add("fixed-delay");
                     line.add(getTrigger((FixedDelayTask) task));
+                    line.add("-");
                 } else if (task instanceof FixedRateTask) {
                     line.add("fixed-rate");
                     line.add(getTrigger((FixedRateTask) task));
+                    line.add("-");
                 } else {
                     line.add("custom");
+                    line.add("-");
                     line.add("-");
                 }
                 builder.line(line);
