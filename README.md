@@ -752,6 +752,10 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.5.6
+
+* Add `Next execution` column in `task-list` table
+
 ### 1.5.5
 
 * Fix potential circular dependency for `Windows` users
