@@ -30,5 +30,6 @@ jobs:
     - name: Get current version 
       run: ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
       id: version
-    - name: Print current version 
+    - name: Print current version
+      run: echo "version => ${{ steps.version.outputs.version }}"
         run: echo "version => ${{ steps.version.outputs.version }}"
