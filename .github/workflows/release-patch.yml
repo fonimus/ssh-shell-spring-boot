@@ -60,11 +60,13 @@ jobs:
       run: |
         if [[ ${{ github.event.inputs.version }} != '' ]] ; then export next=${{ github.event.inputs.version }}; elif [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
         echo "::set-output name=next::$(echo $next)"
+        export purenext=$(echo "${next%%-*}")
+        echo "::set-output name=purenext::$(echo $purenext)"
     - name: 'Get next snapshot version'
       id: snapshot
       uses: "WyriHaximus/github-action-next-semvers@v1"
       with:
-        version: ${{ steps.choose.outputs.next }}  
+        version: ${{ steps.choose.outputs.purenext }}  
     - name: Set release and snapshot versions 
       id: versions
       run: |
