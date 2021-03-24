@@ -1,4 +1,4 @@
-name: Release patch
+name: Release
 
 on:
   workflow_dispatch:
@@ -37,6 +37,8 @@ jobs:
         version: ${{ steps.version.outputs.version }}
     - name: Print next version 
       run: |
+        export type="patch"
+        echo "Next version = ${{ steps.next.outputs.${type} }}"
         echo "Next patch version = ${{ steps.next.outputs.patch }}"
         echo "Next minor version = ${{ steps.next.outputs.minor }}"
         echo "Next major version = ${{ steps.next.outputs.major }}"
