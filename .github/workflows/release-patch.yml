@@ -44,8 +44,20 @@ jobs:
       run: |
         if [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
         echo "::set-output name=next::$(echo $next)"
-    - name: Print next version 
-      run: echo "Current version = ${{ steps.choose.outputs.next }}"
+
+    - name: 'Get next snapshot version'
+      id: snapshot
+      uses: "WyriHaximus/github-action-next-semvers@v1"
+      with:
+        version: ${{ steps.choose.outputs.next }}  
+    - name: Log versions 
+      id: versions
+      run: |
+        export snapshot=${{ steps.snapshot.outputs.patch }}-SNAPSHOT
+        export release=${{ steps.choose.outputs.next }}
+        echo "::set-output name=snapshot::$(echo $snapshot)"
+        echo "::set-output name=release::$(echo $release)"
+    - run: echo "Releasing version = ${{ steps.versions.outputs.release }}, new dev version = ${{ steps.versions.outputs.snapshot }}"
       
       
       
