@@ -7,7 +7,7 @@ on:
         description: 'Type of release (patch, minor, major)'
         required: false
         default: 'patch'
-      release:
+      version:
         description: 'Specified version to release'
         required: false
         default: ''
@@ -51,7 +51,6 @@ jobs:
     - name: Print current version 
       run: echo "Current version = ${{ steps.version.outputs.version }}"
     - name: 'Compute next versions'
-      if: ${{ github.event.inputs.version == '' }}
       id: next
       uses: "WyriHaximus/github-action-next-semvers@v1"
       with:
@@ -59,8 +58,7 @@ jobs:
     - name: Choose next version
       id: choose
       run: |
-        if [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
-        if [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ github.event.inputs.version }}; fi
+        if [[ ${{ github.event.inputs.version }} != '' ]] ; then export next=${{ github.event.inputs.version }}; elif [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
         echo "::set-output name=next::$(echo $next)"
     - name: 'Get next snapshot version'
       id: snapshot
