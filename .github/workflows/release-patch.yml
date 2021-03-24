@@ -42,7 +42,7 @@ jobs:
     - name: Choose next version 
       id: choose
       run: |
-        if [[ $type == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ $type == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
+        if [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
         echo "::set-output name=next::$(echo $next)"
     - name: Print next version 
       run: echo "Current version = ${{ steps.choose.outputs.next }}"
