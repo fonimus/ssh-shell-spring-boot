@@ -75,6 +75,10 @@ jobs:
         echo "::set-output name=release::$(echo ${{ steps.choose.outputs.next }})"
     - name: Log versions
       run: echo "Releasing version ${{ steps.versions.outputs.release }}, new dev version will be ${{ steps.versions.outputs.snapshot }}"
+    - name: Configure git user
+      run: |
+        git config user.email "actions@github.com"
+        git config user.name "GitHub Actions"
     - name: Configure maven settings
       uses: s4u/maven-settings-action@v2.4.0
       with:
