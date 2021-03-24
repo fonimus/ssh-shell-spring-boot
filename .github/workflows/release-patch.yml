@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  release-patch:
 
     runs-on: ubuntu-latest
 
@@ -27,7 +27,7 @@ jobs:
       run: |
         export version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
         export version=$(echo "${version%%-*}")
-        echo "Current version : $version"
+        echo "Current version : ${version}"
         echo "::set-output name=version::$(echo $version)"
     - name: Print current version 
       run: echo "version => ${{ steps.version.outputs.version }}"
