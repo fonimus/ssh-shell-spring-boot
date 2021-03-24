@@ -27,7 +27,23 @@ jobs:
       run: |
         export version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
         export version=$(echo "${version%%-*}")
-        echo "Current version : ${version}"
         echo "::set-output name=version::$(echo $version)"
     - name: Print current version 
-      run: echo "version => ${{ steps.version.outputs.version }}"
+      run: echo "Current version = ${{ steps.version.outputs.version }}"
+    - name: 'Get next minor version'
+      id: next
+      uses: "WyriHaximus/github-action-next-semvers@v1"
+      with:
+        version: ${{ steps.version.outputs.version }}
+    - name: Print next version 
+      run: |
+        echo "Next patch version = ${{ steps.next.outputs.patch }}"
+        echo "Next minor version = ${{ steps.next.outputs.minor }}"
+        echo "Next major version = ${{ steps.next.outputs.major }}"
+      
+      
+      
+      
+      
+      
+      
