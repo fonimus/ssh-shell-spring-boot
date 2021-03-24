@@ -19,7 +19,10 @@ jobs:
 
     steps:
     
-    - uses: actions/checkout@v2
+    - name: Checkout project
+      uses: actions/checkout@v2
+      with:
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
     - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
@@ -59,7 +62,7 @@ jobs:
       id: choose
       run: |
         export version=$(echo ${{ github.event.inputs.version }})
-        if [[ $version != '' ]] ; then export next=$version; elif [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
+        if [[ $version != '' ]] ; then export next=$version; elif [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.version.outputs.version }}; fi
         echo "::set-output name=next::$(echo $next)"
         export purenext=$(echo "${next%%-*}")
         echo "::set-output name=purenext::$(echo $purenext)"
@@ -85,6 +88,11 @@ jobs:
         servers: '[{ "id": "ossrh", "username": "${{ secrets.OSSRH_USERNAME }}", "password": "${{ secrets.OSSRH_PASSWORD }}" }]'
     - name: Release
       run: mvn -B -ntp release:prepare release:clean -DreleaseVersion=${{ steps.versions.outputs.release }} -DdevelopmentVersion=${{ steps.versions.outputs.snapshot }}
-      
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        tags: true
       
       
