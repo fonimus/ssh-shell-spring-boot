@@ -2,9 +2,13 @@ name: Release
 
 on:
   workflow_dispatch:
-
+    inputs:
+      type:
+        description: 'Type of release (patch, minor, major)'
+        required: false
+        default: 'patch'
 jobs:
-  release-patch:
+  release:
 
     runs-on: ubuntu-latest
 
@@ -35,17 +39,13 @@ jobs:
       uses: "WyriHaximus/github-action-next-semvers@v1"
       with:
         version: ${{ steps.version.outputs.version }}
-    - name: Print next version 
+    - name: Choose next version 
+      id: choose
       run: |
-        export type="patch"
-        echo "Next version = ${{ steps.next.outputs.${type} }}"
-        echo "Next patch version = ${{ steps.next.outputs.patch }}"
-        echo "Next minor version = ${{ steps.next.outputs.minor }}"
-        echo "Next major version = ${{ steps.next.outputs.major }}"
-      
-      
-      
-      
+        if [[ $type == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ $type == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
+        echo "::set-output name=next::$(echo $next)"
+    - name: Print next version 
+      run: echo "Current version = ${{ steps.choose.outputs.next }}"
       
       
       
