@@ -58,7 +58,7 @@ jobs:
     - name: Choose next version
       id: choose
       run: |
-        if [[ ${{ github.event.inputs.version }} != '' ]] ; then export next=${{ github.event.inputs.version }}; elif [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
+        if [[ ${{ github.event.inputs.version || '' }} != '' ]] ; then export next=${{ github.event.inputs.version }}; elif [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.next.outputs.patch }}; fi
         echo "::set-output name=next::$(echo $next)"
         export purenext=$(echo "${next%%-*}")
         echo "::set-output name=purenext::$(echo $purenext)"
