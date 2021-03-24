@@ -1,6 +1,5 @@
-name: Release patch
-
-on: 
+name: Manually triggered workflow
+on:
   workflow_dispatch:
 
 jobs:
