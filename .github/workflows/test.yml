@@ -6,17 +6,8 @@ jobs:
   say_hello:
     runs-on: ubuntu-latest
     steps:
-    - run: |
-        echo "Hello you!"
     - name: Set selected color
       run: echo '::set-output name=SELECTED_COLOR::green'
       id: random-color-generator
     - name: Get color
       run: echo "The selected color is ${{ steps.random-color-generator.outputs.SELECTED_COLOR }}"
-    - name: Print version
-      run: mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec
-    - name: Get current version 
-      run: ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
-      id: version
-    - name: Print current version 
-      run: echo "version => ${{ steps.version.outputs.version }}"
