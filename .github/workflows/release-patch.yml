@@ -32,4 +32,3 @@ jobs:
       id: version
     - name: Print current version
       run: echo "version => ${{ steps.version.outputs.version }}"
-        run: echo "version => ${{ steps.version.outputs.version }}"
