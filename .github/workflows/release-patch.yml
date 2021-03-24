@@ -50,14 +50,17 @@ jobs:
       uses: "WyriHaximus/github-action-next-semvers@v1"
       with:
         version: ${{ steps.choose.outputs.next }}  
-    - name: Log versions 
+    - name: Set release and snapshot versions 
       id: versions
       run: |
         export snapshot=${{ steps.snapshot.outputs.patch }}-SNAPSHOT
         export release=${{ steps.choose.outputs.next }}
         echo "::set-output name=snapshot::$(echo $snapshot)"
         echo "::set-output name=release::$(echo $release)"
-    - run: echo "Releasing version = ${{ steps.versions.outputs.release }}, new dev version = ${{ steps.versions.outputs.snapshot }}"
+    - name: Log versions
+      run: echo "Releasing version ${{ steps.versions.outputs.release }}, new dev version will be ${{ steps.versions.outputs.snapshot }}"
+    - name: Release
+      run: mvn -B release:prepare release:clean -DreleaseVersion=${{ steps.versions.outputs.release }} -DdevelopmentVersion=${{ steps.versions.outputs.snapshot }}
       
       
       
