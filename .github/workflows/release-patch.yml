@@ -24,4 +24,7 @@ jobs:
         
     - name: Get maven version
       id: version
-      run: ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+      run: |
+        echo "::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
+        export test=toto
+        echo $test
