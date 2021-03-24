@@ -8,7 +8,6 @@ jobs:
     steps:
     - run: |
         echo "Hello you!"
-    - uses: actions/checkout@v1
     - name: Set selected color
       run: echo '::set-output name=SELECTED_COLOR::green'
       id: random-color-generator
