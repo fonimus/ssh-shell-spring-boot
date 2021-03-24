@@ -75,6 +75,10 @@ jobs:
         echo "::set-output name=release::$(echo ${{ steps.choose.outputs.next }})"
     - name: Log versions
       run: echo "Releasing version ${{ steps.versions.outputs.release }}, new dev version will be ${{ steps.versions.outputs.snapshot }}"
+    - name: Configure maven settings
+      uses: s4u/maven-settings-action@v2.4.0
+      with:
+        servers: '[{ "id": "ossrh", "username": "${{ secrets.OSSRH_USERNAME }}", "password": "${{ secrets.OSSRH_PASSWORD }}" }]'
     - name: Release
       run: mvn -B -ntp release:prepare release:clean -DreleaseVersion=${{ steps.versions.outputs.release }} -DdevelopmentVersion=${{ steps.versions.outputs.snapshot }}
       
