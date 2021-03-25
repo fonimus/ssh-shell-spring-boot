@@ -59,6 +59,9 @@
         <spring-shell.version>2.0.1.RELEASE</spring-shell.version>
         <sshd.version>2.6.0</sshd.version>
         <junit-jupiter.version>5.7.1</junit-jupiter.version>
+        <!--sonar-->
+        <sonar.organization>fonimus</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <scm>
