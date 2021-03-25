@@ -17,12 +17,12 @@ jobs:
       with:
         java-version: 11
 
-    - name: Cache maven packages
-      uses: actions/cache@v1
+    - name: Cache maven repository
+      uses: actions/cache@v2
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-maven-
 
     - name: Cache sonar packages
       uses: actions/cache@v1

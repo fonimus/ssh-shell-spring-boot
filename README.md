@@ -1,6 +1,8 @@
 # Spring Boot Ssh Shell
 
 [![Build Status](https://github.com/fonimus/ssh-shell-spring-boot/actions/workflows/build.yml/badge.svg)](https://github.com/fonimus/ssh-shell-spring-boot/actions/workflows/build.yml)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fonimus_ssh-shell-spring-boot&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=fonimus_ssh-shell-spring-boot)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fonimus_ssh-shell-spring-boot&metric=coverage)](https://sonarcloud.io/dashboard?id=fonimus_ssh-shell-spring-boot)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.fonimus/ssh-shell-spring-boot-starter.svg?label=%22maven%20central%22)](https://search.maven.org/search?q=g:%22com.github.fonimus%22%20AND%20a:%22ssh-shell-spring-boot-starter%22)
 
 > Spring shell in spring boot application over ssh
