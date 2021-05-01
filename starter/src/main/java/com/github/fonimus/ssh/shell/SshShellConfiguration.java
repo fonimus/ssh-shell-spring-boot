@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 François Onimus
+ * Copyright (c) 2021 François Onimus
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.auth.SshShellPublicKeyAuthenticationProvider;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.common.util.io.IoUtils;
 import org.apache.sshd.server.SshServer;
@@ -25,14 +26,12 @@ import org.apache.sshd.server.auth.pubkey.RejectAllPublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * Ssh shell configuration
@@ -57,24 +56,13 @@ public class SshShellConfiguration {
     }
 
     /**
-     * Start ssh server
-     *
-     * @throws IOException in case of error
+     * Create the bean responsible for starting and stopping the SSH server
+     * @param sshServer the ssh server to manage
+     * @return ssh server lifecycle
      */
-    @PostConstruct
-    public void startServer() throws IOException {
-        sshServer().start();
-        LOGGER.info("Ssh server started [{}:{}]", properties.getHost(), properties.getPort());
-    }
-
-    /**
-     * Stop ssh server
-     *
-     * @throws IOException in case of error
-     */
-    @PreDestroy
-    public void stopServer() throws IOException {
-        sshServer().stop();
+    @Bean
+    public SshServerLifecycle sshServerLifecycle(SshServer sshServer) {
+        return new SshServerLifecycle(sshServer, this.properties);
     }
 
     /**
@@ -122,4 +110,32 @@ public class SshShellConfiguration {
         }
     }
 
+    @RequiredArgsConstructor
+    public static class SshServerLifecycle {
+
+        private final SshServer sshServer;
+
+        private final SshShellProperties properties;
+
+        /**
+         * Start ssh server
+         *
+         * @throws IOException in case of error
+         */
+        @PostConstruct
+        public void startServer() throws IOException {
+            sshServer.start();
+            LOGGER.info("Ssh server started [{}:{}]", properties.getHost(), properties.getPort());
+        }
+
+        /**
+         * Stop ssh server
+         *
+         * @throws IOException in case of error
+         */
+        @PreDestroy
+        public void stopServer() throws IOException {
+            sshServer.stop();
+        }
+    }
 }
