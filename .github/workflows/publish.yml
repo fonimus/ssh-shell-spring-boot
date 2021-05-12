@@ -12,21 +12,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Generate changelog
-        id: changelog
-        uses: metcalfc/changelog-generator@v1.0.0
-        with:
-          myToken: ${{ secrets.GITHUB_TOKEN }}
+        
       - name: Is Pre Release ?
-        id: pre-release
-        shell: bash
-        run: |
-          export tag=$(echo ${{ github.ref }} | tr '[:upper:]' '[:lower:]')
-          if [[ $tag =~ ^refs/tags/[0-9]+\.[0-9]+\.[0-9]+.*(rc|beta|alpha).* ]]; then
-            echo ::set-output name=pre-release::true
-          else 
-            echo ::set-output name=pre-release::false
-          fi
+        id: pre_release
+        uses: heineiuo/create-changelogs@v0.2.8
+        
+      - name: Build Changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v1
+        with:
+          configuration: .changelog-generator.json
+          ignorePreReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Create Release
         id: create-release
         uses: actions/create-release@latest
@@ -37,4 +36,4 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: ${{ steps.changelog.outputs.changelog }}
           draft: false
-          prerelease: ${{ steps.pre-release.outputs.pre-release }}
+          prerelease: ${{ steps.pre_release.outputs.release_type == 'prerelease' }}
