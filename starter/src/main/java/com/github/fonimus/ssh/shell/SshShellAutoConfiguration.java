@@ -127,7 +127,7 @@ public class SshShellAutoConfiguration {
     public void init() {
         if (context.getEnvironment().getProperty("spring.main.lazy-initialization", Boolean.class, false)) {
             LOGGER.info("Lazy initialization enabled, calling configuration bean explicitly to start ssh server");
-            context.getBean(SshShellConfiguration.class);
+            context.getBean(SshShellConfiguration.SshServerLifecycle.class);
             // also need to get terminal to initialize thread context of main thread
             context.getBean(Terminal.class);
         }
