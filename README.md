@@ -752,6 +752,11 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.5.7
+
+* Bump to spring boot 2.4.5
+* Remove warn log at spring context stop
+
 ### 1.5.6
 
 * Add `Next execution` column in `task-list` table
