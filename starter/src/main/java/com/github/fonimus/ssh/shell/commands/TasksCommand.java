@@ -153,8 +153,8 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
             if (status == null || state.getStatus() == status) {
                 List<Object> line = new ArrayList<>();
                 line.add(state.getName());
-                line.add(state.getStatus());
                 if (state.getScheduledTask() != null) {
+                    line.add(state.getStatus());
                     Task task = state.getScheduledTask().getTask();
                     if (task instanceof CronTask) {
                         line.add("cron");
@@ -178,6 +178,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                     }
                 } else {
                     // In case the task was started only once and from this class
+                    line.add(state.getFuture() == null || state.getFuture().isDone() ? TaskStatus.stopped : TaskStatus.running);
                     line.add("single");
                     line.add("-");
                     line.add("none");
@@ -292,6 +293,9 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                 } else {
                     helper.printWarning("Task [" + taskName + "] already running.");
                 }
+            } else {
+                // If the user tries to launch again a task execution launched from 'tasks-single'
+                helper.printWarning("Cannot relaunch this task execution [" + task + "]. Use the original task instead.");
             }
         }
         if (started.isEmpty()) {
@@ -327,10 +331,10 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                 }
             } else if (task != null) {
                 // If the user tries to launch again a task execution launched from this method
-                return helper.getError("Cannot relaunch this task execution [" + task + "]. Use the original task instead.");
+                helper.printWarning("Cannot relaunch this task execution [" + task + "]. Use the original task instead.");
             }
         }
-        return started.isEmpty() ? "" : helper.getSuccess("Tasks " + started + " started");
+        return started.isEmpty() ? "No task started" : helper.getSuccess("Tasks " + started + " started");
     }
 
     private static String generateExecutionId() {
