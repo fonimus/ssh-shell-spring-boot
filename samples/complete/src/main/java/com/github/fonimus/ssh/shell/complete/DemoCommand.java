@@ -294,6 +294,15 @@ public class DemoCommand extends AbstractHealthIndicator {
         LOGGER.info("In 'cron' scheduled task..");
     }
 
+    /**
+     * For scheduled command example
+     */
+    @Scheduled(cron = "0 0 0 * * *")
+    public void logWithLongDuration() throws InterruptedException {
+        LOGGER.info("In 'cron' scheduled task for a while..");
+        Thread.sleep(100000);
+    }
+
     @Override
     protected void doHealthCheck(Health.Builder builder) {
         builder.up().withDetail("a-key", "a-value");
