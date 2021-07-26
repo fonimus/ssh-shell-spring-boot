@@ -28,6 +28,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.scheduling.config.CronTask;
@@ -50,7 +51,7 @@ import org.springframework.shell.standard.ValueProviderSupport;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
+
 import java.time.Duration;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -77,6 +78,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
     private static final String COMMAND_TASKS_LIST = GROUP + "-list";
     private static final String COMMAND_TASKS_STOP = GROUP + "-stop";
     private static final String COMMAND_TASKS_RESTART = GROUP + "-restart";
+    private static final String COMMAND_TASKS_SINGLE = GROUP + "-single";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     private final Collection<ScheduledTaskHolder> scheduledTaskHolders;
@@ -149,29 +151,37 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                 .column("Task").column("Running").column("Type").column("Trigger").column("Next execution");
         for (TaskState state : this.statesByName.values()) {
             if (status == null || state.getStatus() == status) {
-                Task task = state.getScheduledTask().getTask();
                 List<Object> line = new ArrayList<>();
                 line.add(state.getName());
-                line.add(state.getStatus());
-                if (task instanceof CronTask) {
-                    line.add("cron");
-                    CronTask cronTask = ((CronTask) task);
-                    line.add("expression : " + cronTask.getExpression());
-                    Date next = cronTask.getTrigger().nextExecutionTime(new SimpleTriggerContext());
-                    line.add(next == null ? "-" :
-                        FORMATTER.format(next.toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime()));
-                } else if (task instanceof FixedDelayTask) {
-                    line.add("fixed-delay");
-                    line.add(getTrigger((FixedDelayTask) task));
-                    line.add("-");
-                } else if (task instanceof FixedRateTask) {
-                    line.add("fixed-rate");
-                    line.add(getTrigger((FixedRateTask) task));
-                    line.add("-");
+                if (state.getScheduledTask() != null) {
+                    line.add(state.getStatus());
+                    Task task = state.getScheduledTask().getTask();
+                    if (task instanceof CronTask) {
+                        line.add("cron");
+                        CronTask cronTask = ((CronTask) task);
+                        line.add("expression : " + cronTask.getExpression());
+                        Date next = cronTask.getTrigger().nextExecutionTime(new SimpleTriggerContext());
+                        line.add(next == null ? "-" :
+                                FORMATTER.format(next.toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime()));
+                    } else if (task instanceof FixedDelayTask) {
+                        line.add("fixed-delay");
+                        line.add(getTrigger((FixedDelayTask) task));
+                        line.add("-");
+                    } else if (task instanceof FixedRateTask) {
+                        line.add("fixed-rate");
+                        line.add(getTrigger((FixedRateTask) task));
+                        line.add("-");
+                    } else {
+                        line.add("custom");
+                        line.add("-");
+                        line.add("-");
+                    }
                 } else {
-                    line.add("custom");
+                    // In case the task was started only once and from this class
+                    line.add(state.getFuture() == null || state.getFuture().isDone() ? TaskStatus.stopped : TaskStatus.running);
+                    line.add("single");
                     line.add("-");
-                    line.add("-");
+                    line.add("none");
                 }
                 builder.line(line);
             }
@@ -182,6 +192,13 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
 
     private void refresh(boolean refresh) {
         if (this.statesByName.isEmpty() || refresh) {
+            if (refresh) {
+                // Remove single executions that are done
+                this.statesByName.entrySet().removeIf(
+                        e -> e.getValue().getScheduledTask() == null
+                        && (e.getValue().getFuture() == null || e.getValue().getFuture().isDone())
+                );
+            }
             for (ScheduledTaskHolder scheduledTaskHolder : this.scheduledTaskHolders) {
                 for (ScheduledTask scheduledTask : scheduledTaskHolder.getScheduledTasks()) {
                     String taskName = getTaskName(scheduledTask.getTask().getRunnable());
@@ -212,7 +229,9 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
             TaskState state = this.statesByName.get(taskName);
             if (state != null) {
                 if (state.getStatus() == TaskStatus.running) {
-                    state.getScheduledTask().cancel();
+                    if (state.getScheduledTask() != null) {
+                        state.getScheduledTask().cancel();
+                    }
                     if (state.getFuture() != null) {
                         state.getFuture().cancel(true);
                         state.setFuture(null);
@@ -248,7 +267,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
         List<String> started = new ArrayList<>();
         for (String taskName : toRestart) {
             TaskState state = this.statesByName.get(taskName);
-            if (state != null) {
+            if (state != null && state.getScheduledTask() != null) {
                 if (state.getStatus() == TaskStatus.stopped) {
                     Task taskObj = state.getScheduledTask().getTask();
                     ScheduledFuture<?> future = null;
@@ -274,12 +293,52 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                 } else {
                     helper.printWarning("Task [" + taskName + "] already running.");
                 }
+            } else {
+                // If the user tries to launch again a task execution launched from 'tasks-single'
+                helper.printWarning("Cannot relaunch this task execution [" + task + "]. Use the original task instead.");
             }
         }
         if (started.isEmpty()) {
             return "No task restarted";
         }
         return helper.getSuccess("Tasks " + started + " restarted");
+    }
+
+    @ShellMethod(key = COMMAND_TASKS_SINGLE, value = "Launch one execution of all or specified task(s)")
+    @ShellMethodAvailability("tasksSingleAvailability")
+    public String tasksSingle(
+            @ShellOption(value = {"-a", "--all"}, help = "Launch one execution of all tasks") boolean all,
+            @ShellOption(value = {"-t", "--task"}, help = "Task name to launch once",
+                    valueProvider = TaskNameValuesProvider.class, defaultValue = ShellOption.NULL) String task) {
+
+        List<String> toLaunch = listTasks(all, task, true);
+        if (!helper.confirm("Do you really want to launch tasks " + toLaunch + " ?")) {
+            return "Launch aborted";
+        }
+
+        List<String> started = new ArrayList<>();
+        for (String taskName : toLaunch) {
+            TaskState state = this.statesByName.get(taskName);
+            if (state.getScheduledTask() != null) {
+                try {
+                    String executionId = taskName + "-" + generateExecutionId();
+                    // Will run the Runnable immediately or as soon as possible
+                    ScheduledFuture<?> future = taskScheduler.schedule(state.getScheduledTask().getTask().getRunnable(), new Date());
+                    statesByName.put(executionId, new TaskState(executionId, null, TaskStatus.running, future));
+                    started.add(executionId);
+                } catch (TaskRejectedException e) {
+                    helper.printError("The task '" + taskName + "' was not accepted for internal reasons");
+                }
+            } else if (task != null) {
+                // If the user tries to launch again a task execution launched from this method
+                helper.printWarning("Cannot relaunch this task execution [" + task + "]. Use the original task instead.");
+            }
+        }
+        return started.isEmpty() ? "No task started" : helper.getSuccess("Tasks " + started + " started");
+    }
+
+    private static String generateExecutionId() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 8);
     }
 
     private List<String> listTasks(boolean all, String task, boolean running) {
@@ -326,6 +385,10 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
 
     private Availability tasksRestartAvailability() {
         return availability(GROUP, COMMAND_TASKS_RESTART);
+    }
+
+    private Availability tasksSingleAvailability() {
+        return availability(GROUP, COMMAND_TASKS_SINGLE);
     }
 
     @Data
