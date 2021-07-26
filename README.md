@@ -258,9 +258,11 @@ Activated by default if you have ``@EnableScheduling``,
 these commands allow you to interact with spring boot scheduled tasks :
 
 * `tasks-list` : List scheduled tasks
-* `tasks-stop` : Stop one or all scheduled tasks
+* `tasks-stop` : Stop one or all scheduled tasks or execution
 * `tasks-restart` : Restart one or all scheduled tasks
 * `tasks-single` : Launch one execution of all or specified task(s)
+
+Note: refresh parameter in `tasks-list` will remove single executions.
 
 #### Task scheduler
 
@@ -753,9 +755,10 @@ public class ApplicationTest {}
 
 ## Release notes
 
-### 1.5.7
+### 1.6.0
 
 * Added the command [tasks-single](#tasks) to launch a single execution of a scheduled task
+* Bump to spring boot 2.5.3
 
 ### 1.5.7
 

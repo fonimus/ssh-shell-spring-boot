@@ -181,7 +181,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                     line.add(state.getFuture() == null || state.getFuture().isDone() ? TaskStatus.stopped : TaskStatus.running);
                     line.add("single");
                     line.add("-");
-                    line.add("none");
+                    line.add("never");
                 }
                 builder.line(line);
             }

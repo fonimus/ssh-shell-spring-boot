@@ -20,7 +20,8 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
-import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class JavaConnect {
@@ -33,8 +34,10 @@ public class JavaConnect {
         String password = "password";
         String command = "help";
 
-        try {
+        PipedInputStream pis = new PipedInputStream();
+        PipedOutputStream pos = new PipedOutputStream();
 
+        try {
             java.util.Properties config = new java.util.Properties();
             config.put("StrictHostKeyChecking", "no");
             JSch jsch = new JSch();
@@ -42,38 +45,42 @@ public class JavaConnect {
             session.setPassword(password);
             session.setConfig(config);
             session.connect();
-            System.out.println("Connected");
+            System.out.println("> Connected");
 
             Channel channel = session.openChannel("shell");
+
+            channel.setInputStream(new PipedInputStream(pos));
+            channel.setOutputStream(new PipedOutputStream(pis));
             channel.connect();
 
-            channel.getOutputStream().write((command + "\r").getBytes(StandardCharsets.UTF_8));
-            channel.getOutputStream().flush();
-            channel.setInputStream(null);
-
-            InputStream in = channel.getInputStream();
+            System.out.println("> Typing command '" + command + "'");
+            pos.write((command + "\r").getBytes(StandardCharsets.UTF_8));
+            pos.flush();
 
             byte[] tmp = new byte[1024];
+            // Note: this main will never stop unless ssh server is stopped
             while (true) {
-                while (in.available() > 0) {
-                    int i = in.read(tmp, 0, 1024);
+                while (pis.available() > 0) {
+                    int i = pis.read(tmp, 0, 1024);
                     if (i < 0) break;
                     System.out.print(new String(tmp, 0, i));
                 }
                 if (channel.isClosed()) {
-                    System.out.println("exit-status: " + channel.getExitStatus());
+                    System.out.println("\n> exit-status: " + channel.getExitStatus());
                     break;
                 }
                 try {
-                    Thread.sleep(3000);
+                    Thread.sleep(1000);
                 } catch (Exception ee) {
                 }
             }
             channel.disconnect();
             session.disconnect();
-            System.out.println("DONE");
+            System.out.println("> Done");
+            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
