@@ -757,6 +757,10 @@ public class ApplicationTest {}
 
 ### 1.6.0
 
+* Fix a NPE on `task-single` command.
+
+### 1.6.0
+
 * Added the command [tasks-single](#tasks) to launch a single execution of a scheduled task
 * Bump to spring boot 2.5.3
 

@@ -16,13 +16,27 @@
 
 package com.github.fonimus.ssh.shell.commands;
 
-import com.github.fonimus.ssh.shell.SimpleTable;
-import com.github.fonimus.ssh.shell.SshShellHelper;
-import com.github.fonimus.ssh.shell.SshShellProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Method;
+import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -50,15 +64,9 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.standard.ValueProviderSupport;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Method;
-
-import java.time.Duration;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.stream.Collectors;
+import com.github.fonimus.ssh.shell.SimpleTable;
+import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 
 import static org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor.DEFAULT_TASK_SCHEDULER_BEAN_NAME;
 
@@ -323,7 +331,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                 try {
                     String executionId = taskName + "-" + generateExecutionId();
                     // Will run the Runnable immediately or as soon as possible
-                    ScheduledFuture<?> future = taskScheduler.schedule(state.getScheduledTask().getTask().getRunnable(), new Date());
+                    ScheduledFuture<?> future = taskScheduler().schedule(state.getScheduledTask().getTask().getRunnable(), new Date());
                     statesByName.put(executionId, new TaskState(executionId, null, TaskStatus.running, future));
                     started.add(executionId);
                 } catch (TaskRejectedException e) {
