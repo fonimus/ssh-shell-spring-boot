@@ -20,7 +20,7 @@
 
     <groupId>com.github.fonimus</groupId>
     <artifactId>ssh-shell-spring-boot-parent</artifactId>
-    <version>1.6.1-SNAPSHOT</version>
+    <version>1.6.1</version>
 
     <packaging>pom</packaging>
 
@@ -70,7 +70,7 @@
         <connection>scm:git:git@github.com:fonimus/ssh-shell-spring-boot.git</connection>
         <url>scm:git:git@github.com:fonimus/ssh-shell-spring-boot.git</url>
         <developerConnection>scm:git:git@github.com:fonimus/ssh-shell-spring-boot.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>1.6.1</tag>
     </scm>
 
     <modules>
