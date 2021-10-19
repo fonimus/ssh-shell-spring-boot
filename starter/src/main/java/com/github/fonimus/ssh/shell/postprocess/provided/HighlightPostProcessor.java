@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Slf4j
 public class HighlightPostProcessor
-        implements PostProcessor<String> {
+        implements PostProcessor<String, String> {
 
     @Override
     public String getName() {

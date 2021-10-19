@@ -21,9 +21,9 @@ import java.util.List;
 /**
  * Post processor interface
  */
-public interface PostProcessor<T> {
+public interface PostProcessor<I, O> {
 
     String getName();
 
-    String process(T result, List<String> parameters) throws PostProcessorException;
+    O process(I result, List<String> parameters) throws PostProcessorException;
 }

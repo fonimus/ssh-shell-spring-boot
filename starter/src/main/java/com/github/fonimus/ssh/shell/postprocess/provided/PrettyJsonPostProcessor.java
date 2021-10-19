@@ -29,7 +29,7 @@ import java.util.List;
  */
 @Slf4j
 public class PrettyJsonPostProcessor
-        implements PostProcessor<Object> {
+        implements PostProcessor<Object, String> {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 

@@ -31,7 +31,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 
 @Slf4j
 public class SavePostProcessor
-        implements PostProcessor<Object> {
+        implements PostProcessor<Object, String> {
 
     public static final String SAVE = "save";
 

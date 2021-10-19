@@ -46,10 +46,10 @@ public class PostProcessorsCommand extends AbstractCommand {
     public static final String GROUP = "postprocessors";
     public static final String COMMAND_POST_PROCESSORS = "postprocessors";
 
-    private final List<PostProcessor> postProcessors;
+    private final List<PostProcessor<?, ?>> postProcessors;
 
     public PostProcessorsCommand(SshShellHelper helper, SshShellProperties properties,
-                                 List<PostProcessor> postProcessors) {
+                                 List<PostProcessor<?, ?>> postProcessors) {
         super(helper, properties, properties.getCommands().getPostprocessors());
         this.postProcessors = new ArrayList<>(postProcessors);
         this.postProcessors.sort(Comparator.comparing(PostProcessor::getName));
@@ -60,11 +60,14 @@ public class PostProcessorsCommand extends AbstractCommand {
     public CharSequence postprocessors() {
         AttributedStringBuilder result = new AttributedStringBuilder();
         result.append("Available Post-Processors\n\n", AttributedStyle.BOLD);
-        for (PostProcessor postProcessor : postProcessors) {
-            result.append("\t" + postProcessor.getName() + ": ", AttributedStyle.BOLD);
-            Class<?> cls =
-                    ((Class) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
-            result.append(cls.getName() + "\n", AttributedStyle.DEFAULT);
+        for (PostProcessor<?, ?> postProcessor : postProcessors) {
+            result.append("\t" + postProcessor.getName() + ":\n", AttributedStyle.BOLD);
+            Class<?> input =
+                    ((Class<?>) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
+            Class<?> output =
+                    ((Class<?>) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[1]);
+            result.append("\t\tinput  : " + input.getName() + "\n", AttributedStyle.DEFAULT);
+            result.append("\t\toutput : " + output.getName() + "\n", AttributedStyle.DEFAULT);
         }
 
         return result;
