@@ -755,6 +755,12 @@ public class ApplicationTest {}
 
 ## Release notes
 
+### 1.7.0
+
+* Make post processors generic and be able to chain them #163
+* Bump sshd-core from 2.7.0 to 2.8.0 #170
+* Bump spring-boot.version from 2.5.5 to 2.5.6 #164
+ 
 ### 1.6.1
 
 * Fix a NPE on `task-single` command.
