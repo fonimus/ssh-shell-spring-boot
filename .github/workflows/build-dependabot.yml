@@ -1,0 +1,12 @@
+name: Build
+
+on:
+  pull_request_target
+
+jobs:
+  build:
+    name: Build
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    uses: fonimus/ssh-shell-spring-boot/.github/workflows/reusable-build.yml@master
+    with:
+      sonar_analysis: false
