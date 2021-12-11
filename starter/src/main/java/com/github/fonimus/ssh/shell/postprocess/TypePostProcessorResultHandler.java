@@ -35,14 +35,14 @@ public class TypePostProcessorResultHandler
 
     public static final ThreadLocal<Throwable> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
 
-    private ResultHandler<Object> resultHandler;
+    private final ResultHandler<Object> resultHandler;
 
-    private Map<String, PostProcessor> postProcessorMap = new HashMap<>();
+    private final Map<String, PostProcessor<?,?>> postProcessorMap = new HashMap<>();
 
-    public TypePostProcessorResultHandler(ResultHandler<Object> resultHandler, List<PostProcessor> postProcessorList) {
+    public TypePostProcessorResultHandler(ResultHandler<Object> resultHandler, List<PostProcessor<?,?>> postProcessorList) {
         this.resultHandler = resultHandler;
         if (postProcessorList != null) {
-            for (PostProcessor postProcessor : postProcessorList) {
+            for (PostProcessor<?,?> postProcessor : postProcessorList) {
                 if (this.postProcessorMap.containsKey(postProcessor.getName())) {
                     LOGGER.warn("Unable to register post processor for name [{}], it has already been registered",
                             postProcessor.getName());
@@ -54,6 +54,7 @@ public class TypePostProcessorResultHandler
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void handleResult(Object result) {
         if (result == null) {
@@ -73,7 +74,7 @@ public class TypePostProcessorResultHandler
                     continue;
                 }
                 Class<?> cls =
-                        ((Class) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
+                        ((Class<?>) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
                 if (!cls.isAssignableFrom(obj.getClass())) {
                     printLogWarn("Post processor [" + name + "] can only apply to class [" + cls.getName() +
                             "] (current object class is " + obj.getClass().getName() + ")");
@@ -82,7 +83,7 @@ public class TypePostProcessorResultHandler
                             postProcessorObject.getParameters());
                     try {
                         obj = postProcessor.process(obj, postProcessorObject.getParameters());
-                    } catch (PostProcessorException e) {
+                    } catch (Exception e) {
                         printError(e.getMessage());
                         return;
                     }

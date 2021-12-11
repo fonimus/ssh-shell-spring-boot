@@ -46,6 +46,7 @@ import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CON
 public class ExtendedShell
         extends Shell {
 
+    @SuppressWarnings("rawtypes")
     private final ResultHandler resultHandler;
 
     private final List<String> postProcessorNames = new ArrayList<>();
@@ -56,7 +57,7 @@ public class ExtendedShell
      * @param resultHandler  result handler
      * @param postProcessors post processors list
      */
-    public ExtendedShell(ResultHandler resultHandler, List<PostProcessor> postProcessors) {
+    public ExtendedShell(ResultHandler resultHandler, List<PostProcessor<?,?>> postProcessors) {
         super(resultHandler);
         this.resultHandler = resultHandler;
         if (postProcessors != null) {

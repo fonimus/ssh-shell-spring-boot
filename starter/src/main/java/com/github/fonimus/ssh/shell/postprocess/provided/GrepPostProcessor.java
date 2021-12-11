@@ -26,7 +26,7 @@ import java.util.List;
  */
 @Slf4j
 public class GrepPostProcessor
-        implements PostProcessor<String> {
+        implements PostProcessor<String, String> {
 
     @Override
     public String getName() {
@@ -45,7 +45,7 @@ public class GrepPostProcessor
                     sb.append(line).append("\n");
                 }
             }
-            return sb.toString().isEmpty() ? sb.toString() : sb.toString().substring(0, sb.toString().length() - 1);
+            return sb.toString().isEmpty() ? sb.toString() : sb.substring(0, sb.toString().length() - 1);
         }
     }
 

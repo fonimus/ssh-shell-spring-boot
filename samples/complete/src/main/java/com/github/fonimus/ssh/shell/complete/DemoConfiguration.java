@@ -29,8 +29,12 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -47,8 +51,8 @@ public class DemoConfiguration implements SchedulingConfigurer {
     }
 
     @Bean
-    public PostProcessor<String> quotePostProcessor() {
-        return new PostProcessor<String>() {
+    public PostProcessor<String, String> quotePostProcessor() {
+        return new PostProcessor<String, String>() {
 
             @Override
             public String getName() {
@@ -56,8 +60,44 @@ public class DemoConfiguration implements SchedulingConfigurer {
             }
 
             @Override
-            public String process(String result, List<String> parameters) {
-                return "'" + result + "'";
+            public String process(String input, List<String> parameters) {
+                return "'" + input + "'";
+            }
+        };
+    }
+
+    @Bean
+    public PostProcessor<String, ZonedDateTime> datePostProcessor() {
+        return new PostProcessor<String, ZonedDateTime>() {
+
+            @Override
+            public String getName() {
+                return "date";
+            }
+
+            @Override
+            public ZonedDateTime process(String input, List<String> parameters) {
+                return ZonedDateTime.parse(input);
+            }
+        };
+    }
+
+    @Bean
+    public PostProcessor<ZonedDateTime, ZonedDateTime> uctPostProcessor() {
+        return new PostProcessor<ZonedDateTime, ZonedDateTime>() {
+
+            @Override
+            public String getName() {
+                return "zoned";
+            }
+
+            @Override
+            public ZonedDateTime process(ZonedDateTime input, List<String> parameters) {
+                String zone = "UTC";
+                if (!CollectionUtils.isEmpty(parameters)) {
+                    zone = parameters.get(0);
+                }
+                return input.withZoneSameInstant(ZoneId.of(zone));
             }
         };
     }

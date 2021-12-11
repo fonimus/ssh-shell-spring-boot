@@ -29,7 +29,7 @@ import java.util.List;
  */
 @Slf4j
 public class JsonPointerPostProcessor
-        implements PostProcessor<String> {
+        implements PostProcessor<String, String> {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
