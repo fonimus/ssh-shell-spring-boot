@@ -15,4 +15,4 @@ jobs:
     uses: fonimus/ssh-shell-spring-boot/.github/workflows/reusable-build.yml@main
     secrets:
       sonar_token: ${{ secrets.SONAR_TOKEN }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      gh_token: ${{ secrets.GITHUB_TOKEN }}

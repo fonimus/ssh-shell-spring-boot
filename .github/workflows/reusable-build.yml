@@ -7,11 +7,11 @@ on:
         required: false
         type: boolean
         default: true
-        description: Whether to make sonar analysis (sonar_token and github_token become mandatory)
+        description: Whether to make sonar analysis (sonar_token and gh_token become mandatory)
     secrets:
       sonar_token:
         required: false
-      github_token:
+      gh_token:
         required: false
 
 jobs:
@@ -50,5 +50,5 @@ jobs:
         if: ${{ inputs.sonar_analysis == true }}
         run: mvn -B -ntp org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
         env:
-          GITHUB_TOKEN: ${{ secrets.github_token }}
+          GITHUB_TOKEN: ${{ secrets.gh_token }}
           SONAR_TOKEN: ${{ secrets.sonar_token }}
