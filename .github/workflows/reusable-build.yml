@@ -16,11 +16,8 @@ on:
 
 jobs:
   build:
-
     name: Build and analyze
     runs-on: ubuntu-latest
-    if: ${{ github.actor != 'dependabot[bot]' }}
-
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
