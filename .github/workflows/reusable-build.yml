@@ -27,13 +27,8 @@ jobs:
         uses: actions/setup-java@v2.5.0
         with:
           java-version: 11
-
-      - name: Cache maven repository
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
+          distribution: temurin
+          cache: maven
 
       - name: Build
         run: mvn -B -ntp verify
