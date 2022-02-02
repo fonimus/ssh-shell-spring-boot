@@ -19,7 +19,7 @@ jobs:
         
       - name: Build Changelog
         id: changelog
-        uses: mikepenz/release-changelog-builder-action@v2.7.2
+        uses: mikepenz/release-changelog-builder-action@v2.8.1
         with:
           configuration: .changelog-generator.json
           ignorePreReleases: true
