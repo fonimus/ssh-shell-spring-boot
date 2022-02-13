@@ -19,6 +19,7 @@ package com.github.fonimus.ssh.shell.commands;
 import com.github.fonimus.ssh.shell.ExtendedShell;
 import com.github.fonimus.ssh.shell.SshContext;
 import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.interactive.Interactive;
 import com.github.fonimus.ssh.shell.interactive.InteractiveInputIO;
 import com.github.fonimus.ssh.shell.interactive.StoppableInteractiveInput;
@@ -30,11 +31,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.jline.reader.Parser;
 import org.jline.utils.AttributedString;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.shell.Shell;
+import org.springframework.shell.Availability;
 import org.springframework.shell.jline.FileInputProvider;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.standard.commands.Script;
 
@@ -60,24 +63,29 @@ import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CON
 @Slf4j
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
+@ConditionalOnProperty(
+        name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + ScriptCommand.GROUP + ".create",
+        havingValue = "true", matchIfMissing = true
+)
 @Lazy
-public class ScriptCommand
+public class ScriptCommand extends AbstractCommand
         implements Script.Command, DisposableBean {
+
+    public static final String GROUP = "script";
+    public static final String COMMAND_SCRIPT = GROUP;
 
     private final ExtendedShell shell;
 
     private final Parser parser;
 
-    private final SshShellHelper helper;
-
     private ExecutorService executor;
 
     private ScriptStatus status;
 
-    public ScriptCommand(ExtendedShell shell, Parser parser, SshShellHelper helper) {
+    public ScriptCommand(ExtendedShell shell, Parser parser, SshShellHelper helper, SshShellProperties properties) {
+        super(helper, properties, properties.getCommands().getScript());
         this.shell = shell;
         this.parser = parser;
-        this.helper = helper;
     }
 
     @Override
@@ -87,7 +95,8 @@ public class ScriptCommand
         }
     }
 
-    @ShellMethod(value = "Read and execute commands from a file.")
+    @ShellMethod(key = COMMAND_SCRIPT, value = "Read and execute commands from a file.")
+    @ShellMethodAvailability("scriptAvailability")
     public void script(
             @ShellOption(value = {"-f", "--file"}, help = "File to run commands from", defaultValue =
                     ShellOption.NULL) File file,
@@ -212,5 +221,9 @@ public class ScriptCommand
         public long getCount() {
             return sshContext.getBackgroundCount();
         }
+    }
+
+    private Availability scriptAvailability() {
+        return availability(GROUP, COMMAND_SCRIPT);
     }
 }

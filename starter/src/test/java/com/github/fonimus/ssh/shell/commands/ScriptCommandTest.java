@@ -18,6 +18,7 @@ package com.github.fonimus.ssh.shell.commands;
 
 import com.github.fonimus.ssh.shell.ExtendedShell;
 import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.interactive.Interactive;
 import org.jline.reader.Parser;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +43,6 @@ public class ScriptCommandTest {
 
     private static final File FILE = new File("src/test/resources/script.txt");
     private ExtendedShell shell;
-    private Parser parser;
     private SshShellHelper sshHelper;
     private ScriptCommand cmd;
     private File output;
@@ -50,10 +50,10 @@ public class ScriptCommandTest {
     @BeforeEach
     void setUp() {
         shell = mock(ExtendedShell.class);
-        parser = mock(Parser.class);
+        Parser parser = mock(Parser.class);
         sshHelper = mock(SshShellHelper.class);
-        cmd = new ScriptCommand(shell, parser, sshHelper);
-        output = new File("target/result-" + UUID.randomUUID().toString() + ".txt");
+        cmd = new ScriptCommand(shell, parser, sshHelper, new SshShellProperties());
+        output = new File("target/result-" + UUID.randomUUID() + ".txt");
     }
 
     @Test

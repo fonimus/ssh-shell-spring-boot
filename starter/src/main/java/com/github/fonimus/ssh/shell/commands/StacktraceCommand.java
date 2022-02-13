@@ -16,12 +16,17 @@
 
 package com.github.fonimus.ssh.shell.commands;
 
+import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
 import org.jline.terminal.Terminal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.commands.Stacktrace;
 
 /**
@@ -29,11 +34,23 @@ import org.springframework.shell.standard.commands.Stacktrace;
  */
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
-public class StacktraceCommand implements Stacktrace.Command {
+@ConditionalOnProperty(
+        name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + StacktraceCommand.GROUP + ".create",
+        havingValue = "true", matchIfMissing = true
+)
+public class StacktraceCommand extends AbstractCommand implements Stacktrace.Command {
+
+    public static final String GROUP = "stacktrace";
+    public static final String COMMAND_STACKTRACE = GROUP;
 
     private Terminal terminal;
 
-    @ShellMethod(key = {"stacktrace"}, value = "Display the full stacktrace of the last error.")
+    public StacktraceCommand(SshShellHelper helper, SshShellProperties properties) {
+        super(helper, properties, properties.getCommands().getStacktrace());
+    }
+
+    @ShellMethod(key = COMMAND_STACKTRACE, value = "Display the full stacktrace of the last error.")
+    @ShellMethodAvailability("stacktraceAvailability")
     public void stacktrace() {
         Throwable lastError = TypePostProcessorResultHandler.THREAD_CONTEXT.get();
         if (lastError != null) {
@@ -45,5 +62,9 @@ public class StacktraceCommand implements Stacktrace.Command {
     @Lazy
     public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
+    }
+
+    private Availability stacktraceAvailability() {
+        return availability(GROUP, COMMAND_STACKTRACE);
     }
 }

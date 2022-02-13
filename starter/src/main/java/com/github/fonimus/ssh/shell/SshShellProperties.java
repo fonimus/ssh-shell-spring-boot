@@ -146,6 +146,15 @@ public class SshShellProperties {
         private CommandProperties tasks = new CommandProperties();
 
         @NestedConfigurationProperty
+        private CommandProperties script = new CommandProperties();
+
+        @NestedConfigurationProperty
+        private CommandProperties history = new CommandProperties();
+
+        @NestedConfigurationProperty
+        private CommandProperties stacktrace = new CommandProperties();
+
+        @NestedConfigurationProperty
         private CommandProperties datasource =
                 CommandProperties.withExcludedByDefault(Arrays.asList(COMMAND_DATA_SOURCE_UPDATE));
 

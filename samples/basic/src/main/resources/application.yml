@@ -8,6 +8,12 @@ ssh:
     commands:
       jmx:
         create: false
+      script:
+        create: false
+      history:
+        create: false
+      postprocessors:
+        create: false
       manage-sessions:
         create: false
       system:

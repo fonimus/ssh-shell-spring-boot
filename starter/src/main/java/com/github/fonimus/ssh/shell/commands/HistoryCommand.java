@@ -19,9 +19,12 @@ package com.github.fonimus.ssh.shell.commands;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.standard.commands.History;
 
@@ -35,22 +38,25 @@ import java.util.List;
 @Slf4j
 @SshShellComponent
 @ShellCommandGroup("Built-In Commands")
-public class HistoryCommand implements History.Command {
+@ConditionalOnProperty(
+        name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + HistoryCommand.GROUP + ".create",
+        havingValue = "true", matchIfMissing = true
+)
+public class HistoryCommand extends AbstractCommand implements History.Command {
 
-    private SshShellProperties properties;
-
-    private SshShellHelper helper;
+    public static final String GROUP = "history";
+    public static final String COMMAND_HISTORY = GROUP;
 
     private org.jline.reader.History history;
 
     public HistoryCommand(SshShellProperties properties, SshShellHelper helper,
                           @Lazy org.jline.reader.History history) {
-        this.properties = properties;
-        this.helper = helper;
+        super(helper, properties, properties.getCommands().getHistory());
         this.history = history;
     }
 
-    @ShellMethod(value = "Display or save the history of previously run commands")
+    @ShellMethod(key = COMMAND_HISTORY, value = "Display or save the history of previously run commands")
+    @ShellMethodAvailability("historyAvailability")
     public List<String> history(@ShellOption(help = "A file to save history to.", defaultValue = ShellOption.NULL) File file) throws IOException {
         org.jline.reader.History historyToUse = this.history;
         if (!properties.isSharedHistory() && !helper.isLocalPrompt()) {
@@ -59,4 +65,9 @@ public class HistoryCommand implements History.Command {
         }
         return new History(historyToUse).history(file);
     }
+
+    private Availability historyAvailability() {
+        return availability(GROUP, COMMAND_HISTORY);
+    }
+
 }

@@ -115,6 +115,15 @@ ssh:
         create: true
         enable: true
         restricted: false
+      # history and script added in 1.8.0
+      history: 
+        create: true
+        enable: true
+        restricted: false
+      script: 
+        create: true
+        enable: true
+        restricted: false
       # since 1.3.0, command which allows you to list ssh sessions, and stop them
       manage-sessions:
         create: true
@@ -754,6 +763,15 @@ public class ApplicationTest {}
 
 
 ## Release notes
+
+### 1.8.0
+
+* Add built in commands `script`, `history` and `stacktrace` in the list of properties in order to configure them.
+
+_**Note :**_ If you choose to not create those commands, overridden commands will not be created but the spring-shell 
+autoconfiguration will still create its own built in commands that you can deactivate thanks to properties 
+`spring.shell.command.<command-name>.enabled=false` 
+(check org.springframework.shell.standard.commands.StandardCommandsAutoConfiguration for more information)
 
 ### 1.7.0
 
