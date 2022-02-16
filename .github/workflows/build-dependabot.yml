@@ -10,3 +10,4 @@ jobs:
     uses: fonimus/ssh-shell-spring-boot/.github/workflows/reusable-build.yml@main
     with:
       sonar_analysis: false
+      ref: ${{ github.event.pull_request.head.sha }}
