@@ -20,24 +20,28 @@ import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
 import org.junit.jupiter.api.Test;
+import org.springframework.shell.ResultHandlerService;
+import org.springframework.shell.command.CommandCatalog;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ExtendedShellTest {
 
     @Test
     void evaluate() {
         SSH_THREAD_CONTEXT.set(new SshContext(null, null, null, null));
-        ExtendedShell shell = new ExtendedShell(result -> {
-            // do nothing
-        }, new ArrayList<>());
+        ResultHandlerService resultHandlerService = mock(ResultHandlerService.class);
+        CommandCatalog commandRegistry = mock(CommandCatalog.class);
+        when(commandRegistry.getRegistrations()).thenReturn(new HashMap<>());
+        ExtendedShell shell = new ExtendedShell(resultHandlerService, commandRegistry, null, null, null, new ArrayList<>());
         shell.evaluate(() -> "one two three");
         assertEquals(Collections.emptyList(), SSH_THREAD_CONTEXT.get().getPostProcessorsList());
 

@@ -23,11 +23,7 @@ import com.jcraft.jsch.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Properties;
@@ -57,22 +53,19 @@ public class SshHelperTest {
             session.setConfig(config);
             session.connect();
             Channel channel = session.openChannel("shell");
-            PipedInputStream pis = new PipedInputStream();
-            PipedOutputStream pos = new PipedOutputStream();
-            channel.setInputStream(new PipedInputStream(pos));
-            channel.setOutputStream(new PipedOutputStream(pis));
-            channel.connect();
-            try {
+            try (PipedInputStream pis = new PipedInputStream();
+                 PipedOutputStream pos = new PipedOutputStream()) {
+                channel.setInputStream(new PipedInputStream(pos));
+                channel.setOutputStream(new PipedOutputStream(pis));
+                channel.connect();
                 executor.execute(pis, pos);
             } catch (Exception e) {
                 fail(e.toString());
             } finally {
-                pis.close();
-                pos.close();
                 channel.disconnect();
                 session.disconnect();
             }
-        } catch (JSchException | IOException ex) {
+        } catch (JSchException ex) {
             fail(ex.toString());
         }
     }

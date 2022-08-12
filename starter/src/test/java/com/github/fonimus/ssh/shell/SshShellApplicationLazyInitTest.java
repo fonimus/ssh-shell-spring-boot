@@ -17,11 +17,9 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.conf.SshShellSessionConfigurationTest;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {SshShellApplicationLazyInitTest.class, SshShellSessionConfigurationTest.class},
@@ -31,10 +29,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
                 "ssh.shell.shared-history=false",
                 "ssh.shell.commands.manage-sessions.enable=true",
                 "management.endpoints.web.exposure.include=*",
-                "spring.main.lazy-initialization=true"
+                "spring.main.lazy-initialization=true",
+                "spring.shell.interactive.enabled=false"
         }
 )
-@ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext
 public class SshShellApplicationLazyInitTest

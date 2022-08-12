@@ -30,7 +30,7 @@ public class SshShellTerminalDelegateTest {
     private static SshShellTerminalDelegate del;
 
     @BeforeAll
-    static void prepare() throws Exception {
+    static void prepare() {
         Terminal terminal = Mockito.mock(Terminal.class);
         del = new SshShellTerminalDelegate(terminal);
     }
@@ -46,127 +46,127 @@ public class SshShellTerminalDelegateTest {
     }
 
     @Test
-    public void getName() throws Exception {
+    public void getName() {
         del.getName();
     }
 
     @Test
-    public void handle() throws Exception {
+    public void handle() {
         del.handle(null, null);
     }
 
     @Test
-    public void raise() throws Exception {
+    public void raise() {
         del.raise(null);
     }
 
     @Test
-    public void reader() throws Exception {
+    public void reader() {
         del.reader();
     }
 
     @Test
-    public void writer() throws Exception {
+    public void writer() {
         del.writer();
     }
 
     @Test
-    public void input() throws Exception {
+    public void input() {
         del.input();
     }
 
     @Test
-    public void output() throws Exception {
+    public void output() {
         del.output();
     }
 
     @Test
-    public void enterRawMode() throws Exception {
+    public void enterRawMode() {
         del.enterRawMode();
     }
 
     @Test
-    public void echo() throws Exception {
+    public void echo() {
         del.echo();
     }
 
     @Test
-    public void echoBis() throws Exception {
+    public void echoBis() {
         del.echo(false);
     }
 
     @Test
-    public void getAttributes() throws Exception {
+    public void getAttributes() {
         del.getAttributes();
     }
 
     @Test
-    public void setAttributes() throws Exception {
+    public void setAttributes() {
         del.setAttributes(null);
     }
 
     @Test
-    public void getSize() throws Exception {
+    public void getSize() {
         del.getSize();
     }
 
     @Test
-    public void setSize() throws Exception {
+    public void setSize() {
         del.setSize(null);
     }
 
     @Test
-    public void flush() throws Exception {
+    public void flush() {
         del.flush();
     }
 
     @Test
-    public void getType() throws Exception {
+    public void getType() {
         del.getType();
     }
 
     @Test
-    public void puts() throws Exception {
+    public void puts() {
         del.puts(null);
     }
 
     @Test
-    public void getBooleanCapability() throws Exception {
+    public void getBooleanCapability() {
         del.getBooleanCapability(null);
     }
 
     @Test
-    public void getNumericCapability() throws Exception {
+    public void getNumericCapability() {
         del.getNumericCapability(null);
     }
 
     @Test
-    public void getStringCapability() throws Exception {
+    public void getStringCapability() {
         del.getStringCapability(null);
     }
 
     @Test
-    public void getCursorPosition() throws Exception {
+    public void getCursorPosition() {
         del.getCursorPosition(null);
     }
 
     @Test
-    public void hasMouseSupport() throws Exception {
+    public void hasMouseSupport() {
         del.hasMouseSupport();
     }
 
     @Test
-    public void trackMouse() throws Exception {
+    public void trackMouse() {
         del.trackMouse(null);
     }
 
     @Test
-    public void readMouseEvent() throws Exception {
+    public void readMouseEvent() {
         del.readMouseEvent();
     }
 
     @Test
-    public void readMouseEventBis() throws Exception {
+    public void readMouseEventBis() {
         del.readMouseEvent(null);
     }
 

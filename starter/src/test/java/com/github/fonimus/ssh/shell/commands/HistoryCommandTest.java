@@ -26,9 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,10 +41,10 @@ class HistoryCommandTest {
         SshShellHelper helper = mock(SshShellHelper.class);
         when(helper.getHistory()).thenReturn(new DefaultHistory());
         when(helper.isLocalPrompt()).thenReturn(false);
-        shared = new HistoryCommand(new SshShellProperties(), helper, new DefaultHistory());
+        shared = new HistoryCommand(new SshShellProperties(), helper);
         SshShellProperties properties = new SshShellProperties();
         properties.setSharedHistory(false);
-        notShared = new HistoryCommand(properties, helper, new DefaultHistory());
+        notShared = new HistoryCommand(properties, helper);
     }
 
     @Test
@@ -55,8 +53,9 @@ class HistoryCommandTest {
         testGet(notShared);
     }
 
+    @SuppressWarnings("unchecked")
     private void testGet(HistoryCommand cmd) throws Exception {
-        List<String> lines = cmd.history(null);
+        List<String> lines = (List<String>) cmd.history(null, true);
         assertNotNull(lines);
         assertEquals(0, lines.size());
     }
@@ -67,9 +66,10 @@ class HistoryCommandTest {
         testWrite(notShared, "target/test-write-history-shared.txt");
     }
 
+    @SuppressWarnings("unchecked")
     private void testWrite(HistoryCommand cmd, String fileName) throws IOException {
         File file = new File(fileName);
-        List<String> lines = cmd.history(file);
+        List<String> lines = (List<String>) cmd.history(file, true);
         assertNotNull(lines);
         assertEquals(1, lines.size());
         assertTrue(lines.get(0).startsWith("Wrote 0 entries to"));

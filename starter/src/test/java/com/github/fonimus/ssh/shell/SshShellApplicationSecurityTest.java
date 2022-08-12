@@ -18,15 +18,13 @@ package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.conf.SshShellSecurityConfigurationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static com.github.fonimus.ssh.shell.SshHelperTest.call;
-import static com.github.fonimus.ssh.shell.SshHelperTest.verifyResponse;
-import static com.github.fonimus.ssh.shell.SshHelperTest.write;
+import java.util.Map;
+
+import static com.github.fonimus.ssh.shell.SshHelperTest.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {SshShellApplicationSecurityTest.class, SshShellSecurityConfigurationTest.class},
@@ -34,10 +32,10 @@ import static com.github.fonimus.ssh.shell.SshHelperTest.write;
                 "ssh.shell.port=2346",
                 "ssh.shell.password=pass",
                 "ssh.shell.authentication=security",
-                "management.endpoints.web.exposure.include=*"
+                "management.endpoints.web.exposure.include=*",
+                "spring.shell.interactive.enabled=false"
         }
 )
-@ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext
 public class SshShellApplicationSecurityTest
@@ -45,9 +43,10 @@ public class SshShellApplicationSecurityTest
 
     @Test
     void testSshCallInfoCommandAdmin() {
+        Map<String, Object> result = info.info();
         call("admin", "admin", properties, (is, os) -> {
             write(os, "info");
-            verifyResponse(is, "{}");
+            verifyResponse(is, result.toString());
         });
     }
 

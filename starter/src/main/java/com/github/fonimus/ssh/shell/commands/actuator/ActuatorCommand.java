@@ -46,10 +46,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.shell.Availability;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.standard.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -149,9 +146,9 @@ public class ActuatorCommand extends AbstractCommand {
     @ShellMethod(key = "audit", value = "Display audit endpoint.")
     @ShellMethodAvailability("auditAvailability")
     public AuditEventsEndpoint.AuditEventsDescriptor audit(
-            @ShellOption(value = {"-p", "--principal"}, defaultValue = ShellOption.NULL, help = "Principal to filter " +
-                    "on") String principal,
-            @ShellOption(value = {"-t", "--type"}, defaultValue = ShellOption.NULL, help = "Type to filter on") String type) {
+            @ShellOption(defaultValue = ShellOption.NULL, help = "Principal to filter on") String principal,
+            @ShellOption(defaultValue = ShellOption.NULL, help = "Type to filter on") String type
+    ) {
         return audit.events(principal, null, type);
     }
 
@@ -224,9 +221,7 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "env", value = "Display env endpoint.")
     @ShellMethodAvailability("envAvailability")
-    public EnvironmentEndpoint.EnvironmentDescriptor env(
-            @ShellOption(value = {"-p", "--pattern"}, defaultValue = ShellOption.NULL, help = "Pattern " +
-                    "to filter on") String pattern) {
+    public EnvironmentEndpoint.EnvironmentDescriptor env(@ShellOption(defaultValue = ShellOption.NULL, help = "Pattern to filter on") String pattern) {
         return env.environment(pattern);
     }
 
@@ -244,8 +239,8 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "health", value = "Display health endpoint.")
     @ShellMethodAvailability("healthAvailability")
-    public Object health(@ShellOption(value = {"-p", "--path"}, defaultValue = ShellOption.NULL,
-            help = "Path to query health (component namen, group name)") String path) {
+    public Object health(@ShellOption(defaultValue = ShellOption.NULL,
+            help = "Path to query health (component name, group name)") String path) {
         try {
             if (path != null) {
                 return health.healthForPath(path);
@@ -323,11 +318,9 @@ public class ActuatorCommand extends AbstractCommand {
     @ShellMethod(key = "loggers", value = "Display or configure loggers.")
     @ShellMethodAvailability("loggersAvailability")
     public Object loggers(
-            @ShellOption(value = {"-a", "--action"}, help = "Action to perform", defaultValue = "list") LoggerAction action,
-            @ShellOption(value = {"-n", "--name"}, help = "Logger name for configuration or display", defaultValue =
-                    ShellOption.NULL) String loggerName,
-            @ShellOption(value = {"-l", "--level"}, help = "Logger level for configuration", defaultValue =
-                    ShellOption.NULL) LogLevel loggerLevel) {
+            @ShellOption(help = "Action to perform", defaultValue = "list", valueProvider = EnumValueProvider.class) LoggerAction action,
+            @ShellOption(help = "Logger name for configuration or display", defaultValue = ShellOption.NULL) String loggerName,
+            @ShellOption(help = "Logger level for configuration", defaultValue = ShellOption.NULL, valueProvider = EnumValueProvider.class) LogLevel loggerLevel) {
         if ((action == LoggerAction.get || action == LoggerAction.conf) && loggerName == null) {
             throw new IllegalArgumentException("Logger name is mandatory for '" + action + "' action");
         }
@@ -364,9 +357,8 @@ public class ActuatorCommand extends AbstractCommand {
     @ShellMethod(key = "metrics", value = "Display metrics endpoint.")
     @ShellMethodAvailability("metricsAvailability")
     public Object metrics(
-            @ShellOption(value = {"-n", "--name"}, help = "Metric name to get", defaultValue = ShellOption.NULL) String name,
-            @ShellOption(value = {"-t", "--tags"}, help = "Tags (key=value, separated by coma)", defaultValue =
-                    ShellOption.NULL) String tags
+            @ShellOption(help = "Metric name to get", defaultValue = ShellOption.NULL) String name,
+            @ShellOption(help = "Tags (key=value, separated by coma)", defaultValue = ShellOption.NULL) String tags
     ) {
         if (name != null) {
             MetricsEndpoint.MetricResponse result = metrics.metric(name, tags != null ? Arrays.asList(tags.split(",")
@@ -507,6 +499,9 @@ public class ActuatorCommand extends AbstractCommand {
         return Availability.available();
     }
 
+    /**
+     * Logger action enum
+     */
     public enum LoggerAction {
         list, get, conf
     }

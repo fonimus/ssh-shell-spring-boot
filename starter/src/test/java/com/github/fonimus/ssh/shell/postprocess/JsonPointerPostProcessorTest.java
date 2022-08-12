@@ -34,7 +34,7 @@ class JsonPointerPostProcessorTest {
 
     @BeforeAll
     static void init() {
-        processor = new JsonPointerPostProcessor();
+        processor = new JsonPointerPostProcessor(new ObjectMapper());
     }
 
     @Test

@@ -36,6 +36,11 @@ public class HighlightPostProcessor
     }
 
     @Override
+    public String getDescription() {
+        return "Highlight some words in result";
+    }
+
+    @Override
     public String process(String result, List<String> parameters) {
         if (parameters == null || parameters.isEmpty()) {
             LOGGER.debug("Cannot use [{}] post processor without any parameters", getName());

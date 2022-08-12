@@ -17,6 +17,7 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.auth.SshShellPublicKeyAuthenticationProvider;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.common.util.io.IoUtils;
@@ -30,7 +31,10 @@ import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 
 /**
@@ -39,24 +43,18 @@ import java.nio.file.Files;
 
 @Slf4j
 @Configuration
+@AllArgsConstructor
 public class SshShellConfiguration {
 
-    private SshShellProperties properties;
+    private final SshShellProperties properties;
 
-    private SshShellCommandFactory shellCommandFactory;
+    private final SshShellCommandFactory shellCommandFactory;
 
-    private PasswordAuthenticator passwordAuthenticator;
-
-    public SshShellConfiguration(SshShellProperties properties,
-                                 SshShellCommandFactory shellCommandFactory,
-                                 PasswordAuthenticator passwordAuthenticator) {
-        this.properties = properties;
-        this.shellCommandFactory = shellCommandFactory;
-        this.passwordAuthenticator = passwordAuthenticator;
-    }
+    private final PasswordAuthenticator passwordAuthenticator;
 
     /**
      * Create the bean responsible for starting and stopping the SSH server
+     *
      * @param sshServer the ssh server to manage
      * @return ssh server lifecycle
      */
@@ -101,7 +99,7 @@ public class SshShellConfiguration {
         } else {
             File tmp = Files.createTempFile("sshShellPubKeys-", ".tmp").toFile();
             try (InputStream is = authorizedPublicKeys.getInputStream();
-                 OutputStream os = new FileOutputStream(tmp)) {
+                 OutputStream os = Files.newOutputStream(tmp.toPath())) {
                 IoUtils.copy(is, os);
             }
             tmp.deleteOnExit();
@@ -110,6 +108,9 @@ public class SshShellConfiguration {
         }
     }
 
+    /**
+     * Ssh server lifecycle class used to start and stop ssh server
+     */
     @RequiredArgsConstructor
     public static class SshServerLifecycle {
 

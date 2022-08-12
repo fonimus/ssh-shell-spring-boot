@@ -20,9 +20,14 @@ import com.github.fonimus.ssh.shell.ExtendedShell;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.interactive.Interactive;
+import lombok.SneakyThrows;
 import org.jline.reader.Parser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationContext;
+import org.springframework.shell.Shell;
 import org.springframework.shell.jline.FileInputProvider;
 
 import java.io.File;
@@ -32,12 +37,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class ScriptCommandTest {
 
@@ -48,11 +48,36 @@ public class ScriptCommandTest {
     private File output;
 
     @BeforeEach
+    @SneakyThrows
     void setUp() {
         shell = mock(ExtendedShell.class);
         Parser parser = mock(Parser.class);
         sshHelper = mock(SshShellHelper.class);
-        cmd = new ScriptCommand(shell, parser, sshHelper, new SshShellProperties());
+        cmd = new ScriptCommand(parser, sshHelper, new SshShellProperties());
+        ApplicationContext context = mock(ApplicationContext.class);
+        cmd.setApplicationContext(context);
+        when(context.getBeanProvider(Shell.class)).thenReturn(new ObjectProvider<Shell>() {
+            @Override
+            public Shell getObject(Object... objects) throws BeansException {
+                return null;
+            }
+
+            @Override
+            public Shell getIfAvailable() throws BeansException {
+                return null;
+            }
+
+            @Override
+            public Shell getIfUnique() throws BeansException {
+                return null;
+            }
+
+            @Override
+            public Shell getObject() throws BeansException {
+                return shell;
+            }
+        });
+        cmd.afterPropertiesSet();
         output = new File("target/result-" + UUID.randomUUID() + ".txt");
     }
 
@@ -63,6 +88,7 @@ public class ScriptCommandTest {
     }
 
     @Test
+    @SneakyThrows
     void testBackgroundExecuteFileNull() {
         assertThrows(IllegalArgumentException.class, () -> cmd.script(null, null, true,
                 ScriptCommand.ScriptAction.execute, true));
@@ -70,6 +96,7 @@ public class ScriptCommandTest {
     }
 
     @Test
+    @SneakyThrows
     void testBackgroundExecuteNoOutput() {
         assertThrows(IllegalArgumentException.class, () -> cmd.script(FILE, null, true,
                 ScriptCommand.ScriptAction.execute, true));
@@ -77,6 +104,7 @@ public class ScriptCommandTest {
     }
 
     @Test
+    @SneakyThrows
     void testBackgroundExecuteInvalidOutput() {
         assertThrows(IllegalArgumentException.class, () -> cmd.script(FILE, new File("target"), true,
                 ScriptCommand.ScriptAction.execute, true));
@@ -84,6 +112,7 @@ public class ScriptCommandTest {
     }
 
     @Test
+    @SneakyThrows
     void testBackgroundExecuteInvalidOutputFile() {
         assertThrows(IOException.class, () -> cmd.script(FILE, new File(UUID.randomUUID().toString(),
                 UUID.randomUUID().toString()), true, ScriptCommand.ScriptAction.execute, true));
@@ -185,6 +214,7 @@ public class ScriptCommandTest {
         cmd.script(FILE, output, true, action, notInteractive);
     }
 
+    @SneakyThrows
     private void mockLongProcess() {
         doAnswer(invocationOnMock -> {
             System.err.println("executing commands...");

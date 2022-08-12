@@ -16,11 +16,7 @@
 
 package com.github.fonimus.ssh.shell;
 
-import com.github.fonimus.ssh.shell.interactive.Interactive;
-import com.github.fonimus.ssh.shell.interactive.InteractiveInput;
-import com.github.fonimus.ssh.shell.interactive.InteractiveInputIO;
-import com.github.fonimus.ssh.shell.interactive.KeyBinding;
-import com.github.fonimus.ssh.shell.interactive.StoppableInteractiveInput;
+import com.github.fonimus.ssh.shell.interactive.*;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.terminal.Size;
 import org.jline.utils.AttributedString;
@@ -30,15 +26,9 @@ import org.mockito.ArgumentCaptor;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class SshShellHelperTest extends AbstractShellHelperTest {
 

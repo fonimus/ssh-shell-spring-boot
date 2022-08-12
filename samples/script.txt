@@ -1,3 +1,4 @@
 echo test1
 echo test2
+sleep 20
 echo test3

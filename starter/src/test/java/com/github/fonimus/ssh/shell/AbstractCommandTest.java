@@ -30,16 +30,11 @@ import org.springframework.boot.logging.LogLevel;
 
 import java.io.PrintWriter;
 import java.util.Collections;
+import java.util.Map;
 
-import static com.github.fonimus.ssh.shell.SshHelperTest.call;
-import static com.github.fonimus.ssh.shell.SshHelperTest.verifyResponse;
-import static com.github.fonimus.ssh.shell.SshHelperTest.write;
+import static com.github.fonimus.ssh.shell.SshHelperTest.*;
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -200,7 +195,8 @@ public abstract class AbstractCommandTest
         ParsedLine pl = mock(ParsedLine.class);
         when(pl.line()).thenReturn(response);
         when(lr.getParsedLine()).thenReturn(pl);
-        SSH_THREAD_CONTEXT.set(new SshContext(null, t, lr, null));
+        SshShellRunnable runnable = mock(SshShellRunnable.class);
+        SSH_THREAD_CONTEXT.set(new SshContext(runnable, t, lr, null));
     }
 
     @Test
@@ -210,9 +206,10 @@ public abstract class AbstractCommandTest
 
     @Test
     void testSshCallInfoCommand() {
+        Map<String, Object> result = info.info();
         call(properties, (is, os) -> {
             write(os, "info");
-            verifyResponse(is, "{}");
+            verifyResponse(is, result.toString());
         });
     }
 }

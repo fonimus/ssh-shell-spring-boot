@@ -18,7 +18,7 @@ package com.github.fonimus.ssh.shell.commands;
 
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
-import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
+import com.github.fonimus.ssh.shell.postprocess.ExtendedResultHandlerService;
 import org.jline.terminal.Terminal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -52,7 +52,7 @@ public class StacktraceCommand extends AbstractCommand implements Stacktrace.Com
     @ShellMethod(key = COMMAND_STACKTRACE, value = "Display the full stacktrace of the last error.")
     @ShellMethodAvailability("stacktraceAvailability")
     public void stacktrace() {
-        Throwable lastError = TypePostProcessorResultHandler.THREAD_CONTEXT.get();
+        Throwable lastError = ExtendedResultHandlerService.THREAD_CONTEXT.get();
         if (lastError != null) {
             lastError.printStackTrace(this.terminal.writer());
         }

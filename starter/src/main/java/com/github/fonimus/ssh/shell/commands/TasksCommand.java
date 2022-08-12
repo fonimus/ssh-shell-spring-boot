@@ -16,57 +16,37 @@
 
 package com.github.fonimus.ssh.shell.commands;
 
+import com.github.fonimus.ssh.shell.SimpleTable;
+import com.github.fonimus.ssh.shell.SshShellHelper;
+import com.github.fonimus.ssh.shell.SshShellProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.lang.reflect.Method;
-import java.time.Duration;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.MethodParameter;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
-import org.springframework.scheduling.config.CronTask;
-import org.springframework.scheduling.config.FixedDelayTask;
-import org.springframework.scheduling.config.FixedRateTask;
-import org.springframework.scheduling.config.IntervalTask;
-import org.springframework.scheduling.config.ScheduledTask;
-import org.springframework.scheduling.config.ScheduledTaskHolder;
-import org.springframework.scheduling.config.Task;
+import org.springframework.scheduling.config.*;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.shell.standard.*;
 import org.springframework.stereotype.Component;
 
-import com.github.fonimus.ssh.shell.SimpleTable;
-import com.github.fonimus.ssh.shell.SshShellHelper;
-import com.github.fonimus.ssh.shell.SshShellProperties;
+import java.lang.reflect.Method;
+import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
 
 import static org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor.DEFAULT_TASK_SCHEDULER_BEAN_NAME;
 
@@ -145,9 +125,8 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
     @ShellMethod(key = COMMAND_TASKS_LIST, value = "Display the available scheduled tasks")
     @ShellMethodAvailability("tasksListAvailability")
     public String tasksList(
-            @ShellOption(value = {"-f", "--filter"}, help = "Filter on status (running, stopped)",
-                    defaultValue = ShellOption.NULL) TaskStatus status,
-            @ShellOption(value = {"-r", "--refresh"}, help = "Refresh task from context") boolean refresh
+            @ShellOption(help = "Filter on status (running, stopped)", defaultValue = ShellOption.NULL, valueProvider = EnumValueProvider.class) TaskStatus status,
+            @ShellOption(help = "Refresh task from context", defaultValue = "false") boolean refresh
     ) {
         refresh(refresh);
 
@@ -204,7 +183,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                 // Remove single executions that are done
                 this.statesByName.entrySet().removeIf(
                         e -> e.getValue().getScheduledTask() == null
-                        && (e.getValue().getFuture() == null || e.getValue().getFuture().isDone())
+                                && (e.getValue().getFuture() == null || e.getValue().getFuture().isDone())
                 );
             }
             for (ScheduledTaskHolder scheduledTaskHolder : this.scheduledTaskHolders) {
@@ -220,9 +199,9 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
     @ShellMethod(key = COMMAND_TASKS_STOP, value = "Stop all or specified task(s)")
     @ShellMethodAvailability("tasksStopAvailability")
     public String tasksStop(
-            @ShellOption(value = {"-a", "--all"}, help = "Stop all tasks") boolean all,
-            @ShellOption(value = {"-t", "--task"}, help = "Task name to stop",
-                    valueProvider = TaskNameValuesProvider.class, defaultValue = ShellOption.NULL) String task) {
+            @ShellOption(help = "Stop all tasks", defaultValue = "false") boolean all,
+            @ShellOption(help = "Task name to stop", valueProvider = TaskNameValuesProvider.class, defaultValue = ShellOption.NULL) String task
+    ) {
 
         List<String> toStop = listTasks(all, task, true);
         if (toStop.isEmpty()) {
@@ -260,9 +239,9 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
     @ShellMethod(key = COMMAND_TASKS_RESTART, value = "Restart all or specified task(s)")
     @ShellMethodAvailability("tasksRestartAvailability")
     public String tasksRestart(
-            @ShellOption(value = {"-a", "--all"}, help = "Stop all tasks") boolean all,
-            @ShellOption(value = {"-t", "--task"}, help = "Task name to stop",
-                    valueProvider = TaskNameValuesProvider.class, defaultValue = ShellOption.NULL) String task) {
+            @ShellOption(help = "Stop all tasks", defaultValue = "false") boolean all,
+            @ShellOption(help = "Task name to stop", valueProvider = TaskNameValuesProvider.class, defaultValue = ShellOption.NULL) String task
+    ) {
 
         List<String> toRestart = listTasks(all, task, false);
         if (toRestart.isEmpty()) {
@@ -315,9 +294,9 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
     @ShellMethod(key = COMMAND_TASKS_SINGLE, value = "Launch one execution of all or specified task(s)")
     @ShellMethodAvailability("tasksSingleAvailability")
     public String tasksSingle(
-            @ShellOption(value = {"-a", "--all"}, help = "Launch one execution of all tasks") boolean all,
-            @ShellOption(value = {"-t", "--task"}, help = "Task name to launch once",
-                    valueProvider = TaskNameValuesProvider.class, defaultValue = ShellOption.NULL) String task) {
+            @ShellOption(help = "Launch one execution of all tasks", defaultValue = "false") boolean all,
+            @ShellOption(help = "Task name to launch once", valueProvider = TaskNameValuesProvider.class, defaultValue = ShellOption.NULL) String task
+    ) {
 
         List<String> toLaunch = listTasks(all, task, true);
         if (!helper.confirm("Do you really want to launch tasks " + toLaunch + " ?")) {
@@ -399,6 +378,9 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
         return availability(GROUP, COMMAND_TASKS_SINGLE);
     }
 
+    /**
+     * Task state POJO
+     */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -413,6 +395,9 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
         private volatile ScheduledFuture<?> future;
     }
 
+    /**
+     * Task status enum
+     */
     public enum TaskStatus {
         running, stopped
     }
@@ -422,8 +407,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
 @Slf4j
 @Component
 @ConditionalOnBean(ScheduledTaskHolder.class)
-class TaskNameValuesProvider
-        extends ValueProviderSupport {
+class TaskNameValuesProvider implements ValueProvider {
 
     private final TasksCommand tasksCommand;
 
@@ -432,8 +416,7 @@ class TaskNameValuesProvider
     }
 
     @Override
-    public List<CompletionProposal> complete(
-            MethodParameter parameter, CompletionContext completionContext, String[] hints) {
+    public List<CompletionProposal> complete(CompletionContext completionContext) {
         return tasksCommand.getTaskNames().stream().map(CompletionProposal::new).collect(Collectors.toList());
     }
 }

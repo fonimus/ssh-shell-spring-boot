@@ -21,35 +21,15 @@ import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.MethodParameter;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.shell.standard.*;
 import org.springframework.stereotype.Component;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.JMException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanFeatureInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
+import javax.management.*;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -82,11 +62,9 @@ public class JmxCommand extends AbstractCommand {
     @ShellMethod(key = COMMAND_JMX_LIST, value = "List jmx mbeans.")
     @ShellMethodAvailability("jmxListAvailability")
     public void jmxList(
-            @ShellOption(
-                    help = "Pattern to search for (ex: org.springframework.boot:*, org.springframework" +
-                            ".boot:type=Endpoint,name=*, " + OBJECT_NAME_EXAMPLE + ")",
-                    defaultValue = ShellOption.NULL
-            ) String pattern) {
+            @ShellOption(help = "Pattern to search for (ex: org.springframework.boot:*, org.springframework.boot:type=Endpoint,name=*, " + OBJECT_NAME_EXAMPLE + ")",
+                    defaultValue = ShellOption.NULL) String pattern
+    ) {
         MBeanServer server = ManagementFactory.getPlatformMBeanServer();
         try {
             ObjectName patternName = pattern != null ? ObjectName.getInstance(pattern) : null;
@@ -114,10 +92,8 @@ public class JmxCommand extends AbstractCommand {
             "attribute values.")
     @ShellMethodAvailability("jmxInfoAvailability")
     public void jmxInfo(
-            @ShellOption(value = {"-n", "--object-name"}, help = "Object name (ex: " + OBJECT_NAME_EXAMPLE
-                    + ")", valueProvider = ObjectNameValuesProvider.class) String objectName,
-            @ShellOption(value = {"-a",
-                    "--all-attributes-value"}, help = "Get all attributes", defaultValue = ShellOption.NULL) Boolean allAttributesValues
+            @ShellOption(help = "Object name (ex: " + OBJECT_NAME_EXAMPLE + ")", valueProvider = ObjectNameValuesProvider.class) String objectName,
+            @ShellOption(help = "Get all attributes", defaultValue = "false") boolean allAttributesValues
     ) throws JMException {
         try {
             MBeanServer server = ManagementFactory.getPlatformMBeanServer();
@@ -135,7 +111,7 @@ public class JmxCommand extends AbstractCommand {
             }
             sb.append("Descriptor  : ").append("\n").append(helper.renderTable(builder.build()));
             builder = SimpleTable.builder().column("Name").column("Type").column("Description");
-            if (allAttributesValues != null && allAttributesValues) {
+            if (allAttributesValues) {
                 builder.column("Value");
             }
             if (info.getAttributes().length > 0) {
@@ -144,7 +120,7 @@ public class JmxCommand extends AbstractCommand {
                     list.add(attribute.getName());
                     list.add(attribute.getType());
                     list.add(attribute.getDescription());
-                    if (allAttributesValues != null && allAttributesValues) {
+                    if (allAttributesValues) {
                         if (attribute.isReadable()) {
                             try {
                                 list.add(server.getAttribute(objectNameBean, attribute.getName()));
@@ -183,20 +159,18 @@ public class JmxCommand extends AbstractCommand {
     /**
      * Invoke operation on mbean
      *
-     * @param objectName      mbean object name
-     * @param operationName   operation name to invoke
-     * @param parametersParam parameters, separated by coma
+     * @param objectName    mbean object name
+     * @param operationName operation name to invoke
+     * @param parameters    parameters, separated by coma
      * @return result of invocation, or null if operation is void type
      * @throws JMException if error occurs with jmx server
      */
     @ShellMethod(key = COMMAND_JMX_INVOKE, value = "Invoke operation on object name.")
     @ShellMethodAvailability("jmxInvokeAvailability")
     public Object jmxInvoke(
-            @ShellOption(value = {"-n", "--object-name"}, help = "Object name (ex: " + OBJECT_NAME_EXAMPLE
-                    + ")", valueProvider = ObjectNameValuesProvider.class) String objectName,
-            @ShellOption(value = {"-o", "--operation-name"}, help = "Operation name (ex: info, for spring boot info " +
-                    "mbean)") String operationName,
-            @ShellOption(value = {"-p", "--parameters"}, help = "Parameters", defaultValue = ShellOption.NULL) String parametersParam
+            @ShellOption(help = "Object name (ex: " + OBJECT_NAME_EXAMPLE + ")", valueProvider = ObjectNameValuesProvider.class) String objectName,
+            @ShellOption(help = "Operation name (ex: info, for spring boot info mbean)") String operationName,
+            @ShellOption(help = "Parameters", defaultValue = ShellOption.NULL) String parameters
     ) throws JMException {
         try {
             MBeanServer server = ManagementFactory.getPlatformMBeanServer();
@@ -212,11 +186,10 @@ public class JmxCommand extends AbstractCommand {
                 helper.printError("Object name [" + objectName + "] does not have operation with name [" + operationName + "]. Available are : " + Arrays
                         .stream(info.getOperations()).map(MBeanFeatureInfo::getName).collect(Collectors.joining()));
             } else {
-                Object[] parameters = parametersParam != null ? parametersParam.split(",") : new Object[0];
-                String[] signature =
-                        parametersParam != null ?
-                                Arrays.stream(operation.getSignature()).map(MBeanParameterInfo::getType).toArray(String[]::new) : new String[0];
-                Object result = server.invoke(objectNameBean, operationName, parameters, signature);
+                Object[] parsedParameters = parameters != null ? parameters.split(",") : new Object[0];
+                String[] signature = parameters != null ?
+                        Arrays.stream(operation.getSignature()).map(MBeanParameterInfo::getType).toArray(String[]::new) : new String[0];
+                Object result = server.invoke(objectNameBean, operationName, parsedParameters, signature);
                 helper.printSuccess("Operation [" + operationName + "] invoked on mbean [" + objectName + "] " +
                         "successfully");
                 if (result != null) {
@@ -263,12 +236,10 @@ public class JmxCommand extends AbstractCommand {
 
 @Slf4j
 @Component
-class ObjectNameValuesProvider
-        extends ValueProviderSupport {
+class ObjectNameValuesProvider implements ValueProvider {
 
     @Override
-    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext,
-                                             String[] hints) {
+    public List<CompletionProposal> complete(CompletionContext completionContext) {
         try {
             return ManagementFactory.getPlatformMBeanServer().queryMBeans(null, null).stream()
                     .map(o -> new CompletionProposal(o.getObjectName().toString())).collect(Collectors.toList());

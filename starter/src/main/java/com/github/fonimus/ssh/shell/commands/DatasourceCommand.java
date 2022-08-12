@@ -24,31 +24,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.MethodParameter;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.shell.standard.*;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -112,8 +99,8 @@ public class DatasourceCommand extends AbstractCommand {
             } catch (SQLException e) {
                 LOGGER.warn("Unable to get datasource information for [{}] : {}-{}", entry.getValue().toString(),
                         e.getErrorCode(), e.getMessage());
-                String url = find(entry.getValue(), "-", "jdbcUrl", "url");
-                String userName = find(entry.getValue(), "-", "username", "user");
+                String url = find(entry.getValue(), "jdbcUrl", "url");
+                String userName = find(entry.getValue(), "username", "user");
                 builder.line(Arrays.asList(entry.getKey(), entry.getValue().toString(), url, userName, "-",
                         "Unable " + "to get" + " datasource information for [" + url + "] : " + e.getErrorCode() +
                                 "-" + e.getMessage())
@@ -123,7 +110,7 @@ public class DatasourceCommand extends AbstractCommand {
         return helper.renderTable(builder.build());
     }
 
-    private String find(Object object, String defaultValue, String... fieldNames) {
+    private String find(Object object, String... fieldNames) {
         if (fieldNames != null) {
             for (String fieldName : fieldNames) {
                 try {
@@ -137,7 +124,7 @@ public class DatasourceCommand extends AbstractCommand {
                 }
             }
         }
-        return defaultValue;
+        return "-";
     }
 
     /**
@@ -151,10 +138,8 @@ public class DatasourceCommand extends AbstractCommand {
             "variables'")
     @ShellMethodAvailability("datasourcePropertiesAvailability")
     public String datasourceProperties(
-            @ShellOption(value = {"-i", "--identifier"}, help = "Datasource identifier", valueProvider =
-                    DatasourceIndexValuesProvider.class) int id,
-            @ShellOption(value = {"-f", "--filter"}, help = "Add like %<filter>% to sql query", defaultValue =
-                    ShellOption.NULL) String filter) {
+            @ShellOption(help = "Datasource identifier", valueProvider = DatasourceIndexValuesProvider.class) int id,
+            @ShellOption(help = "Add like %<filter>% to sql query", defaultValue = ShellOption.NULL) String filter) {
         String query = "show variables";
         if (filter != null) {
             query += " LIKE '%" + filter + "%'";
@@ -172,13 +157,13 @@ public class DatasourceCommand extends AbstractCommand {
     @ShellMethod(key = COMMAND_DATA_SOURCE_QUERY, value = "Datasource query command.")
     @ShellMethodAvailability("datasourceQueryAvailability")
     public String datasourceQuery(
-            @ShellOption(value = {"-i", "--identifier"}, help = "Datasource identifier", valueProvider =
-                    DatasourceIndexValuesProvider.class) int id,
-            @ShellOption(value = {"-q", "--query"}, help = "SQL query to execute") String query) {
+            @ShellOption(help = "Datasource identifier", valueProvider = DatasourceIndexValuesProvider.class) int id,
+            @ShellOption(help = "SQL query to execute") String query
+    ) {
         StringBuilder sb = new StringBuilder();
         DataSource ds = getOrDie(id);
         try (Connection connection = ds.getConnection()) {
-            sb.append("Query [").append(query).append("] for datasource : ").append(ds.toString()).append(" (").append(connection.getMetaData().getURL())
+            sb.append("Query [").append(query).append("] for datasource : ").append(ds).append(" (").append(connection.getMetaData().getURL())
                     .append(")\n");
             try (Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery(query)) {
                 if (rs.getType() == ResultSet.TYPE_FORWARD_ONLY
@@ -213,14 +198,14 @@ public class DatasourceCommand extends AbstractCommand {
     @ShellMethod(key = COMMAND_DATA_SOURCE_UPDATE, value = "Datasource update command.")
     @ShellMethodAvailability("datasourceUpdateAvailability")
     public void datasourceUpdate(
-            @ShellOption(value = {"-i", "--identifier"}, help = "Datasource identifier", valueProvider =
-                    DatasourceIndexValuesProvider.class) int id,
-            @ShellOption(value = {"-u", "--update"}, help = "SQL update to execute") String update) {
+            @ShellOption(help = "Datasource identifier", valueProvider = DatasourceIndexValuesProvider.class) int id,
+            @ShellOption(help = "SQL update to execute") String update
+    ) {
         DataSource ds = getOrDie(id);
         try (Connection connection = ds.getConnection()) {
             try (Statement statement = connection.createStatement()) {
                 int result = statement.executeUpdate(update);
-                helper.printSuccess("Query [" + update + "] for datasource : [" + ds.toString() +
+                helper.printSuccess("Query [" + update + "] for datasource : [" + ds +
                         " (" + connection.getMetaData().getURL() + ")] updated " + result + " row(s)");
             }
         } catch (SQLException e) {
@@ -254,8 +239,7 @@ public class DatasourceCommand extends AbstractCommand {
 }
 
 @Component
-class DatasourceIndexValuesProvider
-        extends ValueProviderSupport {
+class DatasourceIndexValuesProvider implements ValueProvider {
 
     private final Map<Integer, DataSource> dataSourceByIndex = new HashMap<>();
 
@@ -267,8 +251,7 @@ class DatasourceIndexValuesProvider
     }
 
     @Override
-    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext,
-                                             String[] hints) {
+    public List<CompletionProposal> complete(CompletionContext completionContext) {
         return dataSourceByIndex.keySet().stream().map(i -> new CompletionProposal("" + i)).collect(Collectors.toList());
     }
 }

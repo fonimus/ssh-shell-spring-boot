@@ -17,10 +17,10 @@
 package com.github.fonimus.ssh.shell.providers;
 
 import com.github.fonimus.ssh.shell.ExtendedCompletionProposal;
-import org.springframework.core.MethodParameter;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.shell.standard.ValueProvider;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.Arrays;
@@ -31,25 +31,11 @@ import java.util.stream.Collectors;
 /**
  * Fixed file value provider (mostly for windows) and allow to not put space after proposal when directory
  */
-public class ExtendedFileValueProvider extends ValueProviderSupport {
-
-    private boolean replaceAll;
-
-    public ExtendedFileValueProvider(boolean replaceAll) {
-        this.replaceAll = replaceAll;
-    }
+@Component
+public class ExtendedFileValueProvider implements ValueProvider {
 
     @Override
-    public boolean supports(MethodParameter parameter, CompletionContext completionContext) {
-        if (replaceAll) {
-            return parameter.getParameterType().equals(File.class);
-        }
-        return super.supports(parameter, completionContext);
-    }
-
-    @Override
-    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext,
-                                             String[] hints) {
+    public List<CompletionProposal> complete(CompletionContext completionContext) {
         String input = completionContext.currentWordUpToCursor();
         int lastSlash = input.lastIndexOf("/");
         File currentDir = lastSlash > -1 ? new File(input.substring(0, lastSlash + 1)) : new File("./");

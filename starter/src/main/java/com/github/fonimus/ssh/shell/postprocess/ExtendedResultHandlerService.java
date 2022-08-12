@@ -20,7 +20,10 @@ import com.github.fonimus.ssh.shell.SshContext;
 import lombok.extern.slf4j.Slf4j;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
-import org.springframework.shell.ResultHandler;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.shell.ResultHandlerService;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
@@ -29,20 +32,24 @@ import java.util.Map;
 
 import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 
+/**
+ * Result handler service which save stacktrace in context (for stacktrace command)
+ * and optionally apply post processors if requested in command line
+ */
 @Slf4j
-public class TypePostProcessorResultHandler
-        implements ResultHandler<Object> {
+@Component
+@Primary
+public class ExtendedResultHandlerService implements ResultHandlerService {
 
     public static final ThreadLocal<Throwable> THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
 
-    private final ResultHandler<Object> resultHandler;
+    private final ResultHandlerService delegate;
+    private final Map<String, PostProcessor<?, ?>> postProcessorMap = new HashMap<>();
 
-    private final Map<String, PostProcessor<?,?>> postProcessorMap = new HashMap<>();
-
-    public TypePostProcessorResultHandler(ResultHandler<Object> resultHandler, List<PostProcessor<?,?>> postProcessorList) {
-        this.resultHandler = resultHandler;
+    public ExtendedResultHandlerService(ResultHandlerService resultHandlerService, List<PostProcessor<?, ?>> postProcessorList) {
+        this.delegate = resultHandlerService;
         if (postProcessorList != null) {
-            for (PostProcessor<?,?> postProcessor : postProcessorList) {
+            for (PostProcessor<?, ?> postProcessor : postProcessorList) {
                 if (this.postProcessorMap.containsKey(postProcessor.getName())) {
                     LOGGER.warn("Unable to register post processor for name [{}], it has already been registered",
                             postProcessor.getName());
@@ -54,9 +61,14 @@ public class TypePostProcessorResultHandler
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public void handleResult(Object result) {
+    public void handle(Object result) {
+        handle(result, TypeDescriptor.forObject(result));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void handle(Object result, TypeDescriptor resultType) {
         if (result == null) {
             return;
         }
@@ -92,7 +104,7 @@ public class TypePostProcessorResultHandler
         }
         if (ctx == null || !ctx.isBackground()) {
             // do not display anything if is background script
-            resultHandler.handleResult(obj);
+            delegate.handle(obj);
         }
         if (ctx != null && ctx.isBackground()) {
             ctx.incrementBackgroundCount();
@@ -100,13 +112,11 @@ public class TypePostProcessorResultHandler
     }
 
     private void printLogWarn(String warn) {
-        resultHandler.handleResult(new AttributedString(warn,
-                AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)).toAnsi());
+        delegate.handle(new AttributedString(warn, AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)).toAnsi());
         LOGGER.warn(warn);
     }
 
     private void printError(String error) {
-        resultHandler.handleResult(new AttributedString(error,
-                AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)).toAnsi());
+        delegate.handle(new AttributedString(error, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)).toAnsi());
     }
 }

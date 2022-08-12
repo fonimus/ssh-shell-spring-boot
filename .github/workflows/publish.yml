@@ -12,11 +12,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        
+
       - name: Is Pre Release ?
         id: pre_release
         uses: heineiuo/create-changelogs@v0.2.8
-        
+
       - name: Build Changelog
         id: changelog
         uses: mikepenz/release-changelog-builder-action@v3
@@ -25,7 +25,7 @@ jobs:
           ignorePreReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Create Release
         id: create-release
         uses: actions/create-release@latest

@@ -16,18 +16,18 @@
 
 package com.github.fonimus.ssh.shell;
 
-import org.jline.terminal.Attributes;
-import org.jline.terminal.Cursor;
-import org.jline.terminal.MouseEvent;
-import org.jline.terminal.Size;
-import org.jline.terminal.Terminal;
+import org.jline.terminal.*;
+import org.jline.utils.ColorPalette;
 import org.jline.utils.InfoCmp;
 import org.jline.utils.NonBlockingReader;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
@@ -35,12 +35,13 @@ import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CON
 
 /**
  * <p>Shell terminal delegate</p>
- * <p>Calls are binded to terminal stored in thread context</p>
+ * <p>Calls are bound to terminal stored in thread context</p>
  */
-public class SshShellTerminalDelegate
-        implements Terminal {
+@Component("terminalDelegate")
+@Primary
+public class SshShellTerminalDelegate implements Terminal {
 
-    private Terminal delegate;
+    private final Terminal delegate;
 
     /**
      * Constructor
@@ -88,6 +89,11 @@ public class SshShellTerminalDelegate
     }
 
     @Override
+    public Charset encoding() {
+        return delegate().encoding();
+    }
+
+    @Override
     public InputStream input() {
         return delegate().input();
     }
@@ -95,6 +101,31 @@ public class SshShellTerminalDelegate
     @Override
     public OutputStream output() {
         return delegate().output();
+    }
+
+    @Override
+    public boolean canPauseResume() {
+        return delegate().canPauseResume();
+    }
+
+    @Override
+    public void pause() {
+        delegate().pause();
+    }
+
+    @Override
+    public void pause(boolean wait) throws InterruptedException {
+        delegate().pause(wait);
+    }
+
+    @Override
+    public void resume() {
+        delegate().resume();
+    }
+
+    @Override
+    public boolean paused() {
+        return delegate().paused();
     }
 
     @Override
@@ -186,6 +217,21 @@ public class SshShellTerminalDelegate
     @Override
     public MouseEvent readMouseEvent(IntSupplier intSupplier) {
         return delegate().readMouseEvent(intSupplier);
+    }
+
+    @Override
+    public boolean hasFocusSupport() {
+        return delegate().hasFocusSupport();
+    }
+
+    @Override
+    public boolean trackFocus(boolean tracking) {
+        return delegate().trackFocus(tracking);
+    }
+
+    @Override
+    public ColorPalette getPalette() {
+        return delegate().getPalette();
     }
 
     @Override

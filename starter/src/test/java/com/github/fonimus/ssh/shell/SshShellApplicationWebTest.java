@@ -20,18 +20,13 @@ import com.github.fonimus.ssh.shell.commands.ManageSessionsCommand;
 import com.github.fonimus.ssh.shell.conf.SshShellSessionConfigurationTest;
 import com.github.fonimus.ssh.shell.manage.SshShellSessionManager;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.github.fonimus.ssh.shell.SshHelperTest.call;
 import static com.github.fonimus.ssh.shell.SshHelperTest.write;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {SshShellApplicationWebTest.class, SshShellSessionConfigurationTest.class},
@@ -40,10 +35,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "ssh.shell.password=pass",
                 "ssh.shell.shared-history=false",
                 "ssh.shell.commands.manage-sessions.enable=true",
-                "management.endpoints.web.exposure.include=*"
+                "management.endpoints.web.exposure.include=*",
+                "spring.shell.interactive.enabled=false"
         }
 )
-@ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext
 public class SshShellApplicationWebTest

@@ -17,11 +17,9 @@
 package com.github.fonimus.ssh.shell;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -29,9 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
         properties = {
                 "ssh.shell.port=2345",
                 "ssh.shell.password=pass",
-                "management.endpoints.web.exposure.include=*"
+                "management.endpoints.web.exposure.include=*",
+                "spring.shell.interactive.enabled=false"
         })
-@ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext
 public class SshShellApplicationTest

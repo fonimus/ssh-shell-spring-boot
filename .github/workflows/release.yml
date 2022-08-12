@@ -15,7 +15,7 @@ on:
         description: 'Specified version to release'
         required: false
         default: ''
-      
+
 jobs:
   release:
 
@@ -24,76 +24,76 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
-    - name: Checkout project
-      uses: actions/checkout@v3
-      with:
-        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3.4.1
-      with:
-        java-version: 11
-        distribution: temurin
-        cache: maven
-    - name: Import GPG key
-      id: import_gpg
-      uses: crazy-max/ghaction-import-gpg@v5.1.0
-      with:
-        gpg-private-key: ${{ secrets.GPG_SIGNING_KEY }}
-        passphrase: ${{ secrets.GPG_PASSPHRASE }}
-    - name: GPG user IDs
-      run: |
-        echo "fingerprint: ${{ steps.import_gpg.outputs.fingerprint }}"
-        echo "keyid:       ${{ steps.import_gpg.outputs.keyid }}"
-        echo "name:        ${{ steps.import_gpg.outputs.name }}"
-        echo "email:       ${{ steps.import_gpg.outputs.email }}"
-    - name: Get maven version
-      id: version
-      run: |
-        export version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
-        export version=$(echo "${version%%-*}")
-        echo "::set-output name=version::$(echo $version)"
-    - name: Print current version 
-      run: echo "Current version = ${{ steps.version.outputs.version }}"
-    - name: 'Compute next versions'
-      id: next
-      uses: "WyriHaximus/github-action-next-semvers@v1"
-      with:
-        version: ${{ steps.version.outputs.version }}
-    - name: Choose next version
-      id: choose
-      run: |
-        export version=$(echo ${{ github.event.inputs.version }})
-        if [[ $version != '' ]] ; then export next=$version; elif [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.version.outputs.version }}; fi
-        echo "::set-output name=next::$(echo $next)"
-        export purenext=$(echo "${next%%-*}")
-        echo "::set-output name=purenext::$(echo $purenext)"
-    - name: 'Get next snapshot version'
-      id: snapshot
-      uses: "WyriHaximus/github-action-next-semvers@v1"
-      with:
-        version: ${{ steps.choose.outputs.purenext }}  
-    - name: Set release and snapshot versions 
-      id: versions
-      run: |
-        echo "::set-output name=snapshot::$(echo ${{ steps.snapshot.outputs.patch }}-SNAPSHOT)"
-        echo "::set-output name=release::$(echo ${{ steps.choose.outputs.next }})"
-    - name: Log versions
-      run: echo "Releasing version ${{ steps.versions.outputs.release }}, new dev version will be ${{ steps.versions.outputs.snapshot }}"
-    - name: Configure git user
-      run: |
-        git config user.email "actions@github.com"
-        git config user.name "GitHub Actions"
-    - name: Configure maven settings
-      uses: s4u/maven-settings-action@v2.6.0
-      with:
-        servers: '[{ "id": "ossrh", "username": "${{ secrets.OSSRH_USERNAME }}", "password": "${{ secrets.OSSRH_PASSWORD }}" }]'
-    - name: Release
-      run: mvn -B -ntp release:prepare release:clean -DreleaseVersion=${{ steps.versions.outputs.release }} -DdevelopmentVersion=${{ steps.versions.outputs.snapshot }}
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        gh_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
-        tags: true
-        force: true
+
+      - name: Checkout project
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3.4.1
+        with:
+          java-version: 11
+          distribution: temurin
+          cache: maven
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v5.1.0
+        with:
+          gpg-private-key: ${{ secrets.GPG_SIGNING_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - name: GPG user IDs
+        run: |
+          echo "fingerprint: ${{ steps.import_gpg.outputs.fingerprint }}"
+          echo "keyid:       ${{ steps.import_gpg.outputs.keyid }}"
+          echo "name:        ${{ steps.import_gpg.outputs.name }}"
+          echo "email:       ${{ steps.import_gpg.outputs.email }}"
+      - name: Get maven version
+        id: version
+        run: |
+          export version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          export version=$(echo "${version%%-*}")
+          echo "::set-output name=version::$(echo $version)"
+      - name: Print current version
+        run: echo "Current version = ${{ steps.version.outputs.version }}"
+      - name: 'Compute next versions'
+        id: next
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.version.outputs.version }}
+      - name: Choose next version
+        id: choose
+        run: |
+          export version=$(echo ${{ github.event.inputs.version }})
+          if [[ $version != '' ]] ; then export next=$version; elif [[ ${{ github.event.inputs.type }} == "major" ]] ; then export next=${{ steps.next.outputs.major }}; elif [[ ${{ github.event.inputs.type }} == "minor" ]] ; then export next=${{ steps.next.outputs.minor }}; else export next=${{ steps.version.outputs.version }}; fi
+          echo "::set-output name=next::$(echo $next)"
+          export purenext=$(echo "${next%%-*}")
+          echo "::set-output name=purenext::$(echo $purenext)"
+      - name: 'Get next snapshot version'
+        id: snapshot
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.choose.outputs.purenext }}
+      - name: Set release and snapshot versions
+        id: versions
+        run: |
+          echo "::set-output name=snapshot::$(echo ${{ steps.snapshot.outputs.patch }}-SNAPSHOT)"
+          echo "::set-output name=release::$(echo ${{ steps.choose.outputs.next }})"
+      - name: Log versions
+        run: echo "Releasing version ${{ steps.versions.outputs.release }}, new dev version will be ${{ steps.versions.outputs.snapshot }}"
+      - name: Configure git user
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+      - name: Configure maven settings
+        uses: s4u/maven-settings-action@v2.6.0
+        with:
+          servers: '[{ "id": "ossrh", "username": "${{ secrets.OSSRH_USERNAME }}", "password": "${{ secrets.OSSRH_PASSWORD }}" }]'
+      - name: Release
+        run: mvn -B -ntp release:prepare release:clean -DreleaseVersion=${{ steps.versions.outputs.release }} -DdevelopmentVersion=${{ steps.versions.outputs.snapshot }}
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+          tags: true
+          force: true

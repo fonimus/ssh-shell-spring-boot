@@ -17,23 +17,24 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.listeners.SshShellListenerService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
-import org.jline.reader.Parser;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
 import org.springframework.boot.Banner;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.shell.Shell;
-import org.springframework.shell.jline.JLineShellAutoConfiguration;
 import org.springframework.shell.jline.PromptProvider;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -45,72 +46,46 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SshShellCommandFactory
         implements Command {
 
     public static final ThreadLocal<SshContext> SSH_THREAD_CONTEXT = ThreadLocal.withInitial(() -> null);
 
-    private SshShellProperties properties;
-
-    private SshShellListenerService shellListenerService;
-
-    private Banner shellBanner;
-
-    private PromptProvider promptProvider;
-
-    private Shell shell;
-
-    private JLineShellAutoConfiguration.CompleterAdapter completerAdapter;
-
-    private final Parser parser;
-
-    private Environment environment;
+    @NonNull
+    private final SshShellProperties properties;
+    @NonNull
+    private final SshShellListenerService shellListenerService;
+    @NonNull
+    private final Optional<Banner> shellBanner;
+    @NonNull
+    private final Environment environment;
+    @NonNull
+    private final Shell shell;
+    @NonNull
+    private final LineReader lineReader;
+    @NonNull
+    private final PromptProvider promptProvider;
+    @NonNull
+    private Completer completer;
 
     public static final ThreadLocal<SshIO> SSH_IO_CONTEXT = ThreadLocal.withInitial(SshIO::new);
 
-    private Map<ChannelSession, Thread> threads = new ConcurrentHashMap<>();
-
-    /**
-     * Constructor
-     *
-     * @param shellListenerService shell listener service
-     * @param banner               shell banner
-     * @param promptProvider       prompt provider
-     * @param shell                spring shell
-     * @param completerAdapter     completer adapter
-     * @param parser               jline parser
-     * @param environment          spring environment
-     * @param properties           ssh shell properties
-     */
-    public SshShellCommandFactory(SshShellListenerService shellListenerService,
-                                  @Autowired(required = false) Banner banner,
-                                  @Lazy PromptProvider promptProvider,
-                                  Shell shell,
-                                  JLineShellAutoConfiguration.CompleterAdapter completerAdapter, Parser parser,
-                                  Environment environment,
-                                  SshShellProperties properties) {
-        this.shellListenerService = shellListenerService;
-        this.shellBanner = banner;
-        this.promptProvider = promptProvider;
-        this.shell = shell;
-        this.completerAdapter = completerAdapter;
-        this.parser = parser;
-        this.environment = environment;
-        this.properties = properties;
-    }
+    private final Map<ChannelSession, Thread> threads = new ConcurrentHashMap<>();
 
     /**
      * Start ssh session
      *
      * @param channelSession ssh channel session
-     * @param env            ssh environment
+     * @param sshEnv         ssh environment
      */
     @Override
-    public void start(ChannelSession channelSession, org.apache.sshd.server.Environment env) {
+    public void start(ChannelSession channelSession, org.apache.sshd.server.Environment sshEnv) {
         SshIO sshIO = SSH_IO_CONTEXT.get();
-        Thread sshThread = new Thread(new ThreadGroup("ssh-shell"), new SshShellRunnable(properties,
-                channelSession, shellListenerService, shellBanner, promptProvider, shell, completerAdapter, parser,
-                environment, env, this, sshIO.getIs(), sshIO.getOs(), sshIO.getEc()),
+        Thread sshThread = new Thread(new ThreadGroup("ssh-shell"), new SshShellRunnable(
+                properties, shellListenerService, shellBanner.orElse(null),
+                shell, lineReader, promptProvider, completer, environment,
+                channelSession, sshEnv, this, sshIO.getIs(), sshIO.getOs(), sshIO.getEc()),
                 "ssh-session-" + System.nanoTime());
         sshThread.start();
         threads.put(channelSession, sshThread);
@@ -146,6 +121,11 @@ public class SshShellCommandFactory
         SSH_IO_CONTEXT.get().setOs(os);
     }
 
+    /**
+     * List current sessions
+     *
+     * @return current sessions
+     */
     public Map<Long, ChannelSession> listSessions() {
         return threads.keySet().stream()
                 .collect(Collectors.toMap(s -> s.getServerSession().getIoSession().getId(), Function.identity()));
