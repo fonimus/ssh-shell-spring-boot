@@ -40,13 +40,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SshShellApplicationTest
         extends AbstractCommandTest {
 
-    @Autowired
+    @Autowired(required = false)
     protected JmxCommand jmx;
 
-    @Autowired
+    @Autowired(required = false)
     protected DatasourceCommand ds;
 
-    @Autowired
+    @Autowired(required = false)
     protected TasksCommand tasks;
 
     @Test
@@ -60,6 +60,7 @@ public class SshShellApplicationTest
 
     @Test
     void testDatasourceCommand() {
+        assertNotNull(ds);
         assertNotNull(ds.datasourceList());
         assertNotNull(ds.datasourceQuery(0, "select 1"));
         assertThrows(IllegalStateException.class, () -> ds.datasourceProperties(0, "test"));
@@ -68,6 +69,7 @@ public class SshShellApplicationTest
 
     @Test
     void testJmxCommand() {
+        assertNotNull(jmx);
         jmx.jmxList(null);
         jmx.jmxList("org.springframework.boot:type=Endpoint,name=Shutdown");
         jmx.jmxList("unknown");
@@ -75,6 +77,7 @@ public class SshShellApplicationTest
 
     @Test
     void testTasksCommand() {
+        assertNotNull(tasks);
         assertNotNull(tasks.tasksList(null, true));
         assertThrows(IllegalArgumentException.class, () -> tasks.tasksStop(false, "unknown"));
         assertThrows(IllegalArgumentException.class, () -> tasks.tasksRestart(false, "unknown"));
