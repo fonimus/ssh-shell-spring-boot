@@ -79,7 +79,7 @@ public class ExtendedShell extends Shell {
     }
 
     @Override
-    public void run(InputProvider inputProvider) throws Exception {
+    public void run(InputProvider inputProvider) {
         run(inputProvider, () -> false);
     }
 
@@ -89,7 +89,7 @@ public class ExtendedShell extends Shell {
      * @param inputProvider input provider
      * @param shellNotifier shell notifier
      */
-    public void run(InputProvider inputProvider, ShellNotifier shellNotifier) throws Exception {
+    public void run(InputProvider inputProvider, ShellNotifier shellNotifier) {
         Object result = null;
         // Handles ExitRequest thrown from Quit command
         while (!(result instanceof ExitRequest) && !shellNotifier.shouldStop()) {
@@ -161,9 +161,9 @@ public class ExtendedShell extends Shell {
 
         String prefix = context.upToCursor();
 
-        List<CompletionProposal> candidates = new ArrayList<>(commandsStartingWith(prefix));
+        List<CompletionProposal> candidates = new ArrayList<>(duplicatedCommandsStartingWith(prefix));
 
-        String best = findLongestCommand(prefix);
+        String best = duplicatedFindLongestCommand(prefix);
         if (best != null) {
             context = context.drop(best.split(" ").length);
             CommandRegistration registration = commandRegistry.getRegistrations().get(best);
@@ -175,7 +175,7 @@ public class ExtendedShell extends Shell {
             List<CommandOption> matchedArgOptions = new ArrayList<>();
             if (lastWord != null) {
                 // last word used instead of first to check if matching args
-                matchedArgOptions.addAll(matchOptions(registration.getOptions(), lastWord));
+                matchedArgOptions.addAll(duplicatedMatchOptions(registration.getOptions(), lastWord));
             }
             if (matchedArgOptions.isEmpty()) {
                 // only add command options if last word did not match option
@@ -214,8 +214,7 @@ public class ExtendedShell extends Shell {
     // Private methods from Shell
     //---------------------------------
 
-
-    private List<CommandOption> matchOptions(List<CommandOption> options, String arg) {
+    private List<CommandOption> duplicatedMatchOptions(List<CommandOption> options, String arg) {
         List<CommandOption> matched = new ArrayList<>();
         String trimmed = StringUtils.trimLeadingCharacter(arg, '-');
         int count = arg.length() - trimmed.length();
@@ -259,7 +258,7 @@ public class ExtendedShell extends Shell {
         return matched;
     }
 
-    private List<CompletionProposal> commandsStartingWith(String prefix) {
+    private List<CompletionProposal> duplicatedCommandsStartingWith(String prefix) {
         // Workaround for https://github.com/spring-projects/spring-shell/issues/150
         // (sadly, this ties this class to JLine somehow)
         int lastWordStart = prefix.lastIndexOf(' ') + 1;
@@ -268,12 +267,12 @@ public class ExtendedShell extends Shell {
                 .map(e -> {
                     String c = e.getKey();
                     c = c.substring(lastWordStart);
-                    return toCommandProposal(c, e.getValue());
+                    return duplicatedToCommandProposal(c, e.getValue());
                 })
                 .collect(Collectors.toList());
     }
 
-    private CompletionProposal toCommandProposal(String command, CommandRegistration registration) {
+    private CompletionProposal duplicatedToCommandProposal(String command, CommandRegistration registration) {
         return new CompletionProposal(command)
                 .dontQuote(true)
                 .category("Available commands")
@@ -285,7 +284,7 @@ public class ExtendedShell extends Shell {
      *
      * @return a valid command name, or {@literal null} if none matched
      */
-    private String findLongestCommand(String prefix) {
+    private String duplicatedFindLongestCommand(String prefix) {
         String result = commandRegistry.getRegistrations().keySet().stream()
                 .filter(command -> prefix.equals(command) || prefix.startsWith(command + " "))
                 .reduce("", (c1, c2) -> c1.length() > c2.length() ? c1 : c2);
