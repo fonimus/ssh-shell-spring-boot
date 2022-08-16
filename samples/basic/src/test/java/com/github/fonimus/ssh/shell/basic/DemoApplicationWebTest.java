@@ -19,22 +19,19 @@ package com.github.fonimus.ssh.shell.basic;
 import com.github.fonimus.ssh.shell.PromptColor;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(classes = BasicApplication.class)
-@ExtendWith(SpringExtension.class)
-@DirtiesContext
+@SpringBootTest(classes = BasicApplication.class, properties = {
+        "spring.shell.interactive.enabled=false"
+})
 public class DemoApplicationWebTest {
 
     @Autowired
-    private DemoCommand demo;
+    private BasicCommands demo;
 
     @Test
     void testApplicationStartup() {

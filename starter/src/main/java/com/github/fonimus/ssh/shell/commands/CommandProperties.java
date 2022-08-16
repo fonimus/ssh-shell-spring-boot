@@ -20,7 +20,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.ADMIN_ROLE;
@@ -33,14 +34,22 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.ADMIN_ROLE;
 @AllArgsConstructor
 public class CommandProperties {
 
+    /**
+     * Create command at startup
+     */
     private boolean create = true;
 
+    /**
+     * Enable command at startup
+     */
     private boolean enable = true;
 
+    /**
+     * Is command restricted
+     */
     private boolean restricted = true;
 
-    // Do not change to singleton, it will become unmodifiable
-    private List<String> authorizedRoles = Arrays.asList(ADMIN_ROLE);
+    private List<String> authorizedRoles = new ArrayList<>(Collections.singletonList(ADMIN_ROLE));
 
     /**
      * Possibility to include some sub commands only
@@ -52,18 +61,33 @@ public class CommandProperties {
      */
     private List<String> excludes;
 
+    /**
+     * Create properties for disabled command
+     *
+     * @return disabled command
+     */
     public static CommandProperties disabledByDefault() {
         CommandProperties properties = new CommandProperties();
         properties.setEnable(false);
         return properties;
     }
 
+    /**
+     * Create properties for command with authorized roles
+     *
+     * @return command with authorized roles
+     */
     public static CommandProperties withAuthorizedRoles(List<String> authorizedRoles) {
         CommandProperties properties = new CommandProperties();
         properties.setAuthorizedRoles(authorizedRoles);
         return properties;
     }
 
+    /**
+     * Create properties for not restructed command
+     *
+     * @return not restructed command
+     */
     public static CommandProperties notRestrictedByDefault() {
         CommandProperties properties = new CommandProperties();
         properties.setRestricted(false);
@@ -71,6 +95,11 @@ public class CommandProperties {
         return properties;
     }
 
+    /**
+     * Create properties for excluded by default
+     *
+     * @return excluded by default
+     */
     public static CommandProperties withExcludedByDefault(List<String> excludes) {
         CommandProperties properties = new CommandProperties();
         properties.setExcludes(excludes);

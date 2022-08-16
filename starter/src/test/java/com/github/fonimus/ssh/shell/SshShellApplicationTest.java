@@ -16,26 +16,38 @@
 
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.commands.DatasourceCommand;
+import com.github.fonimus.ssh.shell.commands.JmxCommand;
+import com.github.fonimus.ssh.shell.commands.TasksCommand;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = SshShellApplicationTest.class,
         properties = {
                 "ssh.shell.port=2345",
                 "ssh.shell.password=pass",
-                "management.endpoints.web.exposure.include=*"
+                "management.endpoints.web.exposure.include=*",
+                "spring.shell.interactive.enabled=false",
+                "spring.jmx.enabled=true"
         })
-@ExtendWith(SpringExtension.class)
 @SpringBootApplication
 @DirtiesContext
 public class SshShellApplicationTest
         extends AbstractCommandTest {
+
+    @Autowired(required = false)
+    protected JmxCommand jmx;
+
+    @Autowired(required = false)
+    protected DatasourceCommand ds;
+
+    @Autowired(required = false)
+    protected TasksCommand tasks;
 
     @Test
     void testCommandAvailability() {
@@ -44,5 +56,31 @@ public class SshShellApplicationTest
         super.commonCommandAvailability();
 
         assertFalse(cmd.httptraceAvailability().isAvailable());
+    }
+
+    @Test
+    void testDatasourceCommand() {
+        assertNotNull(ds);
+        assertNotNull(ds.datasourceList());
+        assertNotNull(ds.datasourceQuery(0, "select 1"));
+        assertThrows(IllegalStateException.class, () -> ds.datasourceProperties(0, "test"));
+        assertThrows(IllegalStateException.class, () -> ds.datasourceUpdate(0, "unknown"));
+    }
+
+    @Test
+    void testJmxCommand() {
+        assertNotNull(jmx);
+        jmx.jmxList(null);
+        jmx.jmxList("org.springframework.boot:type=Endpoint,name=Shutdown");
+        jmx.jmxList("unknown");
+    }
+
+    @Test
+    void testTasksCommand() {
+        assertNotNull(tasks);
+        assertNotNull(tasks.tasksList(null, true));
+        assertThrows(IllegalArgumentException.class, () -> tasks.tasksStop(false, "unknown"));
+        assertThrows(IllegalArgumentException.class, () -> tasks.tasksRestart(false, "unknown"));
+        assertThrows(IllegalArgumentException.class, () -> tasks.tasksSingle(false, "unknown"));
     }
 }

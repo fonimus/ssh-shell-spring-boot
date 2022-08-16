@@ -25,8 +25,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jline.terminal.Size;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
+import org.springframework.shell.standard.EnumValueProvider;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.shell.table.BorderStyle;
@@ -40,18 +42,10 @@ import java.util.Arrays;
  */
 @Slf4j
 @SshShellComponent
-public class DemoCommand {
+@AllArgsConstructor
+public class BasicCommands {
 
     private final SshShellHelper helper;
-
-    /**
-     * Default constructor
-     *
-     * @param helper ssh shell helper
-     */
-    public DemoCommand(SshShellHelper helper) {
-        this.helper = helper;
-    }
 
     /**
      * Echo command
@@ -61,7 +55,7 @@ public class DemoCommand {
      * @return message
      */
     @ShellMethod("Echo command")
-    public String echo(String message, @ShellOption(defaultValue = ShellOption.NULL) PromptColor color) {
+    public String echo(String message, @ShellOption(defaultValue = ShellOption.NULL, valueProvider = EnumValueProvider.class) PromptColor color) {
         if (color != null) {
             return new AttributedStringBuilder().append(message,
                     AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
@@ -94,6 +88,26 @@ public class DemoCommand {
     @ShellMethod("Pojo command")
     public Pojo pojo() {
         return new Pojo("value1", "value2");
+    }
+
+    /**
+     * Confirmation example command
+     *
+     * @return welcome message
+     */
+    @ShellMethod("Confirmation command")
+    public String conf() {
+        return helper.confirm("Are you sure ?") ? "Great ! Let's do it !" : "Such a shame ...";
+    }
+
+    /**
+     * Terminal size command example
+     *
+     * @return size
+     */
+    @ShellMethod("Terminal size command")
+    public Size size() {
+        return helper.terminalSize();
     }
 
     /**

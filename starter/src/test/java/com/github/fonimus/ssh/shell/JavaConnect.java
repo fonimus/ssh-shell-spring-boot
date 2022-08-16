@@ -72,6 +72,7 @@ public class JavaConnect {
                 try {
                     Thread.sleep(1000);
                 } catch (Exception ee) {
+                    // nothing to do
                 }
             }
             channel.disconnect();

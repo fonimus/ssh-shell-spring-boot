@@ -49,6 +49,9 @@ public class SshContext {
 
     private long backgroundCount = 0;
 
+    /**
+     * Default empty constructor
+     */
     public SshContext() {
     }
 
@@ -95,6 +98,9 @@ public class SshContext {
         return isLocalPrompt() ? null : sshShellRunnable.getSshEnv();
     }
 
+    /**
+     * Increment background sessions count
+     */
     public void incrementBackgroundCount() {
         this.backgroundCount++;
     }

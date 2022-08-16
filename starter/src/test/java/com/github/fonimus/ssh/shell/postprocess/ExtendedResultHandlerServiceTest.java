@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.springframework.shell.ResultHandler;
+import org.springframework.shell.ResultHandlerService;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,17 +32,17 @@ import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CON
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TypePostProcessorResultHandlerTest {
+class ExtendedResultHandlerServiceTest {
 
-    private TypePostProcessorResultHandler rh;
+    private ExtendedResultHandlerService rh;
     private ArgumentCaptor<Object> captor;
 
     @BeforeEach
     void setUp() {
-        ResultHandler rhMock = Mockito.mock(ResultHandler.class);
+        ResultHandlerService rhMock = Mockito.mock(ResultHandlerService.class);
         captor = ArgumentCaptor.forClass(Object.class);
-        Mockito.doNothing().when(rhMock).handleResult(captor.capture());
-        rh = new TypePostProcessorResultHandler(rhMock,
+        Mockito.doNothing().when(rhMock).handle(captor.capture());
+        rh = new ExtendedResultHandlerService(rhMock,
                 Arrays.asList(new GrepPostProcessor(), new GrepPostProcessor(), new SavePostProcessor())
         );
         SSH_THREAD_CONTEXT.set(new SshContext(null, null, null, null));
@@ -50,14 +50,14 @@ class TypePostProcessorResultHandlerTest {
 
     @Test
     void handleResultNull() {
-        rh.handleResult(null);
+        rh.handle(null);
         assertEquals(0, captor.getAllValues().size());
     }
 
     @Test
     void handleResultThrowable() {
         IllegalArgumentException ex = new IllegalArgumentException("[TEST]");
-        rh.handleResult(ex);
+        rh.handle(ex);
         assertEquals(1, captor.getAllValues().size());
         assertEquals(ex, captor.getAllValues().get(0));
     }
@@ -68,7 +68,7 @@ class TypePostProcessorResultHandlerTest {
                 new PostProcessorObject("unknown"
                 ));
 
-        rh.handleResult("result");
+        rh.handle("result");
         assertEquals(2, captor.getAllValues().size());
         assertTrue(((String) captor.getAllValues().get(0)).contains("Unknown post processor"));
         assertEquals("result", captor.getAllValues().get(1));
@@ -81,7 +81,7 @@ class TypePostProcessorResultHandlerTest {
                 ));
 
         Object obj = new PostProcessorObject("test");
-        rh.handleResult(obj);
+        rh.handle(obj);
         assertEquals(2, captor.getAllValues().size());
         assertTrue(((String) captor.getAllValues().get(0)).contains("can only apply to class"));
         assertEquals(obj, captor.getAllValues().get(1));
@@ -92,7 +92,7 @@ class TypePostProcessorResultHandlerTest {
         SSH_THREAD_CONTEXT.get().getPostProcessorsList().add(
                 new PostProcessorObject("save")
         );
-        rh.handleResult("result");
+        rh.handle("result");
         assertEquals(1, captor.getAllValues().size());
         assertTrue(((String) captor.getAllValues().get(0)).contains("Cannot save"));
     }
@@ -102,7 +102,7 @@ class TypePostProcessorResultHandlerTest {
         SSH_THREAD_CONTEXT.get().getPostProcessorsList().add(
                 new PostProcessorObject("grep", Collections.singletonList("result"))
         );
-        rh.handleResult("result");
+        rh.handle("result");
         assertEquals(1, captor.getAllValues().size());
         assertEquals("result", captor.getAllValues().get(0));
     }

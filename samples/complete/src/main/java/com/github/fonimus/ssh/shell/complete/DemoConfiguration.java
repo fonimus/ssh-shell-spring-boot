@@ -32,7 +32,6 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -60,6 +59,11 @@ public class DemoConfiguration implements SchedulingConfigurer {
             }
 
             @Override
+            public String getDescription() {
+                return "Add quotes";
+            }
+
+            @Override
             public String process(String input, List<String> parameters) {
                 return "'" + input + "'";
             }
@@ -76,6 +80,11 @@ public class DemoConfiguration implements SchedulingConfigurer {
             }
 
             @Override
+            public String getDescription() {
+                return "Parse date";
+            }
+
+            @Override
             public ZonedDateTime process(String input, List<String> parameters) {
                 return ZonedDateTime.parse(input);
             }
@@ -89,6 +98,11 @@ public class DemoConfiguration implements SchedulingConfigurer {
             @Override
             public String getName() {
                 return "zoned";
+            }
+
+            @Override
+            public String getDescription() {
+                return "Zoned date";
             }
 
             @Override

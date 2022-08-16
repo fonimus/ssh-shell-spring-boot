@@ -42,9 +42,9 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 public class SshShellSecurityAuthenticationProvider
         implements SshShellAuthenticationProvider {
 
-    private final String authProviderBeanName;
+    private final ApplicationContext context;
 
-    private ApplicationContext context;
+    private final String authProviderBeanName;
 
     private AuthenticationManager authenticationManager;
 
@@ -53,6 +53,9 @@ public class SshShellSecurityAuthenticationProvider
         this.authProviderBeanName = authProviderBeanName;
     }
 
+    /**
+     * Init security provider
+     */
     @PostConstruct
     public void init() {
         Map<String, AuthenticationManager> map = context.getBeansOfType(AuthenticationManager.class);

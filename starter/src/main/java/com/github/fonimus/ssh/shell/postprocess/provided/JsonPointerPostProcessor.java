@@ -19,6 +19,7 @@ package com.github.fonimus.ssh.shell.postprocess.provided;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -28,14 +29,20 @@ import java.util.List;
  * Json pointer post processor
  */
 @Slf4j
+@AllArgsConstructor
 public class JsonPointerPostProcessor
         implements PostProcessor<String, String> {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     @Override
     public String getName() {
         return "json";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Json path (use pretty postprocessor first to get json from object)";
     }
 
     @Override
@@ -48,14 +55,14 @@ public class JsonPointerPostProcessor
             }
             String path = parameters.get(0);
             try {
-                JsonNode node = MAPPER.readTree(result).at(path);
+                JsonNode node = mapper.readTree(result).at(path);
                 if (node.isMissingNode()) {
                     return "No node found with json path expression: " + path;
                 } else {
                     if (node.isTextual()) {
                         return node.asText();
                     } else {
-                        return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+                        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
                     }
                 }
             } catch (IOException e) {

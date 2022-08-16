@@ -24,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class ExtendedInputTest {
 
-    private Input input = () -> "one, two three";
+    private final Input input = () -> "one, two three";
 
-    private Input inputWithQuotes = () -> "one, \'two\' three";
+    private final Input inputWithQuotes = () -> "one, 'two' three";
 
-    private Input inputWithChars = () -> "one, two three | grep toto > /tmp/file";
+    private final Input inputWithChars = () -> "one, two three | grep toto > /tmp/file";
 
     @Test
     void input() {

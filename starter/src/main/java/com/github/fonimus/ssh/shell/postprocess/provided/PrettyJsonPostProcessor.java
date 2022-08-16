@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessorException;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -28,10 +29,11 @@ import java.util.List;
  * Pretty json post processor
  */
 @Slf4j
+@AllArgsConstructor
 public class PrettyJsonPostProcessor
         implements PostProcessor<Object, String> {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     @Override
     public String getName() {
@@ -39,9 +41,14 @@ public class PrettyJsonPostProcessor
     }
 
     @Override
+    public String getDescription() {
+        return "Pretty print thanks to json format";
+    }
+
+    @Override
     public String process(Object result, List<String> parameters) throws PostProcessorException {
         try {
-            return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
         } catch (JsonProcessingException e) {
             LOGGER.warn("Unable to prettify object: {}", result);
             throw new PostProcessorException("Unable to prettify object. " + e.getMessage(), e);

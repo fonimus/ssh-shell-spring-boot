@@ -18,7 +18,7 @@ package com.github.fonimus.ssh.shell.commands;
 
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
-import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
+import com.github.fonimus.ssh.shell.postprocess.ExtendedResultHandlerService;
 import org.jline.terminal.Terminal;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,16 +30,16 @@ class StacktraceCommandTest {
 
     @Test
     void stacktrace() {
-        TypePostProcessorResultHandler.THREAD_CONTEXT.set(null);
+        ExtendedResultHandlerService.THREAD_CONTEXT.set(null);
 
-        StacktraceCommand cmd = new StacktraceCommand(new SshShellHelper(), new SshShellProperties());
+        StacktraceCommand cmd = new StacktraceCommand(new SshShellHelper(null), new SshShellProperties());
         Terminal terminal = Mockito.mock(Terminal.class);
         Mockito.when(terminal.writer()).thenReturn(new PrintWriter(new StringWriter()));
         cmd.setTerminal(terminal);
         cmd.stacktrace();
         Mockito.verify(terminal, Mockito.never()).writer();
 
-        TypePostProcessorResultHandler.THREAD_CONTEXT.set(new IllegalArgumentException("[TEST]"));
+        ExtendedResultHandlerService.THREAD_CONTEXT.set(new IllegalArgumentException("[TEST]"));
 
         cmd.stacktrace();
         Mockito.verify(terminal, Mockito.times(1)).writer();

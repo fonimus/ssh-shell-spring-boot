@@ -66,6 +66,7 @@ public class PostProcessorsCommand extends AbstractCommand {
                     ((Class<?>) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[0]);
             Class<?> output =
                     ((Class<?>) ((ParameterizedType) (postProcessor.getClass().getGenericInterfaces())[0]).getActualTypeArguments()[1]);
+            result.append("\t\thelp   : " + postProcessor.getDescription() + "\n", AttributedStyle.DEFAULT);
             result.append("\t\tinput  : " + input.getName() + "\n", AttributedStyle.DEFAULT);
             result.append("\t\toutput : " + output.getName() + "\n", AttributedStyle.DEFAULT);
         }

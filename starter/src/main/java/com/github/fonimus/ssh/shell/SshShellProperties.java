@@ -25,7 +25,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
@@ -45,13 +46,22 @@ public class SshShellProperties {
 
     public static final String DISABLE_SSH_SHELL = SSH_SHELL_ENABLE + "=false";
 
-    public static final String SPRING_SHELL_AUTO_CONFIG_CLASSES = "org.springframework.shell.jline" +
-            ".JLineShellAutoConfiguration," +
-            "org.springframework.shell.SpringShellAutoConfiguration," +
-            "org.springframework.shell.jcommander.JCommanderParameterResolverAutoConfiguration," +
-            "org.springframework.shell.legacy.LegacyAdapterAutoConfiguration," +
-            "org.springframework.shell.standard.StandardAPIAutoConfiguration," +
-            "org.springframework.shell.standard.commands.StandardCommandsAutoConfiguration";
+    public static final String SPRING_SHELL_AUTO_CONFIG_CLASSES = "org.springframework.shell.boot.ExitCodeAutoConfiguration," +
+            "org.springframework.shell.boot.ShellContextAutoConfiguration," +
+            "org.springframework.shell.boot.SpringShellAutoConfiguration," +
+            "org.springframework.shell.boot.ShellRunnerAutoConfiguration," +
+            "org.springframework.shell.boot.ApplicationRunnerAutoConfiguration," +
+            "org.springframework.shell.boot.CommandCatalogAutoConfiguration," +
+            "org.springframework.shell.boot.LineReaderAutoConfiguration," +
+            "org.springframework.shell.boot.CompleterAutoConfiguration," +
+            "org.springframework.shell.boot.UserConfigAutoConfiguration," +
+            "org.springframework.shell.boot.JLineAutoConfiguration," +
+            "org.springframework.shell.boot.JLineShellAutoConfiguration," +
+            "org.springframework.shell.boot.ParameterResolverAutoConfiguration," +
+            "org.springframework.shell.boot.StandardAPIAutoConfiguration," +
+            "org.springframework.shell.boot.ThemingAutoConfiguration," +
+            "org.springframework.shell.boot.StandardCommandsAutoConfiguration," +
+            "org.springframework.shell.boot.ComponentFlowAutoConfiguration";
 
     public static final String DISABLE_SPRING_SHELL_AUTO_CONFIG =
             "spring.autoconfigure.exclude=" + SPRING_SHELL_AUTO_CONFIG_CLASSES;
@@ -72,8 +82,6 @@ public class SshShellProperties {
 
     private boolean displayBanner = true;
 
-    private boolean extendedFileProvider = true;
-
     private AuthenticationType authentication = AuthenticationType.simple;
 
     private String authProviderBeanName;
@@ -91,8 +99,11 @@ public class SshShellProperties {
      */
     private File historyDirectory = new File(System.getProperty("java.io.tmpdir"));
 
-    private List<String> confirmationWords;
+    private List<String> confirmationWords = new ArrayList<>(SshShellHelper.DEFAULT_CONFIRM_WORDS);
 
+    /**
+     * Authentication type
+     */
     public enum AuthenticationType {
         simple, security
     }
@@ -115,16 +126,6 @@ public class SshShellProperties {
 
         private PromptColor color = PromptColor.WHITE;
 
-        private Local local = new Local();
-    }
-
-    /**
-     * Prompt local configuration
-     */
-    @Data
-    public static class Local {
-
-        private boolean enable;
     }
 
     /**
@@ -134,7 +135,7 @@ public class SshShellProperties {
     public static class Commands {
 
         @NestedConfigurationProperty
-        private CommandProperties actuator = CommandProperties.withAuthorizedRoles(Arrays.asList(ACTUATOR_ROLE));
+        private CommandProperties actuator = CommandProperties.withAuthorizedRoles(new ArrayList<>(Collections.singletonList(ACTUATOR_ROLE)));
 
         @NestedConfigurationProperty
         private CommandProperties jmx = new CommandProperties();
@@ -155,8 +156,7 @@ public class SshShellProperties {
         private CommandProperties stacktrace = new CommandProperties();
 
         @NestedConfigurationProperty
-        private CommandProperties datasource =
-                CommandProperties.withExcludedByDefault(Arrays.asList(COMMAND_DATA_SOURCE_UPDATE));
+        private CommandProperties datasource = CommandProperties.withExcludedByDefault(new ArrayList<>(Collections.singletonList(COMMAND_DATA_SOURCE_UPDATE)));
 
         @NestedConfigurationProperty
         private CommandProperties postprocessors = CommandProperties.notRestrictedByDefault();

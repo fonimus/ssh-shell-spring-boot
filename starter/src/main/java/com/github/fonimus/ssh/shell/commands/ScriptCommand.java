@@ -25,6 +25,7 @@ import com.github.fonimus.ssh.shell.interactive.InteractiveInputIO;
 import com.github.fonimus.ssh.shell.interactive.StoppableInteractiveInput;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessorObject;
 import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
+import com.github.fonimus.ssh.shell.providers.ExtendedFileValueProvider;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +36,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.shell.Availability;
 import org.springframework.shell.jline.FileInputProvider;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.standard.*;
 import org.springframework.shell.standard.commands.Script;
 
 import java.io.File;
@@ -74,17 +72,14 @@ public class ScriptCommand extends AbstractCommand
     public static final String GROUP = "script";
     public static final String COMMAND_SCRIPT = GROUP;
 
-    private final ExtendedShell shell;
-
     private final Parser parser;
 
     private ExecutorService executor;
 
     private ScriptStatus status;
 
-    public ScriptCommand(ExtendedShell shell, Parser parser, SshShellHelper helper, SshShellProperties properties) {
+    public ScriptCommand(Parser parser, SshShellHelper helper, SshShellProperties properties) {
         super(helper, properties, properties.getCommands().getScript());
-        this.shell = shell;
         this.parser = parser;
     }
 
@@ -98,16 +93,12 @@ public class ScriptCommand extends AbstractCommand
     @ShellMethod(key = COMMAND_SCRIPT, value = "Read and execute commands from a file.")
     @ShellMethodAvailability("scriptAvailability")
     public void script(
-            @ShellOption(value = {"-f", "--file"}, help = "File to run commands from", defaultValue =
-                    ShellOption.NULL) File file,
-            @ShellOption(value = {"-o", "--output"}, help = "File to write results to", defaultValue = ShellOption.NULL)
-                    File output,
-            @ShellOption(value = {"-b", "--background"}, help = "File to run commands from", defaultValue = "false")
-                    boolean background,
-            @ShellOption(value = {"-a", "--action"}, help = "Action : execute, stop, status (default is execute)",
-                    defaultValue = "execute") ScriptAction action,
-            @ShellOption(value = {"-n", "--not-interactive"}, help = "Do not launch status directly to get " +
-                    "interactive process", defaultValue = "false") boolean notInteractive
+            @ShellOption(help = "File to run commands from", defaultValue = ShellOption.NULL, valueProvider = ExtendedFileValueProvider.class) File file,
+            @ShellOption(help = "File to write results to", defaultValue = ShellOption.NULL, valueProvider = ExtendedFileValueProvider.class) File output,
+            @ShellOption(help = "File to run commands from", defaultValue = "false") boolean background,
+            @ShellOption(help = "Action : execute, stop, status (default is execute)", defaultValue = "execute",
+                    valueProvider = EnumValueProvider.class) ScriptAction action,
+            @ShellOption(help = "Do not launch status directly to get interactive process", defaultValue = "false") boolean notInteractive
     ) throws IOException {
         if (action == ScriptAction.execute) {
             if (file == null) {
@@ -117,8 +108,7 @@ public class ScriptCommand extends AbstractCommand
                 run(file);
             } else {
                 if (output == null) {
-                    throw new IllegalArgumentException("Cannot use background option without output option for " +
-                            "commands results");
+                    throw new IllegalArgumentException("Cannot use background option without output option for commands results");
                 } else if (output.isDirectory()) {
                     throw new IllegalArgumentException("Cannot use given output : it is a directory [" + output.getAbsolutePath() + "]");
                 } else if (!output.exists() && !output.createNewFile()) {
@@ -191,7 +181,9 @@ public class ScriptCommand extends AbstractCommand
     private void run(File file) throws IOException {
         Reader reader = new FileReader(file);
         try (FileInputProvider inputProvider = new FileInputProvider(reader, parser)) {
-            shell.run(inputProvider, () -> status != null && status.getFuture().isCancelled());
+            ((ExtendedShell) getShell()).run(inputProvider, () -> status != null && status.getFuture().isCancelled());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -202,10 +194,16 @@ public class ScriptCommand extends AbstractCommand
         return executor;
     }
 
+    /**
+     * Script action enum
+     */
     public enum ScriptAction {
         execute, stop, status
     }
 
+    /**
+     * Script status POJO
+     */
     @Data
     @AllArgsConstructor
     public static class ScriptStatus {

@@ -22,9 +22,7 @@ import org.jline.terminal.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 class SystemCommandTest extends AbstractShellHelperTest {
@@ -33,7 +31,6 @@ class SystemCommandTest extends AbstractShellHelperTest {
 
     @BeforeEach
     void setUp() {
-        when(h.terminalSize()).thenReturn(new Size(100, 100));
         command = new SystemCommand(h, new SshShellProperties());
     }
 
@@ -52,23 +49,23 @@ class SystemCommandTest extends AbstractShellHelperTest {
     @Test
     void threads() throws Exception {
         for (SystemCommand.ThreadColumn tc : SystemCommand.ThreadColumn.values()) {
-            assertNotNull(command.threads(SystemCommand.ThreadAction.LIST, tc, true, true, null));
+            assertNotNull(command.threads(SystemCommand.ThreadAction.list, tc, true, true, null));
         }
-        assertNotNull(command.threads(SystemCommand.ThreadAction.DUMP, SystemCommand.ThreadColumn.NAME, true, true,
+        assertNotNull(command.threads(SystemCommand.ThreadAction.dump, SystemCommand.ThreadColumn.name, true, true,
                 Thread.currentThread().getId()));
         assertThrows(IllegalArgumentException.class,
-                () -> assertNotNull(command.threads(SystemCommand.ThreadAction.DUMP,
-                SystemCommand.ThreadColumn.NAME, true, true, null)));
+                () -> assertNotNull(command.threads(SystemCommand.ThreadAction.dump,
+                        SystemCommand.ThreadColumn.name, true, true, null)));
         assertThrows(IllegalArgumentException.class,
-                () -> assertNotNull(command.threads(SystemCommand.ThreadAction.DUMP,
-                SystemCommand.ThreadColumn.NAME, true, true, -1L)));
+                () -> assertNotNull(command.threads(SystemCommand.ThreadAction.dump,
+                        SystemCommand.ThreadColumn.name, true, true, -1L)));
 
         when(reader.read(100L)).thenReturn(113);
-        assertEquals("", command.threads(SystemCommand.ThreadAction.LIST, SystemCommand.ThreadColumn.NAME, true, false,
+        assertEquals("", command.threads(SystemCommand.ThreadAction.list, SystemCommand.ThreadColumn.name, true, false,
                 null));
 
         when(ter.getSize()).thenReturn(new Size(10, 10));
-        assertEquals("", command.threads(SystemCommand.ThreadAction.LIST, SystemCommand.ThreadColumn.NAME, true, false,
+        assertEquals("", command.threads(SystemCommand.ThreadAction.list, SystemCommand.ThreadColumn.name, true, false,
                 null));
     }
 }

@@ -29,6 +29,9 @@ import java.util.List;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 
+/**
+ * Post processor used to save console result into file
+ */
 @Slf4j
 public class SavePostProcessor
         implements PostProcessor<Object, String> {
@@ -40,6 +43,11 @@ public class SavePostProcessor
     @Override
     public String getName() {
         return SAVE;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Post processor to save result to file (or use special character '>')";
     }
 
     @Override

@@ -25,5 +25,7 @@ public interface PostProcessor<I, O> {
 
     String getName();
 
+    String getDescription();
+
     O process(I result, List<String> parameters) throws PostProcessorException;
 }

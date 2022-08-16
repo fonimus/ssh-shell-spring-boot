@@ -33,7 +33,7 @@ class PrettyJsonPostProcessorTest {
 
     @BeforeAll
     static void init() {
-        processor = new PrettyJsonPostProcessor();
+        processor = new PrettyJsonPostProcessor(new ObjectMapper());
     }
 
     @Test
@@ -53,7 +53,7 @@ class PrettyJsonPostProcessorTest {
 
     public class NotSerializableObject {
 
-        private String test;
+        private final String test;
 
         public NotSerializableObject(String test) {
             this.test = test;

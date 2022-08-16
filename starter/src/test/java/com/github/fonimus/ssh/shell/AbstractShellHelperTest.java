@@ -46,7 +46,9 @@ public abstract class AbstractShellHelperTest {
 
     @BeforeEach
     public void each() {
-        h = new SshShellHelper();
+        h = new SshShellHelper(null);
+        h.setDefaultTerminal(ter);
+        h.setDefaultLineReader(lr);
         List<String> auth = Collections.singletonList("ROLE_ACTUATOR");
         lr = mock(LineReader.class);
         ter = mock(Terminal.class);
@@ -57,9 +59,9 @@ public abstract class AbstractShellHelperTest {
         when(lr.getTerminal()).thenReturn(ter);
 
         Environment sshEnv = mock(Environment.class);
-        SshContext ctx = new SshContext(new SshShellRunnable(new SshShellProperties(), mockChannelSession(4L), null,
-                null, null,
-                null, null, null, null, sshEnv, null, null, null, null), ter, lr,
+        SshContext ctx = new SshContext(new SshShellRunnable(new SshShellProperties(), null,
+                null, null, null, null, null, null,
+                mockChannelSession(4L), sshEnv, null, null, null, null), ter, lr,
                 new SshAuthentication("user", "user", null, null, auth));
         SshShellCommandFactory.SSH_THREAD_CONTEXT.set(ctx);
         when(ter.getType()).thenReturn("osx");

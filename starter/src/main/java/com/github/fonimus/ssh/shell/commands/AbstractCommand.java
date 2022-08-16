@@ -22,6 +22,7 @@ import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.Availability;
+import org.springframework.shell.standard.AbstractShellComponent;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ import java.util.List;
  * Abstract command with availability
  */
 @Slf4j
-public class AbstractCommand {
+public class AbstractCommand extends AbstractShellComponent {
 
     protected final SshShellHelper helper;
 
@@ -43,6 +44,13 @@ public class AbstractCommand {
         this.commandProperties = commandProperties;
     }
 
+    /**
+     * Compute availability depending on command group and name
+     *
+     * @param commandGroup command group
+     * @param commandName  command name
+     * @return command availability
+     */
     protected Availability availability(String commandGroup, String commandName) {
         try {
             preAvailability();

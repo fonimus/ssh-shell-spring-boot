@@ -16,52 +16,41 @@
 
 package com.github.fonimus.ssh.shell;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fonimus.ssh.shell.auth.SshShellAuthenticationProvider;
 import com.github.fonimus.ssh.shell.auth.SshShellPasswordAuthenticationProvider;
 import com.github.fonimus.ssh.shell.auth.SshShellSecurityAuthenticationProvider;
 import com.github.fonimus.ssh.shell.listeners.SshShellListener;
 import com.github.fonimus.ssh.shell.listeners.SshShellListenerService;
-import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
-import com.github.fonimus.ssh.shell.postprocess.TypePostProcessorResultHandler;
-import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
-import com.github.fonimus.ssh.shell.postprocess.provided.HighlightPostProcessor;
-import com.github.fonimus.ssh.shell.postprocess.provided.JsonPointerPostProcessor;
-import com.github.fonimus.ssh.shell.postprocess.provided.PrettyJsonPostProcessor;
-import com.github.fonimus.ssh.shell.postprocess.provided.SavePostProcessor;
-import com.github.fonimus.ssh.shell.providers.ExtendedFileValueProvider;
+import com.github.fonimus.ssh.shell.postprocess.provided.*;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.SshServer;
-import org.jline.reader.LineReader;
-import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
-import org.springframework.shell.ResultHandler;
-import org.springframework.shell.Shell;
-import org.springframework.shell.SpringShellAutoConfiguration;
-import org.springframework.shell.jline.InteractiveShellApplicationRunner;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.shell.boot.LineReaderAutoConfiguration;
+import org.springframework.shell.boot.SpringShellAutoConfiguration;
+import org.springframework.shell.boot.SpringShellProperties;
+import org.springframework.shell.context.InteractionMode;
+import org.springframework.shell.context.ShellContext;
 import org.springframework.shell.jline.PromptProvider;
-import org.springframework.shell.standard.ValueProvider;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 
-import static com.github.fonimus.ssh.shell.SshShellCommandFactory.SSH_THREAD_CONTEXT;
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_ENABLE;
 import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 
@@ -75,13 +64,12 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
 @ConditionalOnProperty(name = SSH_SHELL_ENABLE, havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties({SshShellProperties.class})
 @AutoConfigureAfter(value = {
-        SpringShellAutoConfiguration.class
+        SpringShellAutoConfiguration.class, LineReaderAutoConfiguration.class
 }, name = {
         "org.springframework.boot.actuate.autoconfigure.audit.AuditEventsEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.beans.BeansEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpointAutoConfiguration",
-        "org.springframework.boot.actuate.autoconfigure.context.properties" +
-                ".ConfigurationPropertiesReportEndpointAutoConfiguration",
+        "org.springframework.boot.actuate.autoconfigure.context.properties.ConfigurationPropertiesReportEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.context.ShutdownEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.endpoint.jmx.JmxEndpointAutoConfiguration",
@@ -103,70 +91,48 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
         "org.springframework.boot.actuate.autoconfigure.web.mappings.MappingsEndpointAutoConfiguration"
 })
 @ComponentScan(basePackages = {"com.github.fonimus.ssh.shell"})
+@AllArgsConstructor
 public class SshShellAutoConfiguration {
 
-    private static final String TERMINAL_DELEGATE = "terminalDelegate";
-
-    public ApplicationContext context;
-
-    private ConfigurableEnvironment environment;
-
-    private SshShellProperties properties;
-
-    public SshShellAutoConfiguration(ApplicationContext context, ConfigurableEnvironment environment,
-                                     SshShellProperties properties) {
-        this.context = context;
-        this.environment = environment;
-        this.properties = properties;
-    }
+    private final ApplicationContext context;
+    private final SshShellProperties properties;
+    private final SpringShellProperties springShellProperties;
+    private final ShellContext shellContext;
 
     /**
      * Initialize ssh shell auto config
      */
     @PostConstruct
     public void init() {
-        if (context.getEnvironment().getProperty("spring.main.lazy-initialization", Boolean.class, false)) {
+        // override some spring shell properties
+        springShellProperties.getHistory().setName(properties.getHistoryFile().getAbsolutePath());
+        // set interactive mode so that ThrowableResultHandler.showShortError() returns true
+        shellContext.setInteractionMode(InteractionMode.INTERACTIVE);
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "spring.main.lazy-initialization", havingValue = "true")
+    public ApplicationListener<ContextRefreshedEvent> lazyInitApplicationListener() {
+        return event -> {
             LOGGER.info("Lazy initialization enabled, calling configuration bean explicitly to start ssh server");
             context.getBean(SshShellConfiguration.SshServerLifecycle.class);
             // also need to get terminal to initialize thread context of main thread
             context.getBean(Terminal.class);
-        }
-        if (!properties.getPrompt().getLocal().isEnable()) {
-            InteractiveShellApplicationRunner.disable(environment);
-        }
-    }
-
-    @Bean
-    @Primary
-    public ExtendedShell sshShell(@Qualifier("main") ResultHandler<Object> resultHandler, List<PostProcessor<?,?>> postProcessors) {
-        return new ExtendedShell(new TypePostProcessorResultHandler(resultHandler, postProcessors), postProcessors);
-    }
-
-    @Bean
-    @Primary
-    public ExtendedCompleterAdapter sshCompleter(Shell shell) {
-        return new ExtendedCompleterAdapter(shell);
-    }
-
-    // value providers
-
-    @Bean
-    public ValueProvider extendedFileValueProvider() {
-        return new ExtendedFileValueProvider(properties.isExtendedFileProvider());
+        };
     }
 
     // post processors
 
     @Bean
     @ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")
-    public JsonPointerPostProcessor jsonPointerPostProcessor() {
-        return new JsonPointerPostProcessor();
+    public JsonPointerPostProcessor jsonPointerPostProcessor(ObjectMapper mapper) {
+        return new JsonPointerPostProcessor(mapper);
     }
 
     @Bean
     @ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")
-    public PrettyJsonPostProcessor prettyJsonPostProcessor() {
-        return new PrettyJsonPostProcessor();
+    public PrettyJsonPostProcessor prettyJsonPostProcessor(ObjectMapper mapper) {
+        return new PrettyJsonPostProcessor(mapper);
     }
 
     @Bean
@@ -205,23 +171,6 @@ public class SshShellAutoConfiguration {
     }
 
     /**
-     * Primary terminal which delegates with right session
-     *
-     * @param terminal   jline terminal
-     * @param lineReader jline line reader
-     * @return terminal
-     */
-    @Bean(TERMINAL_DELEGATE)
-    @Primary
-    public Terminal terminal(Terminal terminal, LineReader lineReader) {
-        if (properties.getPrompt().getLocal().isEnable()) {
-            // local prompt enable, add ssh context in main thread
-            SSH_THREAD_CONTEXT.set(new SshContext(null, terminal, lineReader, null));
-        }
-        return new SshShellTerminalDelegate(terminal);
-    }
-
-    /**
      * Primary prompt provider
      *
      * @return prompt provider
@@ -244,34 +193,5 @@ public class SshShellAutoConfiguration {
         return new SshShellListenerService(listeners);
     }
 
-    /**
-     * Primary shell application runner which answers true to {@link InteractiveShellApplicationRunner#isEnabled()}
-     *
-     * @param lineReader     line reader
-     * @param promptProvider prompt provider
-     * @param parser         parser
-     * @param shell          spring shell
-     * @param environment    spring environment
-     * @return shell application runner
-     */
-    @Bean
-    @Primary
-    public InteractiveShellApplicationRunner sshInteractiveShellApplicationRunner(LineReader lineReader,
-                                                                                  PromptProvider promptProvider,
-                                                                                  Parser parser, Shell shell,
-                                                                                  Environment environment) {
-        return new InteractiveShellApplicationRunner(lineReader, promptProvider, parser, shell, environment) {
-
-            @Override
-            public boolean isEnabled() {
-                return true;
-            }
-
-            @Override
-            public void run(ApplicationArguments args) {
-                // do nothing
-            }
-        };
-    }
 }
 

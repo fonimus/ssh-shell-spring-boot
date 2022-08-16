@@ -16,6 +16,7 @@
 
 package com.github.fonimus.ssh.shell.complete;
 
+import com.github.fonimus.ssh.shell.PromptColor;
 import com.github.fonimus.ssh.shell.SimpleTable;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
@@ -23,6 +24,7 @@ import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import com.github.fonimus.ssh.shell.interactive.Interactive;
 import com.github.fonimus.ssh.shell.interactive.KeyBinding;
 import com.github.fonimus.ssh.shell.providers.ExtendedFileValueProvider;
+import lombok.AllArgsConstructor;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.session.ServerSession;
 import org.jline.terminal.Size;
@@ -33,40 +35,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.core.MethodParameter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.shell.standard.*;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Demo command for example
  */
 @SshShellComponent("demo-command")
-public class DemoCommand extends AbstractHealthIndicator {
+@AllArgsConstructor
+public class CompleteCommands extends AbstractHealthIndicator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemoCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompleteCommands.class);
 
     private final SshShellHelper helper;
-
-    public DemoCommand(SshShellHelper helper) {
-        this.helper = helper;
-    }
 
     /**
      * Echo command
@@ -75,7 +65,11 @@ public class DemoCommand extends AbstractHealthIndicator {
      * @return message
      */
     @ShellMethod("Echo command")
-    public String echo(@ShellOption(valueProvider = CustomValuesProvider.class) String message) {
+    public String echo(String message, @ShellOption(defaultValue = ShellOption.NULL, valueProvider = EnumValueProvider.class) PromptColor color) {
+        if (color != null) {
+            return new AttributedStringBuilder().append(message,
+                    AttributedStyle.DEFAULT.foreground(color.toJlineAttributedStyle())).toAnsi();
+        }
         return message;
     }
 
@@ -109,8 +103,8 @@ public class DemoCommand extends AbstractHealthIndicator {
     @ShellMethod("File command")
     public void file(
             @ShellOption(defaultValue = ShellOption.NULL) File file,
-            @ShellOption(valueProvider = ExtendedFileValueProvider.class, defaultValue = ShellOption.NULL) File extended) {
-
+            @ShellOption(valueProvider = ExtendedFileValueProvider.class, defaultValue = ShellOption.NULL) File extended
+    ) {
         info(file);
         info(extended);
     }
@@ -227,6 +221,14 @@ public class DemoCommand extends AbstractHealthIndicator {
     }
 
     /**
+     * Sleep command
+     */
+    @ShellMethod("Sleep command")
+    public void sleep(long seconds) throws InterruptedException {
+        Thread.sleep(seconds * 1000);
+    }
+
+    /**
      * Displays ssh env information
      *
      * @return table with ssh env information
@@ -310,16 +312,14 @@ public class DemoCommand extends AbstractHealthIndicator {
 }
 
 @Component
-class CustomValuesProvider
-        extends ValueProviderSupport {
+class CustomValuesProvider implements ValueProvider {
 
     private final static String[] VALUES = new String[]{
             "message1", "message2", "message3"
     };
 
     @Override
-    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext,
-                                             String[] hints) {
+    public List<CompletionProposal> complete(CompletionContext completionContext) {
         return Arrays.stream(VALUES).map(CompletionProposal::new).collect(Collectors.toList());
     }
 }

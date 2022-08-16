@@ -29,32 +29,15 @@ import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.shell.Availability;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.table.ArrayTableModel;
-import org.springframework.shell.table.BorderStyle;
-import org.springframework.shell.table.SimpleHorizontalAligner;
-import org.springframework.shell.table.SimpleVerticalAligner;
-import org.springframework.shell.table.SizeConstraints;
-import org.springframework.shell.table.Table;
-import org.springframework.shell.table.TableBuilder;
-import org.springframework.shell.table.TableModel;
+import org.springframework.shell.standard.*;
+import org.springframework.shell.table.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.github.fonimus.ssh.shell.SshShellHelper.INTERACTIVE_LONG_MESSAGE;
-import static com.github.fonimus.ssh.shell.SshShellHelper.INTERACTIVE_SHORT_MESSAGE;
-import static com.github.fonimus.ssh.shell.SshShellHelper.at;
+import static com.github.fonimus.ssh.shell.SshShellHelper.*;
 
 /**
  * Jvm command
@@ -82,7 +65,7 @@ public class SystemCommand extends AbstractCommand {
 
     @ShellMethod(key = COMMAND_SYSTEM_ENV, value = "List system environment.")
     @ShellMethodAvailability("jvmEnvAvailability")
-    public Object jvmEnv(boolean simpleView) {
+    public Object jvmEnv(@ShellOption(help = "Simple view", defaultValue = "false") boolean simpleView) {
         if (simpleView) {
             return buildSimple(System.getenv());
         }
@@ -91,7 +74,7 @@ public class SystemCommand extends AbstractCommand {
 
     @ShellMethod(key = COMMAND_SYSTEM_PROPERTIES, value = "List system properties.")
     @ShellMethodAvailability("jvmPropertiesAvailability")
-    public Object jvmProperties(boolean simpleView) {
+    public Object jvmProperties(@ShellOption(help = "Simple view", defaultValue = "false") boolean simpleView) {
         Map<String, String> map =
                 System.getProperties().entrySet().stream().filter(e -> e.getKey() != null)
                         .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue() != null ?
@@ -138,7 +121,7 @@ public class SystemCommand extends AbstractCommand {
             tableBuilder.on(at(i, 0)).addAligner(SimpleHorizontalAligner.center);
             tableBuilder.on(at(i, 0)).addAligner(SimpleVerticalAligner.middle);
             if (e.getKey().toLowerCase().contains("path") || e.getKey().toLowerCase().contains("dirs")) {
-                tableBuilder.on(at(i, 1)).addSizer((raw, tableWidth, nbColumns) -> extent(raw, SPLIT_REGEX));
+                tableBuilder.on(at(i, 1)).addSizer((raw, tableWidth, nbColumns) -> extent(raw));
                 tableBuilder.on(at(i, 1)).addFormatter(value -> value == null ? new String[]{""}
                         : value.toString().split(SPLIT_REGEX));
             }
@@ -147,11 +130,11 @@ public class SystemCommand extends AbstractCommand {
         return tableBuilder.addFullBorder(BorderStyle.fancy_double).build();
     }
 
-    private static SizeConstraints.Extent extent(String[] raw, String regex) {
+    private static SizeConstraints.Extent extent(String[] raw) {
         int max = 0;
         int min = 0;
         for (String line : raw) {
-            String[] words = line.split(regex);
+            String[] words = line.split(SPLIT_REGEX);
             for (String word : words) {
                 min = Math.max(min, word.length());
             }
@@ -162,13 +145,13 @@ public class SystemCommand extends AbstractCommand {
 
     @ShellMethod(key = COMMAND_SYSTEM_THREADS, value = "List jvm threads.")
     @ShellMethodAvailability("threadsAvailability")
-    public String threads(@ShellOption(defaultValue = "LIST") ThreadAction action,
-                          @ShellOption(help = "Order by column. Default is: ID", defaultValue = "ID") ThreadColumn orderBy,
-                          @ShellOption(help = "Reverse order by column. Default is: false") boolean reverseOrder,
-                          @ShellOption(help = "Not interactive. Default is: false") boolean staticDisplay,
+    public String threads(@ShellOption(help = "'list' or 'dump' threads. Default is: list", defaultValue = "list", valueProvider = EnumValueProvider.class) ThreadAction action,
+                          @ShellOption(help = "Order by column. Default is: id", defaultValue = "id", valueProvider = EnumValueProvider.class) ThreadColumn orderBy,
+                          @ShellOption(help = "Reverse order by column. Default is: false", defaultValue = "false") boolean reverseOrder,
+                          @ShellOption(help = "Not interactive. Default is: false", defaultValue = "false") boolean staticDisplay,
                           @ShellOption(help = "Only for DUMP action", defaultValue = ShellOption.NULL) Long threadId) {
 
-        if (action == ThreadAction.DUMP) {
+        if (action == ThreadAction.dump) {
             Thread th = get(threadId);
             helper.print("Name  : " + th.getName());
             helper.print("State : " + helper.getColored(th.getState().name(), color(th.getState())) + "\n");
@@ -187,7 +170,7 @@ public class SystemCommand extends AbstractCommand {
 
         Interactive.InteractiveBuilder builder = Interactive.builder();
         for (ThreadColumn value : ThreadColumn.values()) {
-            String key = value == ThreadColumn.INTERRUPTED ? "t" : value.name().toLowerCase().substring(0, 1);
+            String key = value == ThreadColumn.interrupted ? "t" : value.name().toLowerCase().substring(0, 1);
             builder.binding(KeyBinding.builder().description("ORDER_" + value.name()).key(key)
                     .input(() -> {
                         if (value == finalOrderBy[0]) {
@@ -240,19 +223,19 @@ public class SystemCommand extends AbstractCommand {
         Comparator<? super Thread> c;
         switch (orderBy) {
 
-            case PRIORITY:
+            case priority:
                 c = Comparator.comparingDouble(Thread::getPriority);
                 break;
-            case STATE:
+            case state:
                 c = Comparator.comparing(e -> e.getState().name());
                 break;
-            case INTERRUPTED:
+            case interrupted:
                 c = Comparator.comparing(Thread::isAlive);
                 break;
-            case DAEMON:
+            case daemon:
                 c = Comparator.comparing(Thread::isDaemon);
                 break;
-            case NAME:
+            case name:
                 c = Comparator.comparing(Thread::getName);
                 break;
             default:
@@ -356,11 +339,11 @@ public class SystemCommand extends AbstractCommand {
     }
 
     enum ThreadColumn {
-        ID, PRIORITY, STATE, INTERRUPTED, DAEMON, NAME
+        id, priority, state, interrupted, daemon, name
     }
 
     enum ThreadAction {
-        LIST, DUMP
+        list, dump
     }
 
     private Availability jvmEnvAvailability() {

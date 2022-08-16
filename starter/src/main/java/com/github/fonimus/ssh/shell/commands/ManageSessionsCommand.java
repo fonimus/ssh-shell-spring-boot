@@ -80,7 +80,7 @@ public class ManageSessionsCommand extends AbstractCommand {
 
     @ShellMethod(key = COMMAND_MANAGE_SESSIONS_INFO, value = "Displays session")
     @ShellMethodAvailability("manageSessionsInfoAvailability")
-    public String manageSessionsInfo(@ShellOption(value = {"-i", "--session-id"}) long sessionId) {
+    public String manageSessionsInfo(@ShellOption(help = "Session identifier") long sessionId) {
         ChannelSession session = sessionManager.getSession(sessionId);
         if (session == null) {
             return helper.getError("Session [" + sessionId + "] not found");
@@ -90,7 +90,7 @@ public class ManageSessionsCommand extends AbstractCommand {
 
     @ShellMethod(key = COMMAND_MANAGE_SESSIONS_STOP, value = "Stop session")
     @ShellMethodAvailability("manageSessionsStopAvailability")
-    public String manageSessionsStop(@ShellOption(value = {"-i", "--session-id"}) long sessionId) {
+    public String manageSessionsStop(@ShellOption(help = "Session identifier") long sessionId) {
         return sessionManager.stopSession(sessionId) ?
                 helper.getSuccess("Session [" + sessionId + "] stopped") :
                 helper.getWarning("Unable to stop session [" + sessionId + "], maybe it does not exist");

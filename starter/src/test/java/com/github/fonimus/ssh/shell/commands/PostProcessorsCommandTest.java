@@ -16,6 +16,7 @@
 
 package com.github.fonimus.ssh.shell.commands;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.postprocess.provided.GrepPostProcessor;
@@ -31,9 +32,9 @@ class PostProcessorsCommandTest {
     @Test
     void postprocessors() {
         GrepPostProcessor grep = new GrepPostProcessor();
-        JsonPointerPostProcessor json = new JsonPointerPostProcessor();
-        String result =
-                new PostProcessorsCommand(new SshShellHelper(), new SshShellProperties(), Arrays.asList(grep, json)).postprocessors().toString();
+        JsonPointerPostProcessor json = new JsonPointerPostProcessor(new ObjectMapper());
+        String result = new PostProcessorsCommand(new SshShellHelper(null),
+                new SshShellProperties(), Arrays.asList(grep, json)).postprocessors().toString();
 
         assertTrue(result.startsWith("Available Post-Processors"));
         assertTrue(result.contains(grep.getName()));

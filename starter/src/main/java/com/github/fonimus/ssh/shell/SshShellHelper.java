@@ -17,12 +17,7 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.auth.SshAuthentication;
-import com.github.fonimus.ssh.shell.interactive.Interactive;
-import com.github.fonimus.ssh.shell.interactive.InteractiveInput;
-import com.github.fonimus.ssh.shell.interactive.InteractiveInputIO;
-import com.github.fonimus.ssh.shell.interactive.KeyBinding;
-import com.github.fonimus.ssh.shell.interactive.KeyBindingInput;
-import com.github.fonimus.ssh.shell.interactive.StoppableInteractiveInput;
+import com.github.fonimus.ssh.shell.interactive.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.Environment;
@@ -36,30 +31,13 @@ import org.jline.terminal.Attributes;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.impl.AbstractPosixTerminal;
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
-import org.jline.utils.Display;
-import org.jline.utils.InfoCmp;
-import org.jline.utils.NonBlockingReader;
-import org.springframework.shell.table.Aligner;
-import org.springframework.shell.table.ArrayTableModel;
-import org.springframework.shell.table.CellMatcher;
-import org.springframework.shell.table.SimpleHorizontalAligner;
-import org.springframework.shell.table.SimpleVerticalAligner;
-import org.springframework.shell.table.Table;
-import org.springframework.shell.table.TableBuilder;
-import org.springframework.shell.table.TableModel;
+import org.jline.utils.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.shell.table.*;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Ssh shell helper for user interactions and authorities check
@@ -81,11 +59,18 @@ public class SshShellHelper {
     );
 
     private final List<String> confirmWords;
+    @Autowired
+    @Lazy
+    private Terminal defaultTerminal;
+    @Autowired
+    @Lazy
+    private LineReader defaultLineReader;
 
-    public SshShellHelper() {
-        this(null);
-    }
-
+    /**
+     * Constructor with confirmation words
+     *
+     * @param confirmWords confirmation words
+     */
     public SshShellHelper(List<String> confirmWords) {
         this.confirmWords = confirmWords != null ? confirmWords : DEFAULT_CONFIRM_WORDS;
     }
@@ -691,33 +676,6 @@ public class SshShellHelper {
         }
     }
 
-    // Old interactive for compatibility
-
-    @Deprecated
-    public void interactive(InteractiveInput input) {
-        interactive(input, true);
-    }
-
-    @Deprecated
-    public void interactive(InteractiveInput input, long delay) {
-        interactive(input, delay, true);
-    }
-
-    @Deprecated
-    public void interactive(InteractiveInput input, boolean fullScreen) {
-        interactive(input, 1000, fullScreen);
-    }
-
-    @Deprecated
-    public void interactive(InteractiveInput input, long delay, boolean fullScreen) {
-        interactive(input, delay, fullScreen, null);
-    }
-
-    @Deprecated
-    public void interactive(InteractiveInput input, long delay, boolean fullScreen, Size size) {
-        interactive(Interactive.builder().input(input).refreshDelay(delay).fullScreen(fullScreen).size(size).build());
-    }
-
     private DisplayResult display(InteractiveInput input, Display display, Size size, long currentDelay) {
         display.resize(size.getRows(), size.getColumns());
         DisplayResult result = new DisplayResult();
@@ -742,26 +700,37 @@ public class SshShellHelper {
     }
 
     private Terminal terminal() {
-        SshContext sshContext = SshShellCommandFactory.SSH_THREAD_CONTEXT.get();
-        if (sshContext == null) {
-            throw new IllegalStateException("Unable to find ssh context");
+        if (isLocalPrompt()) {
+            // local prompt
+            return defaultTerminal;
         }
-        return sshContext.getTerminal();
+        return SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getTerminal();
     }
 
     private LineReader reader() {
-        SshContext sshContext = SshShellCommandFactory.SSH_THREAD_CONTEXT.get();
-        if (sshContext == null) {
-            throw new IllegalStateException("Unable to find ssh context");
+        if (isLocalPrompt()) {
+            // local prompt
+            return defaultLineReader;
         }
-        return sshContext.getLineReader();
+        return SshShellCommandFactory.SSH_THREAD_CONTEXT.get().getLineReader();
     }
 
+    /**
+     * Display result POJO
+     */
     @Data
     public static class DisplayResult {
 
         private int lines;
 
         private boolean stop;
+    }
+
+    public void setDefaultTerminal(Terminal defaultTerminal) {
+        this.defaultTerminal = defaultTerminal;
+    }
+
+    public void setDefaultLineReader(LineReader defaultLineReader) {
+        this.defaultLineReader = defaultLineReader;
     }
 }
