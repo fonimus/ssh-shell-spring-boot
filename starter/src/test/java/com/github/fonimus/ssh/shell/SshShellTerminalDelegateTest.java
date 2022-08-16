@@ -175,4 +175,45 @@ public class SshShellTerminalDelegateTest {
         del.close();
     }
 
+    @Test
+    public void canPauseResume() {
+        del.canPauseResume();
+    }
+
+    @Test
+    public void pause() throws InterruptedException {
+        del.pause();
+        del.pause(true);
+    }
+
+    @Test
+    public void resume() {
+        del.resume();
+    }
+
+    @Test
+    public void paused() {
+        del.paused();
+    }
+
+
+    @Test
+    public void hasFocusSupport() {
+        del.hasFocusSupport();
+    }
+
+    @Test
+    public void trackFocus() {
+        del.trackFocus(true);
+    }
+
+    @Test
+    public void getPalette() {
+        del.getPalette();
+    }
+
+    @Test
+    public void encoding() {
+        del.encoding();
+    }
 }

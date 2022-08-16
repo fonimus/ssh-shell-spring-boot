@@ -59,7 +59,9 @@ public class HistoryCommand extends AbstractCommand implements History.Command {
             @ShellOption(help = "To display standard spring shell way (array.tostring). Default value: false", defaultValue = "false") boolean displayArray
     ) throws IOException {
         List<String> result = new History(helper.getHistory()).history(file);
-        if (displayArray) {
+        if (file != null && result.size() == 1) {
+            return result.get(0);
+        } else if (displayArray) {
             return result;
         }
         StringBuilder sb = new StringBuilder();
