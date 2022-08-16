@@ -19,7 +19,6 @@ package com.github.fonimus.ssh.shell.basic;
 import com.github.fonimus.ssh.shell.PromptColor;
 import com.github.fonimus.ssh.shell.SimpleTable;
 import com.github.fonimus.ssh.shell.SshShellHelper;
-import com.github.fonimus.ssh.shell.auth.SshAuthentication;
 import com.github.fonimus.ssh.shell.commands.SshShellComponent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -108,16 +107,6 @@ public class BasicCommands {
     @ShellMethod("Terminal size command")
     public Size size() {
         return helper.terminalSize();
-    }
-
-    /**
-     * Authentication example command
-     *
-     * @return principal
-     */
-    @ShellMethod("Authentication command")
-    public SshAuthentication authentication() {
-        return helper.getAuthentication();
     }
 
     /**

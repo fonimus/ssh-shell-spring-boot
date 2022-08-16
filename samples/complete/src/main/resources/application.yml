@@ -6,14 +6,13 @@ spring:
   second-datasource:
     url: jdbc:h2:mem:testdb2
   shell.interactive.enabled: false
-  main.lazy-initialization: true
+  main.lazy-initialization: false
 
 ssh:
   shell:
     authentication: security
     auth-provider-bean-name: customAuthManager
     authorized-public-keys: classpath:.ssh/authorized.keys
-    extended-file-provider: false
     commands:
       actuator:
         excludes:

@@ -47,6 +47,7 @@ import org.springframework.shell.boot.SpringShellProperties;
 import org.springframework.shell.context.InteractionMode;
 import org.springframework.shell.context.ShellContext;
 import org.springframework.shell.jline.PromptProvider;
+import org.springframework.shell.standard.ValueProvider;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -114,10 +115,10 @@ public class SshShellAutoConfiguration {
     @ConditionalOnProperty(value = "spring.main.lazy-initialization", havingValue = "true")
     public ApplicationListener<ContextRefreshedEvent> lazyInitApplicationListener() {
         return event -> {
-            LOGGER.info("Lazy initialization enabled, calling configuration bean explicitly to start ssh server");
+            LOGGER.info("Lazy initialization enabled, calling configuration beans explicitly to start ssh server and initialize shell correctly");
             context.getBean(SshShellConfiguration.SshServerLifecycle.class);
-            // also need to get terminal to initialize thread context of main thread
-            context.getBean(Terminal.class);
+            context.getBeansOfType(Terminal.class);
+            context.getBeansOfType(ValueProvider.class);
         };
     }
 

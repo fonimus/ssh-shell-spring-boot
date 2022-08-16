@@ -170,18 +170,24 @@ public class ExtendedShell extends Shell {
             CompletionContext argsContext = context.commandRegistration(registration);
 
             final List<String> words = context.getWords().stream().filter(StringUtils::hasText).collect(Collectors.toList());
-            String lastWord = words.isEmpty() ? null : words.get(words.size() - 1);
+            String lastNotEmptyWord = words.isEmpty() ? null : words.get(words.size() - 1);
 
             List<CommandOption> matchedArgOptions = new ArrayList<>();
-            if (lastWord != null) {
+            if (lastNotEmptyWord != null) {
                 // last word used instead of first to check if matching args
-                matchedArgOptions.addAll(duplicatedMatchOptions(registration.getOptions(), lastWord));
+                matchedArgOptions.addAll(duplicatedMatchOptions(registration.getOptions(), lastNotEmptyWord));
             }
             if (matchedArgOptions.isEmpty()) {
                 // only add command options if last word did not match option
                 for (CompletionResolver resolver : completionResolvers) {
                     List<CompletionProposal> resolved = resolver.apply(argsContext);
                     candidates.addAll(resolved.stream().filter(cp -> !words.contains(cp.value())).collect(Collectors.toList()));
+                }
+                // try to check if previous word before last word is an option and last word is not empty
+                String lastOption = words.isEmpty() || words.size() < 2 ? null : words.get(words.size() - 2);
+                String lastWord = context.getWords().isEmpty() ? null : context.getWords().get(context.getWords().size() - 1);
+                if (lastOption != null && StringUtils.hasText(lastWord)) {
+                    matchedArgOptions.addAll(duplicatedMatchOptions(registration.getOptions(), lastOption));
                 }
             }
 
