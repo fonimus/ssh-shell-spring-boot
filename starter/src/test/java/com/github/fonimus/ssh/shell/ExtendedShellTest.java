@@ -141,7 +141,9 @@ class ExtendedShellTest {
                 // used complete adapter
                 Arguments.of("cmd --ac ", Arrays.asList("cp1", "cp2")),
                 // propose only not used options
-                Arguments.of("cmd --ac cp1 ", Collections.singletonList("--ab"))
+                Arguments.of("cmd --ac cp1 ", Collections.singletonList("--ab")),
+                // after pipe, complete with post processors
+                Arguments.of("cmd --ac cp1 --ab test | ", Collections.singletonList("grep"))
         );
     }
 

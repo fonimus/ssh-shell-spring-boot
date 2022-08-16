@@ -20,18 +20,22 @@ import com.github.fonimus.ssh.shell.SimpleTable;
 import com.github.fonimus.ssh.shell.SshShellHelper;
 import com.github.fonimus.ssh.shell.SshShellProperties;
 import com.github.fonimus.ssh.shell.manage.SshShellSessionManager;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.session.ServerSession;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.shell.Availability;
-import org.springframework.shell.standard.ShellCommandGroup;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.CompletionContext;
+import org.springframework.shell.CompletionProposal;
+import org.springframework.shell.standard.*;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.github.fonimus.ssh.shell.manage.SshShellSessionManager.sessionUserName;
 
@@ -80,7 +84,7 @@ public class ManageSessionsCommand extends AbstractCommand {
 
     @ShellMethod(key = COMMAND_MANAGE_SESSIONS_INFO, value = "Displays session")
     @ShellMethodAvailability("manageSessionsInfoAvailability")
-    public String manageSessionsInfo(@ShellOption(help = "Session identifier") long sessionId) {
+    public String manageSessionsInfo(@ShellOption(help = "Session identifier", valueProvider = SessionsValuesProvider.class) long sessionId) {
         ChannelSession session = sessionManager.getSession(sessionId);
         if (session == null) {
             return helper.getError("Session [" + sessionId + "] not found");
@@ -90,7 +94,7 @@ public class ManageSessionsCommand extends AbstractCommand {
 
     @ShellMethod(key = COMMAND_MANAGE_SESSIONS_STOP, value = "Stop session")
     @ShellMethodAvailability("manageSessionsStopAvailability")
-    public String manageSessionsStop(@ShellOption(help = "Session identifier") long sessionId) {
+    public String manageSessionsStop(@ShellOption(help = "Session identifier", valueProvider = SessionsValuesProvider.class) long sessionId) {
         return sessionManager.stopSession(sessionId) ?
                 helper.getSuccess("Session [" + sessionId + "] stopped") :
                 helper.getWarning("Unable to stop session [" + sessionId + "], maybe it does not exist");
@@ -117,5 +121,20 @@ public class ManageSessionsCommand extends AbstractCommand {
 
     private Availability manageSessionsStopAvailability() {
         return availability(GROUP, COMMAND_MANAGE_SESSIONS_STOP);
+    }
+}
+
+@Slf4j
+@Component
+@AllArgsConstructor
+class SessionsValuesProvider
+        implements ValueProvider {
+
+    @Lazy
+    private final SshShellSessionManager sessionManager;
+
+    @Override
+    public List<CompletionProposal> complete(CompletionContext completionContext) {
+        return sessionManager.listSessions().keySet().stream().map(id -> new CompletionProposal(id.toString())).collect(Collectors.toList());
     }
 }
