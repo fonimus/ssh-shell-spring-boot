@@ -1,3 +1,5 @@
+spring.shell.interactive.enabled: false
+
 ssh:
   shell:
     prompt:
