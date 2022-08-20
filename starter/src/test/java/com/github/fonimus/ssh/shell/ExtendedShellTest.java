@@ -136,10 +136,10 @@ class ExtendedShellTest {
                 Arguments.of("cmd --a", Arrays.asList("--ab", "--ac")),
                 Arguments.of("cmd ab", Arrays.asList("--ab", "--ac")),
                 Arguments.of("cmd ac", Arrays.asList("--ab", "--ac")),
-                // nothing to complete for ab option
-                Arguments.of("cmd --ab ", Collections.emptyList()),
+                // nothing to complete for ab option -> giving others options
+                Arguments.of("cmd --ab ", Collections.singletonList("--ac")),
                 // used complete adapter
-                Arguments.of("cmd --ac ", Arrays.asList("cp1", "cp2")),
+                Arguments.of("cmd --ac ", Arrays.asList("--ab", "cp1", "cp2")),
                 // propose only not used options
                 Arguments.of("cmd --ac cp1 ", Collections.singletonList("--ab")),
                 // after pipe, complete with post processors
