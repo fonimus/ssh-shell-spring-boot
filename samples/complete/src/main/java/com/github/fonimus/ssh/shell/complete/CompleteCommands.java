@@ -198,7 +198,7 @@ public class CompleteCommands extends AbstractHealthIndicator {
      */
     @ShellMethod("File command")
     public void file(
-            @ShellOption(defaultValue = ShellOption.NULL) File file,
+            @ShellOption(valueProvider = FileValueProvider.class, defaultValue = ShellOption.NULL) File file,
             @ShellOption(valueProvider = ExtendedFileValueProvider.class, defaultValue = ShellOption.NULL) File extended
     ) {
         info(file);

@@ -151,9 +151,6 @@ ssh:
         authorized-roles:
           - ADMIN
     display-banner: true
-    # to use ExtendedFileValueProviderTest instead of spring shell FileValueProvider for all File option parameters
-    # if set to false, it still can be used via '@ShellOption(valueProvider = ExtendedFileValueProviderTest.class) File file'
-    extended-file-provider: true
     history-file: <java.io.tmpdir>/sshShellHistory.log
     # since 1.3.0, set to false to have one file per user (<history-directory>/sshShellHistory-<user>.log)
     shared-history: true
@@ -310,8 +307,8 @@ It also provides a ``setTaskScheduler()`` in case you want to specify custom one
 | ts1**, **                                                                     |                                               |
 | ts2** in context                                                              | Local single-threaded (could not find name ** |
 | taskScheduler**)                                                              |                                               |
-| Multiple ``TaskScheduler`` beans named **
-taskScheduler**, **                  |                                               |
+| Multiple ``TaskScheduler`` beans named **                                     |                                               |
+| taskScheduler**, **                                                           |                                               |
 | ts2**, **                                                                     |                                               |
 | ts3** in context                                                              | **                                            |
 | taskScheduler** bean                                                          |                                               |
@@ -798,6 +795,11 @@ public class ApplicationTest {
 
 ## Release notes
 
+### 2.0.1
+
+* Bump spring-boot from 2.7.2 to 2.7.3
+* Bump spring shell from 2.1.0 to 2.1.1
+
 ### 2.0.0
 
 * Bump spring-boot from 2.5.6 to 2.7.2
@@ -951,9 +953,8 @@ autoconfiguration will still create its own built in commands that you can deact
 ### 1.2.0
 
 * Bump to spring boot 2.2.0.RELEASE
-  * Audit and Http Trace actuator commands will be disabled by default, because endpoint will be by spring boot by
-    default
-    (
+  * `Audit` and `Http Trace` actuator commands will be disabled by default, because endpoint will be by spring boot by
+    default (
     check [spring boot migration 2.2](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.2-Release-Notes#actuator-http-trace-and-auditing-are-disabled-by-default)
     for more info)
 * Fix hanging terminal when unexpected runtime exception occurs
@@ -971,7 +972,7 @@ autoconfiguration will still create its own built in commands that you can deact
 
 ### 1.1.4
 
-* [AnyOsFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/ExtendedFileValueProvider.java)
+* [ExtendedFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/ExtendedFileValueProvider.java)
   replaces `FileValueProvider` (spring shell default) by default
   * Support Windows OS in addition to Unix
   * Can be deactivated by `ssh.shell.any-os-file-provider`
