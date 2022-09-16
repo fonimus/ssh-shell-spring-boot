@@ -30,10 +30,13 @@ or [2.1.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.1.
 ```xml
 
 <dependency>
-    <groupId>com.github.fonimus</groupId>
-    <artifactId>ssh-shell-spring-boot-starter</artifactId>
+  <groupId>com.github.fonimus</groupId>
+  <artifactId>ssh-shell-spring-boot-starter</artifactId>
 </dependency>
 ```
+
+_Warning :_ since version 2.0.0 (spring shell 2.1.0) interactive shell is enabled by default.
+You can set property `spring.shell.interactive.enabled=false` to disable it.
 
 > **Note:** auto configuration `SshShellAutoConfiguration` (active by default) can be deactivated by property
 > **ssh.shell.enable=false**.
@@ -794,6 +797,11 @@ public class ApplicationTest {
 * [Complete sample](./samples/complete), actuator, security dependencies and configurations
 
 ## Release notes
+
+### 2.0.2
+
+* Bump sshd-core from 2.9.0 to 2.9.1
+  * it should fix problem with java 8 no such method error
 
 ### 2.0.1
 
