@@ -435,17 +435,16 @@ To enable auto completion for a parameter, declare a **valueProvider** class.
         ...
 
 @Component
-class CustomValuesProvider
-        extends ValueProviderSupport {
+class CustomValuesProvider implements ValueProvider {
 
-    private final static String[] VALUES = new String[]{
-            "message1", "message2", "message3"
-    };
+  private final static String[] VALUES = new String[]{
+          "message1", "message2", "message3"
+  };
 
-    @Override
-    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext, String[] hints) {
-        return Arrays.stream(VALUES).map(CompletionProposal::new).collect(Collectors.toList());
-    }
+  @Override
+  public List<CompletionProposal> complete(CompletionContext completionContext) {
+    return Arrays.stream(VALUES).map(CompletionProposal::new).collect(Collectors.toList());
+  }
 }
 ````
 
