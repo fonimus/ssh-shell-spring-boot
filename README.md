@@ -1,5 +1,7 @@
 # Spring Boot Ssh Shell
 
+TEST
+
 [![Build Status](https://github.com/fonimus/ssh-shell-spring-boot/actions/workflows/build.yml/badge.svg)](https://github.com/fonimus/ssh-shell-spring-boot/actions/workflows/build.yml)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fonimus_ssh-shell-spring-boot&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=fonimus_ssh-shell-spring-boot)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fonimus_ssh-shell-spring-boot&metric=coverage)](https://sonarcloud.io/dashboard?id=fonimus_ssh-shell-spring-boot)
