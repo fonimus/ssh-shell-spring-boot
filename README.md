@@ -6,6 +6,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.fonimus/ssh-shell-spring-boot-starter.svg?label=maven%20central)](https://search.maven.org/search?q=g:%22com.github.fonimus%22%20AND%20a:%22ssh-shell-spring-boot-starter%22)
 
 > Spring shell in spring boot application over ssh
+> Test
 
 For more information please visit `spring shell` [website](https://projects.spring.io/spring-shell/)
 or [2.1.1 reference documentation](https://docs.spring.io/spring-shell/docs/2.1.1/site/reference/htmlsingle/).
