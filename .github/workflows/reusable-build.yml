@@ -39,7 +39,7 @@ jobs:
 
       - name: Cache sonar packages
         if: ${{ inputs.sonar_analysis == true }}
-        uses: actions/cache@v3.2.1
+        uses: actions/cache@v3.2.2
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
