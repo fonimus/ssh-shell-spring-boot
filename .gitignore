@@ -11,3 +11,9 @@ samples/public-keys-sample
 
 # mac os
 .DS_Store
+
+# elcipse
+.project
+.settings
+.classpath
+.factorypath

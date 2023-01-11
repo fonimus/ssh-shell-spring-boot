@@ -37,7 +37,7 @@ import org.springframework.boot.actuate.management.ThreadDumpEndpoint;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.boot.actuate.scheduling.ScheduledTasksEndpoint;
 import org.springframework.boot.actuate.session.SessionsEndpoint;
-import org.springframework.boot.actuate.trace.http.HttpTraceEndpoint;
+import org.springframework.boot.actuate.web.exchanges.HttpExchangesEndpoint;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -85,7 +85,7 @@ public class ActuatorCommand extends AbstractCommand {
 
     private final HealthEndpoint health;
 
-    private final HttpTraceEndpoint httptrace;
+    private final HttpExchangesEndpoint httpExchanges;
 
     private final InfoEndpoint info;
 
@@ -109,7 +109,7 @@ public class ActuatorCommand extends AbstractCommand {
                            @Lazy ConfigurationPropertiesReportEndpoint configprops,
                            @Lazy EnvironmentEndpoint env,
                            @Lazy HealthEndpoint health,
-                           @Lazy HttpTraceEndpoint httptrace,
+                           @Lazy HttpExchangesEndpoint httpExchanges,
                            @Lazy InfoEndpoint info,
                            @Lazy LoggersEndpoint loggers,
                            @Lazy MetricsEndpoint metrics,
@@ -126,7 +126,7 @@ public class ActuatorCommand extends AbstractCommand {
         this.configprops = configprops;
         this.env = env;
         this.health = health;
-        this.httptrace = httptrace;
+        this.httpExchanges = httpExchanges;
         this.info = info;
         this.loggers = loggers;
         this.metrics = metrics;
@@ -166,7 +166,7 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "beans", value = "Display beans endpoint.")
     @ShellMethodAvailability("beansAvailability")
-    public BeansEndpoint.ApplicationBeans beans() {
+    public BeansEndpoint.BeansDescriptor beans() {
         return beans.beans();
     }
 
@@ -184,8 +184,8 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "conditions", value = "Display conditions endpoint.")
     @ShellMethodAvailability("conditionsAvailability")
-    public ConditionsReportEndpoint.ApplicationConditionEvaluation conditions() {
-        return conditions.applicationConditionEvaluation();
+    public ConditionsReportEndpoint.ConditionsDescriptor conditions() {
+        return conditions.conditions();
     }
 
     /**
@@ -202,7 +202,7 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "configprops", value = "Display configprops endpoint.")
     @ShellMethodAvailability("configpropsAvailability")
-    public ConfigurationPropertiesReportEndpoint.ApplicationConfigurationProperties configprops() {
+    public ConfigurationPropertiesReportEndpoint.ConfigurationPropertiesDescriptor configprops() {
         return configprops.configurationProperties();
     }
 
@@ -272,21 +272,21 @@ public class ActuatorCommand extends AbstractCommand {
     }
 
     /**
-     * Http traces method
+     * Http exchanges method
      *
-     * @return httptrace
+     * @return httpExchanges
      */
-    @ShellMethod(key = "httptrace", value = "Display httptrace endpoint.")
-    @ShellMethodAvailability("httptraceAvailability")
-    public HttpTraceEndpoint.HttpTraceDescriptor httptrace() {
-        return httptrace.traces();
+    @ShellMethod(key = "httpExchanges", value = "Display httpExchanges endpoint.")
+    @ShellMethodAvailability("httpExchangesAvailability")
+    public HttpExchangesEndpoint.HttpExchangesDescriptor httpExchanges() {
+        return httpExchanges.httpExchanges();
     }
 
     /**
-     * @return whether `httptrace` command is available
+     * @return whether `httpExchanges` command is available
      */
-    public Availability httptraceAvailability() {
-        return availability("httptrace", HttpTraceEndpoint.class);
+    public Availability httpExchangesAvailability() {
+        return availability("httpExchanges", HttpExchangesEndpoint.class);
     }
 
     /**
@@ -326,7 +326,7 @@ public class ActuatorCommand extends AbstractCommand {
         }
         switch (action) {
             case get:
-                LoggersEndpoint.LoggerLevels levels = loggers.loggerLevels(loggerName);
+                LoggersEndpoint.LoggerLevelsDescriptor levels = loggers.loggerLevels(loggerName);
                 return "Logger named [" + loggerName + "] : [configured: " + levels.getConfiguredLevel() + "]";
             case conf:
                 if (loggerLevel == null) {
@@ -361,7 +361,7 @@ public class ActuatorCommand extends AbstractCommand {
             @ShellOption(help = "Tags (key=value, separated by coma)", defaultValue = ShellOption.NULL) String tags
     ) {
         if (name != null) {
-            MetricsEndpoint.MetricResponse result = metrics.metric(name, tags != null ? Arrays.asList(tags.split(",")
+            MetricsEndpoint.MetricDescriptor result = metrics.metric(name, tags != null ? Arrays.asList(tags.split(",")
             ) : null);
             if (result == null) {
                 String tagsStr = tags != null ? " and tags: " + tags : "";
@@ -386,7 +386,7 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "mappings", value = "Display mappings endpoint.")
     @ShellMethodAvailability("mappingsAvailability")
-    public MappingsEndpoint.ApplicationMappings mappings() {
+    public MappingsEndpoint.ApplicationMappingsDescriptor mappings() {
         return mappings.mappings();
     }
 
@@ -404,7 +404,7 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "sessions", value = "Display sessions endpoint.")
     @ShellMethodAvailability("sessionsAvailability")
-    public SessionsEndpoint.SessionsReport sessions() {
+    public SessionsEndpoint.SessionsDescriptor sessions() {
         return applicationContext.getBean(SessionsEndpoint.class).sessionsForUsername(null);
     }
 
@@ -422,7 +422,7 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "scheduledtasks", value = "Display scheduledtasks endpoint.")
     @ShellMethodAvailability("scheduledtasksAvailability")
-    public ScheduledTasksEndpoint.ScheduledTasksReport scheduledtasks() {
+    public ScheduledTasksEndpoint.ScheduledTasksDescriptor scheduledtasks() {
         return scheduledtasks.scheduledTasks();
     }
 

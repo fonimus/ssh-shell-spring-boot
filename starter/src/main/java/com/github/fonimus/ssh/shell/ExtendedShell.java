@@ -107,7 +107,7 @@ public class ExtendedShell extends Shell {
     }
 
     @Override
-    public Object evaluate(Input input) {
+    protected Object evaluate(Input input) {
         List<String> words = input.words();
         Object toReturn = super.evaluate(new ExtendedInput(input));
         SshContext ctx = SSH_THREAD_CONTEXT.get();

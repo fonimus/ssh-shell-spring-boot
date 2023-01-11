@@ -20,33 +20,28 @@ import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointR
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SshShellSecurityConfigurationTest
-        extends WebSecurityConfigurerAdapter {
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .requestMatchers(EndpointRequest.to("info")).permitAll()
-                .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR");
-    }
+@EnableMethodSecurity(prePostEnabled = true)
+@EnableJdbcHttpSession
+public class SshShellSecurityConfigurationTest {
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManager() throws Exception {
-        return super.authenticationManager();
+	public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
+	    http.authorizeHttpRequests()
+                .requestMatchers(EndpointRequest.to("info")).permitAll()
+                .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
+	            .and().authenticationManager(authManager);
+	    return http.build();
     }
 
     @Bean
@@ -55,14 +50,23 @@ public class SshShellSecurityConfigurationTest
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        PasswordEncoder encoder = passwordEncoder();
-        manager.createUser(User.withUsername("user").password(encoder.encode("password")).roles("USER").build());
-        manager.createUser(User.withUsername("actuator").password(encoder.encode("password")).roles("ACTUATOR").build
-                ());
-        manager.createUser(User.withUsername("admin").password(encoder.encode("admin")).roles("ADMIN", "ACTUATOR")
-                .build());
-        return manager;
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        // authenticationManagerBuilder.authenticationProvider(customAuthProvider);
+        authenticationManagerBuilder.inMemoryAuthentication()
+            .withUser("user")
+            .password(passwordEncoder().encode("password"))
+            .roles("USER")
+            .and()
+	        .withUser("actuator")
+	        .password(passwordEncoder().encode("password"))
+	        .roles("ACTUATOR")
+	        .and()
+	        .withUser("admin")
+	        .password(passwordEncoder().encode("admin"))
+	        .roles("ADMIN", "ACTUATOR");
+        return authenticationManagerBuilder.build();
     }
+
 }

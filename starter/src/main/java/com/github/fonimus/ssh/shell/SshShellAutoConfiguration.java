@@ -88,7 +88,7 @@ import static com.github.fonimus.ssh.shell.SshShellProperties.SSH_SHELL_PREFIX;
         "org.springframework.boot.actuate.autoconfigure.metrics.MetricsEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.scheduling.ScheduledTasksEndpointAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.session.SessionsEndpointAutoConfiguration",
-        "org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceEndpointAutoConfiguration",
+        "org.springframework.boot.actuate.autoconfigure.web.exchanges.HttpExchangesAutoConfiguration",
         "org.springframework.boot.actuate.autoconfigure.web.mappings.MappingsEndpointAutoConfiguration"
 })
 @ComponentScan(basePackages = {"com.github.fonimus.ssh.shell"})

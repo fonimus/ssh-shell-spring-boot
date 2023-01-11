@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
                 "ssh.shell.port=2345",
                 "ssh.shell.password=pass",
                 "management.endpoints.web.exposure.include=*",
+                "spring.session.store-type=jdbc",
                 "spring.shell.interactive.enabled=false",
                 "spring.jmx.enabled=true"
         })
@@ -55,7 +56,7 @@ public class SshShellApplicationTest
 
         super.commonCommandAvailability();
 
-        assertFalse(cmd.httptraceAvailability().isAvailable());
+        assertFalse(cmd.httpExchangesAvailability().isAvailable());
     }
 
     @Test
