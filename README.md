@@ -797,6 +797,12 @@ public class ApplicationTest {
 
 ## Release notes
 
+### 2.0.3
+
+* Bump spring-boot.version from 2.7.3 to 2.7.5
+* Bump spring-shell-starter from 2.1.2 to 2.1.5
+* Bump sshd-core from 2.9.1 to 2.9.2
+
 ### 2.0.2
 
 * Bump sshd-core from 2.9.0 to 2.9.1
