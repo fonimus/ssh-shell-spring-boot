@@ -220,28 +220,14 @@ public class SystemCommand extends AbstractCommand {
     }
 
     private Comparator<? super Thread> comparator(ThreadColumn orderBy, boolean reverseOrder) {
-        Comparator<? super Thread> c;
-        switch (orderBy) {
-
-            case priority:
-                c = Comparator.comparingDouble(Thread::getPriority);
-                break;
-            case state:
-                c = Comparator.comparing(e -> e.getState().name());
-                break;
-            case interrupted:
-                c = Comparator.comparing(Thread::isAlive);
-                break;
-            case daemon:
-                c = Comparator.comparing(Thread::isDaemon);
-                break;
-            case name:
-                c = Comparator.comparing(Thread::getName);
-                break;
-            default:
-                c = Comparator.comparingDouble(Thread::getId);
-                break;
-        }
+        Comparator<? super Thread> c = switch (orderBy) {
+            case priority -> Comparator.comparingDouble(Thread::getPriority);
+            case state -> Comparator.comparing(e -> e.getState().name());
+            case interrupted -> Comparator.comparing(Thread::isAlive);
+            case daemon -> Comparator.comparing(Thread::isDaemon);
+            case name -> Comparator.comparing(Thread::getName);
+            default -> Comparator.comparingDouble(Thread::getId);
+        };
         if (reverseOrder) {
             c = c.reversed();
         }
@@ -249,19 +235,12 @@ public class SystemCommand extends AbstractCommand {
     }
 
     private PromptColor color(Thread.State state) {
-        switch (state) {
-            case RUNNABLE:
-                return PromptColor.GREEN;
-            case BLOCKED:
-            case TERMINATED:
-                return PromptColor.RED;
-            case WAITING:
-            case TIMED_WAITING:
-                return PromptColor.CYAN;
-            default:
-                return PromptColor.WHITE;
-
-        }
+        return switch (state) {
+            case RUNNABLE -> PromptColor.GREEN;
+            case BLOCKED, TERMINATED -> PromptColor.RED;
+            case WAITING, TIMED_WAITING -> PromptColor.CYAN;
+            default -> PromptColor.WHITE;
+        };
     }
 
     private String table(ThreadColumn orderBy, boolean reverseOrder, boolean fullscreen) {

@@ -16,11 +16,16 @@
 
 package com.github.fonimus.ssh.shell.commands;
 
+import java.io.Serial;
+
 /**
  * Availability
  */
 public class AvailabilityException
         extends Exception {
+
+    @Serial
+    private static final long serialVersionUID = -8323343028474225670L;
 
     public AvailabilityException(String message) {
         super(message);

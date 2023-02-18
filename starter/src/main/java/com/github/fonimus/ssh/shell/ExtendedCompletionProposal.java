@@ -16,18 +16,20 @@
 
 package com.github.fonimus.ssh.shell;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.shell.CompletionProposal;
 
 /**
  * Extended completion proposal to be able to set complete attribute of proposal
  */
-@Data
 public class ExtendedCompletionProposal extends CompletionProposal {
 
     /**
      * If should add space after proposed proposal
      */
+    @Getter
+    @Setter
     private boolean complete;
 
     /**

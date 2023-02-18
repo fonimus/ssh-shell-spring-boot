@@ -65,7 +65,7 @@ public class SavePostProcessor
             File file = new File(path);
             try {
                 String toWrite = string(result).replaceAll(REPLACE_REGEX, "") + "\n";
-                Files.write(file.toPath(), toWrite.getBytes(StandardCharsets.UTF_8), CREATE, APPEND);
+                Files.writeString(file.toPath(), toWrite, CREATE, APPEND);
                 return "Result saved to file: " + file.getAbsolutePath();
             } catch (IOException e) {
                 LOGGER.debug("Unable to write to file: " + file.getAbsolutePath(), e);

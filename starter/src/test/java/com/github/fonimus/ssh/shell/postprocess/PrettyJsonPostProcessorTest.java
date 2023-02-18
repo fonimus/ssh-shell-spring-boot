@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fonimus.ssh.shell.postprocess.provided.PrettyJsonPostProcessor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;
 
 import java.util.Collections;
@@ -51,12 +53,12 @@ class PrettyJsonPostProcessorTest {
         assertThrows(PostProcessorException.class, () -> processor.process(new NotSerializableObject("test"), null));
     }
 
-    public class NotSerializableObject {
+    public static class NotSerializableObject {
 
-        private final String test;
+        public static final Logger LOGGER = LoggerFactory.getLogger(NotSerializableObject.class);
 
         public NotSerializableObject(String test) {
-            this.test = test;
+            LOGGER.info(test);
         }
     }
 }

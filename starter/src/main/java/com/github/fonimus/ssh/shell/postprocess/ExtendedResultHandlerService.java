@@ -66,7 +66,7 @@ public class ExtendedResultHandlerService implements ResultHandlerService {
         handle(result, TypeDescriptor.forObject(result));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public void handle(Object result, TypeDescriptor resultType) {
         if (result == null) {

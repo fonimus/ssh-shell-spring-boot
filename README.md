@@ -797,6 +797,12 @@ public class ApplicationTest {
 
 ## Release notes
 
+### 3.0.0
+
+* Bump spring-boot.version 2.7.5 to 3.0.2
+* Bump spring-shell-starter 2.1.5 to 3.0.0
+* Java 17 minimum is required
+
 ### 2.0.3
 
 * Bump spring-boot.version from 2.7.3 to 2.7.5
