@@ -56,7 +56,7 @@ public class ScriptCommandTest {
         cmd = new ScriptCommand(parser, sshHelper, new SshShellProperties());
         ApplicationContext context = mock(ApplicationContext.class);
         cmd.setApplicationContext(context);
-        when(context.getBeanProvider(Shell.class)).thenReturn(new ObjectProvider<Shell>() {
+        when(context.getBeanProvider(Shell.class)).thenReturn(new ObjectProvider<>() {
             @Override
             public Shell getObject(Object... objects) throws BeansException {
                 return null;

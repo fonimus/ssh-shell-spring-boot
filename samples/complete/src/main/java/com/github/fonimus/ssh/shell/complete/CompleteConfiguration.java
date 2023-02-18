@@ -20,6 +20,8 @@ import com.github.fonimus.ssh.shell.commands.TasksCommand;
 import com.github.fonimus.ssh.shell.listeners.SshShellListener;
 import com.github.fonimus.ssh.shell.postprocess.PostProcessor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
+import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -41,17 +43,17 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-public class DemoConfiguration implements SchedulingConfigurer {
+public class CompleteConfiguration implements SchedulingConfigurer {
 
     private final TasksCommand tasksCommand;
 
-    public DemoConfiguration(TasksCommand tasksCommand) {
+    public CompleteConfiguration(TasksCommand tasksCommand) {
         this.tasksCommand = tasksCommand;
     }
 
     @Bean
     public PostProcessor<String, String> quotePostProcessor() {
-        return new PostProcessor<String, String>() {
+        return new PostProcessor<>() {
 
             @Override
             public String getName() {
@@ -72,7 +74,7 @@ public class DemoConfiguration implements SchedulingConfigurer {
 
     @Bean
     public PostProcessor<String, ZonedDateTime> datePostProcessor() {
-        return new PostProcessor<String, ZonedDateTime>() {
+        return new PostProcessor<>() {
 
             @Override
             public String getName() {
@@ -93,7 +95,7 @@ public class DemoConfiguration implements SchedulingConfigurer {
 
     @Bean
     public PostProcessor<ZonedDateTime, ZonedDateTime> uctPostProcessor() {
-        return new PostProcessor<ZonedDateTime, ZonedDateTime>() {
+        return new PostProcessor<>() {
 
             @Override
             public String getName() {
@@ -164,6 +166,11 @@ public class DemoConfiguration implements SchedulingConfigurer {
         threadPoolTaskScheduler.setPoolSize(6);
         threadPoolTaskScheduler.setThreadNamePrefix("my-pool2-");
         return threadPoolTaskScheduler;
+    }
+
+    @Bean
+    public HttpExchangeRepository httpTraceRepository() {
+        return new InMemoryHttpExchangeRepository();
     }
 
     @Override

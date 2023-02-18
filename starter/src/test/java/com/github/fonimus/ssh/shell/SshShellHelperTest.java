@@ -245,10 +245,12 @@ class SshShellHelperTest extends AbstractShellHelperTest {
         String headers = top +
                 "│   col1   │   col2   │   col3   │\n";
         String middle = "├──────────┼──────────┼──────────┤\n";
-        String body = "│line1 col1│line1 col2│line1 col3│\n" +
-                "├──────────┼──────────┼──────────┤\n" +
-                "│line2 col1│line2 col2│line2 col3│\n" +
-                "└──────────┴──────────┴──────────┘\n";
+        String body = """
+                │line1 col1│line1 col2│line1 col3│
+                ├──────────┼──────────┼──────────┤
+                │line2 col1│line2 col2│line2 col3│
+                └──────────┴──────────┴──────────┘
+                """;
         SimpleTable.SimpleTableBuilder builder = SimpleTable.builder()
                 .column("col1")
                 .column("col2")

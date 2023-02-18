@@ -24,7 +24,7 @@ import static org.jline.utils.AttributedStyle.CYAN;
 import static org.jline.utils.AttributedStyle.DEFAULT;
 
 @Component
-public class DemoPromptProvider implements PromptProvider {
+public class CompletePromptProvider implements PromptProvider {
 
     @Override
     public AttributedString getPrompt() {

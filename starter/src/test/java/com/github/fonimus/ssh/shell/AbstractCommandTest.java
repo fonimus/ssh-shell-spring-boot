@@ -43,11 +43,8 @@ public abstract class AbstractCommandTest
 
     protected void commonCommandAvailability() {
         assertAll(
-                // since spring boot 2.2 audit,httptrace disabled by default
-                // more info: https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2
-                // .2-Release-Notes#actuator-http-trace-and-auditing-are-disabled-by-default
                 () -> assertFalse(cmd.auditAvailability().isAvailable()),
-                () -> assertFalse(cmd.httptraceAvailability().isAvailable()),
+                () -> assertFalse(cmd.httpExchangesAvailability().isAvailable()),
                 // all available except for shutdown
                 () -> assertTrue(cmd.beansAvailability().isAvailable()),
                 () -> assertTrue(cmd.conditionsAvailability().isAvailable()),
@@ -71,7 +68,7 @@ public abstract class AbstractCommandTest
 
     @Test
     void testConditions() {
-        assertEquals(conditions.applicationConditionEvaluation().getContexts().size(),
+        assertEquals(conditions.conditions().getContexts().size(),
                 cmd.conditions().getContexts().size());
     }
 
@@ -133,19 +130,19 @@ public abstract class AbstractCommandTest
     @Test
     void testMetrics() {
         assertEquals(metrics.listNames().getNames().size(),
-                ((MetricsEndpoint.ListNamesResponse) cmd.metrics(null, null)).getNames().size());
+                ((MetricsEndpoint.MetricNamesDescriptor) cmd.metrics(null, null)).getNames().size());
     }
 
     @Test
     void testMetricsName() {
         assertEquals(metrics.metric("jvm.memory.max", null).getName(),
-                ((MetricsEndpoint.MetricResponse) cmd.metrics("jvm.memory.max", null)).getName());
+                ((MetricsEndpoint.MetricDescriptor) cmd.metrics("jvm.memory.max", null)).getName());
     }
 
     @Test
     void testMetricsTags() {
         assertEquals(metrics.metric("jvm.memory.max", Collections.singletonList("area:heap")).getName(),
-                ((MetricsEndpoint.MetricResponse) cmd.metrics("jvm.memory.max",
+                ((MetricsEndpoint.MetricDescriptor) cmd.metrics("jvm.memory.max",
                         "area:heap")).getName());
     }
 
@@ -167,8 +164,8 @@ public abstract class AbstractCommandTest
 
     @Test
     void testScheduled() {
-        ScheduledTasksEndpoint.ScheduledTasksReport actual = cmd.scheduledtasks();
-        ScheduledTasksEndpoint.ScheduledTasksReport expected = scheduledtasks.scheduledTasks();
+        ScheduledTasksEndpoint.ScheduledTasksDescriptor actual = cmd.scheduledtasks();
+        ScheduledTasksEndpoint.ScheduledTasksDescriptor expected = scheduledtasks.scheduledTasks();
         assertEquals(expected.getCron().size(), actual.getCron().size());
         assertEquals(expected.getFixedDelay().size(), actual.getFixedDelay().size());
         assertEquals(expected.getFixedRate().size(), actual.getFixedRate().size());

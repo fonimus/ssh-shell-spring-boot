@@ -29,7 +29,7 @@ import java.util.Map;
 @Component
 public class SshShellSessionManager {
 
-    private SshShellCommandFactory commandFactory;
+    private final SshShellCommandFactory commandFactory;
 
     /**
      * Ssh shell session manager

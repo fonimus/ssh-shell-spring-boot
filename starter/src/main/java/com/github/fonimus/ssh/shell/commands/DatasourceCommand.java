@@ -46,7 +46,6 @@ import java.util.stream.IntStream;
 @Slf4j
 @SshShellComponent
 @ShellCommandGroup("Datasource Commands")
-@ConditionalOnBean(DataSource.class)
 @ConditionalOnClass(DataSource.class)
 @ConditionalOnProperty(
         name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + DatasourceCommand.GROUP + ".create",

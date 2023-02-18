@@ -104,7 +104,7 @@ public class SshShellRunnable
             terminalBuilder.type(sshEnv.getEnv().get(SSH_ENV_TERM));
         }
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
+             PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8);
              Terminal terminal = terminalBuilder.build()
         ) {
 
@@ -127,7 +127,7 @@ public class SshShellRunnable
                 }
 
                 DefaultResultHandler resultHandler = new DefaultResultHandler(terminal);
-                resultHandler.handleResult(new String(baos.toByteArray(), StandardCharsets.UTF_8));
+                resultHandler.handleResult(baos.toString(StandardCharsets.UTF_8));
                 resultHandler.handleResult("Please type `help` to see available commands");
 
                 LineReader reader = LineReaderBuilder.builder()

@@ -40,7 +40,7 @@ import org.springframework.shell.standard.*;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -55,7 +55,7 @@ import static org.springframework.scheduling.annotation.ScheduledAnnotationBeanP
  */
 @SshShellComponent
 @ShellCommandGroup("Tasks Commands")
-@ConditionalOnBean({ScheduledTaskHolder.class})
+@ConditionalOnBean(ScheduledTaskHolder.class)
 @ConditionalOnProperty(
         name = SshShellProperties.SSH_SHELL_PREFIX + ".commands." + TasksCommand.GROUP + ".create",
         havingValue = "true", matchIfMissing = true
@@ -143,13 +143,12 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                 if (state.getScheduledTask() != null) {
                     line.add(state.getStatus());
                     Task task = state.getScheduledTask().getTask();
-                    if (task instanceof CronTask) {
+                    if (task instanceof CronTask cronTask) {
                         line.add("cron");
-                        CronTask cronTask = ((CronTask) task);
                         line.add("expression : " + cronTask.getExpression());
-                        Date next = cronTask.getTrigger().nextExecutionTime(new SimpleTriggerContext());
+                        Instant next = cronTask.getTrigger().nextExecution(new SimpleTriggerContext());
                         line.add(next == null ? "-" :
-                                FORMATTER.format(next.toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime()));
+                                FORMATTER.format(next.atOffset(ZoneOffset.UTC).toLocalDateTime()));
                     } else if (task instanceof FixedDelayTask) {
                         line.add("fixed-delay");
                         line.add(getTrigger((FixedDelayTask) task));
@@ -264,10 +263,10 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                     } else if (taskObj instanceof FixedDelayTask) {
                         future =
                                 taskScheduler().scheduleWithFixedDelay(state.getScheduledTask().getTask().getRunnable(),
-                                        ((FixedDelayTask) taskObj).getInterval());
+                                        ((FixedDelayTask) taskObj).getIntervalDuration());
                     } else if (taskObj instanceof FixedRateTask) {
                         future = taskScheduler().scheduleAtFixedRate(state.getScheduledTask().getTask().getRunnable(),
-                                ((FixedRateTask) taskObj).getInterval());
+                                ((FixedRateTask) taskObj).getIntervalDuration());
                     } else {
                         helper.printWarning("Task [" + taskName + "] of class [" + taskObj.getClass().getName() + "] "
                                 + "cannot be restarted.");
@@ -310,7 +309,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
                 try {
                     String executionId = taskName + "-" + generateExecutionId();
                     // Will run the Runnable immediately or as soon as possible
-                    ScheduledFuture<?> future = taskScheduler().schedule(state.getScheduledTask().getTask().getRunnable(), new Date());
+                    ScheduledFuture<?> future = taskScheduler().schedule(state.getScheduledTask().getTask().getRunnable(), Instant.now());
                     statesByName.put(executionId, new TaskState(executionId, null, TaskStatus.running, future));
                     started.add(executionId);
                 } catch (TaskRejectedException e) {
@@ -334,7 +333,7 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
         if (all) {
             TaskStatus filter = running ? TaskStatus.running : TaskStatus.stopped;
             result.addAll(this.statesByName.entrySet().stream().filter(e -> e.getValue().getStatus() == filter)
-                    .map(Map.Entry::getKey).collect(Collectors.toList()));
+                    .map(Map.Entry::getKey).toList());
         } else {
             if (task == null || task.isEmpty()) {
                 throw new IllegalArgumentException("You need to set either all option or task one");
@@ -348,9 +347,10 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
     }
 
     private static String getTrigger(IntervalTask task) {
-        String initialDelay = Duration.ofMillis(task.getInitialDelay()).toString();
-        String interval = Duration.ofMillis(task.getInterval()).toString();
-        return "interval : " + interval + " (" + task.getInterval() + "), init-delay : " + initialDelay + " (" + task.getInitialDelay() + ")";
+        return "interval : " + task.getIntervalDuration() +
+                " (" + task.getIntervalDuration().toMillis() +
+                "), init-delay : " + task.getInitialDelayDuration() +
+                " (" + task.getInitialDelayDuration().toMillis() + ")";
     }
 
     private static String getTaskName(Runnable runnable) {

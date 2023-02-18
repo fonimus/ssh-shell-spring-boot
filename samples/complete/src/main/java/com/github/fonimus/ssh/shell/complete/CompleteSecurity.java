@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.fonimus.ssh.shell.conf;
+package com.github.fonimus.ssh.shell.complete;
 
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -27,17 +27,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 
+/**
+ * Security configuration
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableJdbcHttpSession
-public class SshShellSecurityConfigurationTest {
+public class CompleteSecurity {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
         http.authorizeHttpRequests()
+                .requestMatchers("/ping").permitAll()
                 .requestMatchers(EndpointRequest.to("info")).permitAll()
                 .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
                 .and().authenticationManager(authManager);

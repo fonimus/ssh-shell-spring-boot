@@ -71,7 +71,7 @@ public class JmxCommand extends AbstractCommand {
             SimpleTable.SimpleTableBuilder builder = SimpleTable.builder().column("Object name").column("Class name");
             Set<ObjectInstance> result = server.queryMBeans(patternName, null);
             for (ObjectInstance objectInstance :
-                    result.stream().sorted(Comparator.comparing(ObjectInstance::getObjectName)).collect(Collectors.toList())) {
+                    result.stream().sorted(Comparator.comparing(ObjectInstance::getObjectName)).toList()) {
                 builder.line(Arrays.asList(objectInstance.getObjectName().toString(), objectInstance.getClassName()));
             }
             helper.print(helper.renderTable(builder.build()));
@@ -207,18 +207,13 @@ public class JmxCommand extends AbstractCommand {
     }
 
     private Object impact(int impact) {
-        switch (impact) {
-            case MBeanOperationInfo.ACTION:
-                return "action";
-            case MBeanOperationInfo.ACTION_INFO:
-                return "action/info";
-            case MBeanOperationInfo.INFO:
-                return "info";
-            case MBeanOperationInfo.UNKNOWN:
-                return "unknown";
-            default:
-                return "(" + impact + ")";
-        }
+        return switch (impact) {
+            case MBeanOperationInfo.ACTION -> "action";
+            case MBeanOperationInfo.ACTION_INFO -> "action/info";
+            case MBeanOperationInfo.INFO -> "info";
+            case MBeanOperationInfo.UNKNOWN -> "unknown";
+            default -> "(" + impact + ")";
+        };
     }
 
     private Availability jmxListAvailability() {

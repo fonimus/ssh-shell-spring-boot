@@ -58,7 +58,7 @@ public class ExtendedShell extends Shell {
      * @param exitCodeMappings     exit code mappipngs
      * @param postProcessors       post processors
      */
-    public ExtendedShell(
+    protected ExtendedShell(
             ResultHandlerService resultHandlerService, CommandCatalog commandRegistry,
             Terminal terminal, ShellContext shellContext, ExitCodeMappings exitCodeMappings,
             List<PostProcessor<?, ?>> postProcessors
@@ -66,7 +66,7 @@ public class ExtendedShell extends Shell {
         super(resultHandlerService, commandRegistry, terminal, shellContext, exitCodeMappings);
         this.resultHandlerService = resultHandlerService;
         if (postProcessors != null) {
-            this.postProcessorNames.addAll(postProcessors.stream().map(PostProcessor::getName).collect(Collectors.toList()));
+            this.postProcessorNames.addAll(postProcessors.stream().map(PostProcessor::getName).toList());
         }
     }
 
@@ -118,7 +118,7 @@ public class ExtendedShell extends Shell {
             }
             if (isKeyCharInList(words)) {
                 List<Integer> indexes =
-                        IntStream.range(0, words.size()).filter(i -> KEY_CHARS.contains(words.get(i))).boxed().collect(Collectors.toList());
+                        IntStream.range(0, words.size()).filter(i -> KEY_CHARS.contains(words.get(i))).boxed().toList();
                 for (Integer index : indexes) {
                     if (words.size() > index + 1) {
                         String keyChar = words.get(index);

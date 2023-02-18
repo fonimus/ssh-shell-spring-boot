@@ -5,13 +5,11 @@ spring:
     url: jdbc:h2:mem:testdb
   second-datasource:
     url: jdbc:h2:mem:testdb2
-  shell.interactive.enabled: true
   main.lazy-initialization: true
 
 ssh:
   shell:
     authentication: security
-    auth-provider-bean-name: customAuthManager
     authorized-public-keys: classpath:.ssh/authorized.keys
     commands:
       actuator:
@@ -37,8 +35,6 @@ management:
   endpoint:
     shutdown:
       enabled: true
-    threaddump:
-      enabled: false
     health:
       group:
         nocommands:

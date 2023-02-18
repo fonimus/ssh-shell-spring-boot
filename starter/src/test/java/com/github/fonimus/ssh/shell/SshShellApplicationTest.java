@@ -19,15 +19,20 @@ package com.github.fonimus.ssh.shell;
 import com.github.fonimus.ssh.shell.commands.DatasourceCommand;
 import com.github.fonimus.ssh.shell.commands.JmxCommand;
 import com.github.fonimus.ssh.shell.commands.TasksCommand;
+import com.github.fonimus.ssh.shell.conf.SshShellSessionConfigurationTest;
+import com.github.fonimus.ssh.shell.conf.TaskServiceTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.condition.ConditionsReportEndpoint;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = SshShellApplicationTest.class,
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
+        classes = {SshShellApplicationTest.class, SshShellSessionConfigurationTest.class},
         properties = {
                 "ssh.shell.port=2345",
                 "ssh.shell.password=pass",
@@ -49,13 +54,19 @@ public class SshShellApplicationTest
     @Autowired(required = false)
     protected TasksCommand tasks;
 
+    @Autowired(required = false)
+    protected ApplicationContext context;
+
+    @Autowired(required = false)
+    protected ConditionsReportEndpoint conditionsReportEndpoint;
+
     @Test
     void testCommandAvailability() {
         setActuatorRole();
 
         super.commonCommandAvailability();
 
-        assertFalse(cmd.httptraceAvailability().isAvailable());
+        assertFalse(cmd.httpExchangesAvailability().isAvailable());
     }
 
     @Test
@@ -78,7 +89,9 @@ public class SshShellApplicationTest
     @Test
     void testTasksCommand() {
         assertNotNull(tasks);
-        assertNotNull(tasks.tasksList(null, true));
+        String tasksListResult = tasks.tasksList(null, true);
+        assertNotNull(tasksListResult);
+        assertTrue(tasksListResult.contains(TaskServiceTest.class.getName() + ".test"));
         assertThrows(IllegalArgumentException.class, () -> tasks.tasksStop(false, "unknown"));
         assertThrows(IllegalArgumentException.class, () -> tasks.tasksRestart(false, "unknown"));
         assertThrows(IllegalArgumentException.class, () -> tasks.tasksSingle(false, "unknown"));
