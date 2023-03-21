@@ -253,7 +253,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>3.0.0</version>
                 <configuration>
                     <preparationGoals>clean validate deploy -P release -DnoSamples</preparationGoals>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
