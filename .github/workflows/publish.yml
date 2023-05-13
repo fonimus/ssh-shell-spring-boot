@@ -6,34 +6,8 @@ on:
       - '**'
 
 jobs:
-  release:
-    name: Publish ${{ github.ref }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Is Pre Release ?
-        id: pre_release
-        uses: heineiuo/create-changelogs@v0.2.8
-
-      - name: Build Changelog
-        id: changelog
-        uses: mikepenz/release-changelog-builder-action@v3
-        with:
-          configuration: .changelog-generator.json
-          ignorePreReleases: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create Release
-        id: create-release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: ${{ steps.changelog.outputs.changelog }}
-          draft: false
-          prerelease: ${{ steps.pre_release.outputs.release_type == 'prerelease' }}
+  publish:
+    name: Publish
+    uses: fonimus/ssh-shell-spring-boot/.github/workflows/reusable-publish.yml@main
+    with:
+      version: ${{ github.ref }}

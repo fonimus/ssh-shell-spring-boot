@@ -1,0 +1,15 @@
+name: Publish Release Manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Specified version to publish'
+        required: true
+
+jobs:
+  publish:
+    name: Publish
+    uses: fonimus/ssh-shell-spring-boot/.github/workflows/reusable-publish.yml@main
+    with:
+      version: ${{ inputs.version }}
