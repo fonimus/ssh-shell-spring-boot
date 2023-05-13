@@ -7,7 +7,7 @@ jobs:
   build:
     name: Build
     if: ${{ github.actor == 'dependabot[bot]' }}
-    uses: fonimus/ssh-shell-spring-boot/.github/workflows/reusable-build.yml@main
+    uses: ./.github/workflows/reusable-build.yml
     with:
       sonar_analysis: false
       ref: ${{ github.event.pull_request.head.sha }}

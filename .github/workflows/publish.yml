@@ -6,8 +6,8 @@ on:
       - '**'
 
 jobs:
-  publish:
-    name: Publish
-    uses: fonimus/ssh-shell-spring-boot/.github/workflows/reusable-publish.yml@main
+  publish-auto:
+    name: Auto Publish
+    uses: ./.github/workflows/reusable-publish.yml
     with:
       version: ${{ github.ref }}
