@@ -8,8 +8,8 @@ on:
         required: true
 
 jobs:
-  publish:
-    name: Publish
-    uses: fonimus/ssh-shell-spring-boot/.github/workflows/reusable-publish.yml@main
+  publish-manual:
+    name: Manual Publish
+    uses: ./.github/workflows/reusable-publish.yml
     with:
       version: ${{ inputs.version }}
