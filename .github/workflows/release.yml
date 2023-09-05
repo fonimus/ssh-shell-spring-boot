@@ -26,7 +26,7 @@ jobs:
     steps:
 
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
       - name: Set up JDK 17
