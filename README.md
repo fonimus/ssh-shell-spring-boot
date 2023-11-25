@@ -313,24 +313,14 @@ one.
 
 ##### Examples
 
-| Context                                                                       | Task scheduler used in TaskCommand            |
-|-------------------------------------------------------------------------------|-----------------------------------------------|
-| No ``TaskScheduler`` bean in context                                          | Local single-threaded                         |
-| One ``TaskScheduler`` bean named **                                           |                                               |
-| ts** in context                                                               | **                                            |
-| ts** bean                                                                     |                                               |
-| Multiple ``TaskScheduler`` beans named **                                     |                                               |
-| ts1**, **                                                                     |                                               |
-| ts2** in context                                                              | Local single-threaded (could not find name ** |
-| taskScheduler**)                                                              |                                               |
-| Multiple ``TaskScheduler`` beans named **                                     |                                               |
-| taskScheduler**, **                                                           |                                               |
-| ts2**, **                                                                     |                                               |
-| ts3** in context                                                              | **                                            |
-| taskScheduler** bean                                                          |                                               |
-| Task scheduler specified in method ``SchedulingConfigurer#configureTasks``    | Local single-threaded (not set in task)       |
-| Task scheduler specified in method ``SchedulingConfigurer#configureTasks`` ** |                                               |
-| AND** ``com.github.fonimus.ssh.shell.commands.TasksCommand.setTaskScheduler`` | Scheduler manually set                        |
+| Context                                                                                                                                                    | Task scheduler used in TaskCommand                            |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| No ``TaskScheduler`` bean in context                                                                                                                       | Local single-threaded                                         |
+| One ``TaskScheduler`` bean named **ts** in context                                                                                                         | **ts** bean                                                   |                                               |
+| Multiple ``TaskScheduler`` beans named **ts1**, **ts2** in context                                                                                         | Local single-threaded (could not find name **taskScheduler**) |                                               |
+| Multiple ``TaskScheduler`` beans named **taskScheduler**, **ts2**, **ts3** in context                                                                      | **taskScheduler** bean                                        |                                               |
+| Task scheduler specified in method ``SchedulingConfigurer#configureTasks``                                                                                 | Local single-threaded (not set in task)                       |
+| Task scheduler specified in method ``SchedulingConfigurer#configureTasks`` **AND** ``com.github.fonimus.ssh.shell.commands.TasksCommand.setTaskScheduler`` | Scheduler manually set                                        |
 
 ### Jmx
 
@@ -414,20 +404,21 @@ Then register it within a spring configuration.
 Example:
 
 ````java
+
 @Configuration
 class PostProcessorConfiguration {
     @Bean
-    public PostProcessor quotePostProcessor(){
-        return new PostProcessor<String>(){
+    public PostProcessor quotePostProcessor() {
+        return new PostProcessor<String>() {
 
             @Override
-            public String getName(){
-                return"quote";
+            public String getName() {
+                return "quote";
             }
 
             @Override
-            public String process(String result,List parameters){
-                return"'"+result+"'";
+            public String process(String result, List parameters) {
+                return "'" + result + "'";
             }
         };
     }
@@ -838,315 +829,8 @@ public class ApplicationTest {
 ## Samples
 
 * [Basic sample](./samples/basic), no actuator, no security, no sessions
-
-* [Complete sample](./samples/complete), actuator, security dependencies and
-  configurations
+* [Complete sample](./samples/complete), with actuator, security dependencies and configurations
 
 ## Release notes
 
-### 3.0.1
-
-* Bump spring-boot from 3.0.2 to 3.0.6
-* Bump spring shell from 3.0.0 to 3.0.3
-
-### 3.0.0
-
-* Bump spring-boot.version 2.7.5 to 3.0.2
-* Bump spring-shell-starter 2.1.5 to 3.0.0
-* Java 17 minimum is required
-
-### 2.0.3
-
-* Bump spring-boot.version from 2.7.3 to 2.7.5
-* Bump spring-shell-starter from 2.1.2 to 2.1.5
-* Bump sshd-core from 2.9.1 to 2.9.2
-
-### 2.0.2
-
-* Bump sshd-core from 2.9.0 to 2.9.1
-    * it should fix problem with java 8 no such method error
-
-### 2.0.1
-
-* Bump spring-boot from 2.7.2 to 2.7.3
-* Bump spring shell from 2.1.0 to 2.1.1
-
-### 2.0.0
-
-* Bump spring-boot from 2.5.6 to 2.7.2
-* Bump spring shell from 2.0.1 to 2.1.0
-* Bump sshd-core from 2.8.0 to 2.9.0
-* Bump junit from 5.8.2 to 5.9.0
-* Removed deprecated `interactive` methods from `SshShellHelper`
-* Removed `ssh.shell.extended-file-provider` property as due to spring shell
-  change, you need to always specify value
-  provider
-  `@ShellOption(valueProvider = ExtendedFileValueProvider.class) File file`
-* Removed `ssh.shell.prompt.local.enable` because spring shell added
-  ConditionalOnProperty to disable it
-  (`spring.shell.interactive.enabled`)
-
-Note: as we said form now one due to change in spring shell library you need to
-always specify value provider,
-unfortunately this is also the case for
-enumerations (`@ShellOption(valueProvider = EnumValueProvider.class) Enum enum`)
-.
-
-### 1.8.0
-
-* Add built in commands `script`, `history` and `stacktrace` in the list of
-  properties in order to configure them.
-
-_**Note :**_ If you choose to not create those commands, overridden commands
-will not be created but the spring-shell
-autoconfiguration will still create its own built in commands that you can
-deactivate thanks to properties
-`spring.shell.command.<command-name>.enabled=false`
-(check
-org.springframework.shell.standard.commands.StandardCommandsAutoConfiguration
-for more information)
-
-### 1.7.0
-
-* Make post processors generic and be able to chain them #163
-* Bump sshd-core from 2.7.0 to 2.8.0 #170
-* Bump spring-boot from 2.5.5 to 2.5.6 #164
-
-### 1.6.1
-
-* Fix a NPE on `task-single` command.
-
-### 1.6.0
-
-* Added the command [tasks-single](#tasks) to launch a single execution of a
-  scheduled task
-* Bump to spring boot 2.5.3
-
-### 1.5.7
-
-* Bump to spring boot 2.4.5
-* Remove warn log at spring context stop
-
-### 1.5.6
-
-* Add `Next execution` column in `task-list` table
-
-### 1.5.5
-
-* Fix potential circular dependency for `Windows` users
-* Fix classpath resource inside jar for authorized public keys file by using
-  temporary file (ssh external library only
-  accept files)
-
-### 1.5.4
-
-* `authorizedPublicKeysFile` becomes `authorizedPublicKeys` and is now a spring
-  resource ; you can now use :
-    * `ssh.shell.authorized-public-keys=<spring-resource-path>` (`file:<path>`, `classpath:<path>`,
-      etc)
-    * `ssh.shell.authorized-public-keys-file=<file-path>`
-
-### 1.5.3
-
-* Rewrite script command to be usable in background with result file (options
-  added to default command)
-* Add ``StoppableInteractiveInput`` to be able to stop the interactive mode with
-  specific condition
-
-### 1.5.2
-
-* Add option to create group commands ``ssh.shell.commands.<command>.create``,
-  which is true by default.
-  Setting a group command **create** property to false :
-    * won't create the associated commands in spring context
-    * won't display the associated commands in help
-    * the associated commands won't be accessible in shell
-
-### 1.5.1
-
-* Add option for path (groups, components, etc) in health endpoint
-
-### 1.5.0
-
-* Add tasks commands :
-    * ``tasks-list``
-    * ``tasks-stop``
-    * ``tasks-restart``
-* Rename commands :
-    * ``system-env`` instead of _jvm-env_
-    * ``system-properties`` instead of _jvm-properties_
-    * ``system-threads`` instead of _threads_
-
-### 1.4.2
-
-* Rework commands properties (check [configuration chapter](#configuration)) to
-  add the following :
-    * ``includes`` : to only include list of sub commands inside group (
-      example: ``datasource-update`` in group
-      **datasource**)
-    * ``excludes`` : to excludes some sub commands inside group (
-      example: ``datasource-update`` in group **datasource**)
-
-### 1.4.1
-
-* AnyOsFileValueProvider replaced
-  by [ExtendedFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/ExtendedFileValueProvider.java)
-    * Do not add space after directory proposal (allows following directories
-      directly)
-    * Supports Windows OS in addition to Unix
-    * Can be deactivated by `ssh.shell.extended-file-provider`
-
-### 1.4.0
-
-* Bump to spring boot 2.3.3.RELEASE
-* Bump to sshd 2.5.1
-* Add method ``SshShellHelper#getSshEnvironment()`` to retrieve information
-  about ssh environment
-* Fixed start app failure in case of ``spring.main.lazy-initialization=true``
-* Fixed table rendering issue in ``SshShellHelper``
-* Add jmx commands :
-    * ``jmx-list``
-    * ``jmx-info``
-    * ``jmx-invoke``
-* Add datasource commands
-    * ``datasource-list``
-    * ``datasource-properties``
-    * ``datasource-query``
-    * ``datasource-update``
-* Add completion for post processors
-* Rework commands properties (check [configuration chapter](#configuration))
-    * ``default-commands`` becomes ``commands``
-    * Instead of just activation boolean, each command now has the following
-      properties :
-        * ``enable`` with default value set to true, except said otherwise in
-          config
-        * ``restricted`` with default value set to true, except said otherwise
-          in config
-        * ``authorizedRoles`` with default value initialized with **ADMIN**,
-          except said otherwise in config
-    * ``ssh.shell.actuator.*`` properties moved
-      to ``ssh.shell.commands.actuator.*``
-
-### 1.3.0
-
-* Bump to spring boot 2.3.0.RELEASE
-* Add [listeners mechanism](#listeners)
-* Add [session manager](#session-manager)
-    * Add possibility to activate `manage-sessions-*` commands`
-* Add possibility to have history per user (`ssh.shell.shared-history=false`)
-
-### 1.2.2
-
-* Bump to sshd 2.4.0
-* Add property `ssh.shell.authorized-public-keys-file` to specify authorized
-  public keys to login via ssh.
-  This file is a standard `authorized_keys` format (one key per line, starting
-  with **ssh-rsa**)
-* Add some methods in helper to help build table
-  with `com.github.fonimus.ssh.shell.SimpleTableBuilder`
-
-### 1.2.1
-
-* Add property `ssh.shell.prompt.local.enable` (false by default) to let default
-  local spring shell prompt when
-  application starts
-
-### 1.2.0
-
-* Bump to spring boot 2.2.0.RELEASE
-    * `Audit` and `Http Trace` actuator commands will be disabled by default,
-      because endpoint will be by spring boot by
-      default (
-      check [spring boot migration 2.2](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.2-Release-Notes#actuator-http-trace-and-auditing-are-disabled-by-default)
-      for more info)
-* Fix hanging terminal when unexpected runtime exception occurs
-
-### 1.1.6
-
-* Bump to spring boot 2.1.7.RELEASE
-* Bump to sshd 2.3.0
-* Add properties to exclude not wanted built-in commands
-    * Via properties `ssh.shell.default-commands.*`
-
-### 1.1.5
-
-* Add `threads`, `jvm-env` and `jvm-properties` built-it commands
-
-### 1.1.4
-
-* [ExtendedFileValueProvider.java](./starter/src/main/java/com/github/fonimus/ssh/shell/providers/ExtendedFileValueProvider.java)
-  replaces `FileValueProvider` (spring shell default) by default
-    * Support Windows OS in addition to Unix
-    * Can be deactivated by `ssh.shell.any-os-file-provider`
-
-### 1.1.3
-
-* Remove `static` from SshShellHelper methods (**getColored**, *
-  *getBackgroundColored**)
-* Add methods in SshShellHelper
-    * `terminalSize` to get terminal columns and rows capabilities
-    * `progress` to fill line with progress bar
-        * `[========> ]`
-    * `interactive` which takes an interface to display lines at regular
-      interval
-        * Check complete sample for a demo
-
-### 1.1.2
-
-* Fix option arguments with spaces, quotes, etc
-* Update to `spring boot 2.1.3`
-* Update to `javadoc plugin 3.1.0`
-* Update to `sshd 2.2.0`
-
-### 1.1.1
-
-* Update to `spring boot 2.1.0`
-    * Avoid overriding bean definitions as it is now disabled by default
-
-### 1.1.0
-
-* **New artifact identifier: ssh-shell-spring-boot-starter**
-  -> [maven central link](https://search.maven.org/search?q=g:%22com.github.fonimus%22%20AND%20a:%22ssh-shell-spring-boot-starter%22)
-
-### 1.0.6
-
-* Add new post processor
-    * `highlight`
-* Fix various issues where ssh.shell.enable=false makes application fail to
-  start
-* Add new `@SshShellComponent`
-
-### 1.0.5
-
-* Add post processor feature
-    * `pretty`
-    * `grep`
-    * `json`
-    * `save`
-* Fix issue with terminal size which made autocomplete fail
-
-### 1.0.4
-
-* Make PrettyJsonResultHandler bean conditional on jackson ObjectMapper class
-* Fix application start issue if banner is with configured with off mode
-
-### 1.0.3
-
-* Fix not working history
-* Make history file location configurable
-* Add authentication objects in ssh session context
-
-### 1.0.2
-
-* Add more user interactions in SshShellHelper
-
-### 1.0.1
-
-* Add spring security authentication provider for ssh connection
-* Add spring security roles check
-* Add user interactions (read, confirm)
-* Bug fixes
-
-### 1.0.0
-
-* First stable release
+Please check [github releases page](https://github.com/fonimus/ssh-shell-spring-boot/releases).
