@@ -28,7 +28,7 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
       - name: Set up JDK 17
-        uses: actions/setup-java@v4.0.0
+        uses: actions/setup-java@v4.2.0
         with:
           java-version: 17
           distribution: temurin
