@@ -56,8 +56,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--dependencies-->
         <spring-boot.version>3.2.1</spring-boot.version>
+        <sshd.version>2.12.1</sshd.version>
         <spring-shell.version>3.2.3</spring-shell.version>
-        <sshd.version>2.11.0</sshd.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
         <!--sonar-->
         <sonar.projectKey>fonimus_ssh-shell-spring-boot</sonar.projectKey>
