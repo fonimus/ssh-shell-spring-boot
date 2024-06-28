@@ -58,7 +58,7 @@
         <spring-boot.version>3.2.5</spring-boot.version>
         <sshd.version>2.12.1</sshd.version>
         <spring-shell.version>3.2.5</spring-shell.version>
-        <junit-jupiter.version>5.10.2</junit-jupiter.version>
+        <junit-jupiter.version>5.10.3</junit-jupiter.version>
         <!--sonar-->
         <sonar.projectKey>fonimus_ssh-shell-spring-boot</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
