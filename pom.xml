@@ -56,7 +56,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--dependencies-->
         <spring-boot.version>3.2.5</spring-boot.version>
-        <sshd.version>2.12.1</sshd.version>
+        <sshd.version>2.13.2</sshd.version>
         <spring-shell.version>3.2.5</spring-shell.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
         <!--sonar-->
