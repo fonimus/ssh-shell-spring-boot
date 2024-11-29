@@ -14,34 +14,40 @@
  * limitations under the License.
  */
 
-package com.github.fonimus.ssh.shell;
+ package com.github.fonimus.ssh.shell;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.shell.CompletionProposal;
-
-/**
- * Extended completion proposal to be able to set complete attribute of proposal
- */
-public class ExtendedCompletionProposal extends CompletionProposal {
-
-    /**
-     * If should add space after proposed proposal
-     */
-    @Getter
-    @Setter
-    private boolean complete;
-
-    /**
-     * Default constructor
-     *
-     * @param value    string value
-     * @param complete true if should add space after proposed proposal (true is default value when not using
-     *                 extended completion proposal)
-     */
-    public ExtendedCompletionProposal(String value, boolean complete) {
-        super(value);
-        this.complete = complete;
-    }
-
-}
+ import lombok.Getter;
+ import lombok.Setter;
+ import org.springframework.shell.CompletionProposal;
+ 
+ /**
+  * Extended completion proposal to allow customization of completion behavior.
+  */
+ public class ExtendedCompletionProposal extends CompletionProposal {
+ 
+     /**
+      * The string value of the proposal.
+      */
+     @Getter
+     private final String value;
+ 
+     /**
+      * Indicates if a space should be added after the proposed completion.
+      */
+     @Getter
+     @Setter
+     private boolean complete;
+ 
+     /**
+      * Default constructor.
+      *
+      * @param value    string value
+      * @param complete true if a space should be added after the proposed completion
+      */
+     public ExtendedCompletionProposal(String value, boolean complete) {
+         super(value);
+         this.value = value;
+         this.complete = complete;
+     }
+ }
+ 
