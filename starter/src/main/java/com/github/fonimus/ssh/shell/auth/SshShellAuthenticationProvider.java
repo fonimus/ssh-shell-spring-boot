@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package com.github.fonimus.ssh.shell.auth;
+ package com.github.fonimus.ssh.shell.auth;
 
-import org.apache.sshd.server.auth.password.PasswordAuthenticator;
-
-/**
- * Interface to implements custom authentication provider
- */
-@FunctionalInterface
-public interface SshShellAuthenticationProvider
-        extends PasswordAuthenticator {
-
-    String AUTHENTICATION_ATTRIBUTE = "authentication";
-
-}
+ import org.apache.sshd.server.auth.password.PasswordAuthenticator;
+ 
+ /**
+  * Interface to implement custom authentication providers.
+  */
+ @FunctionalInterface
+ public interface SshShellAuthenticationProvider extends PasswordAuthenticator {
+ 
+     String AUTHENTICATION_ATTRIBUTE = "authentication";
+ 
+     /**
+      * Returns the type of authentication provided by this implementation.
+      *
+      * @return the authentication type
+      */
+     default String getAuthenticationType() {
+         return "Generic";
+     }
+ }
+ 
