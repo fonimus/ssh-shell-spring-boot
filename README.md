@@ -8,7 +8,7 @@
 > Spring shell in spring boot application over ssh
 
 For more information please
-visit `spring shell` [website](https://docs.spring.io/spring-shell/docs/3.0.3/docs/index.html).
+visit `spring shell` [website](https://docs.spring.io/spring-shell/reference/3.3/index.html).
 
 * [Getting started](#getting-started)
 * [Commands](#commands)

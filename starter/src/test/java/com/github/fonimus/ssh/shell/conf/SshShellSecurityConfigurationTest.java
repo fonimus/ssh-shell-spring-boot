@@ -37,10 +37,10 @@ public class SshShellSecurityConfigurationTest {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
-        http.authorizeHttpRequests()
-                .requestMatchers(EndpointRequest.to("info")).permitAll()
-                .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR")
-                .and().authenticationManager(authManager);
+        http.authorizeHttpRequests((authorizeHttpRequests) -> {
+            authorizeHttpRequests.requestMatchers(EndpointRequest.to("info")).permitAll();
+            authorizeHttpRequests.requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ACTUATOR");
+        }).authenticationManager(authManager);
         return http.build();
     }
 

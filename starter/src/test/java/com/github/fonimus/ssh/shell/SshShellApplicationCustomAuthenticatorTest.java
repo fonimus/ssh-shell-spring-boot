@@ -17,6 +17,7 @@
 package com.github.fonimus.ssh.shell;
 
 import com.github.fonimus.ssh.shell.conf.SshShellPasswordConfigurationTest;
+import com.github.fonimus.ssh.shell.conf.SshShellSessionConfigurationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +28,7 @@ import java.util.Map;
 import static com.github.fonimus.ssh.shell.SshHelperTest.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
-        classes = {SshShellApplicationCustomAuthenticatorTest.class, SshShellPasswordConfigurationTest.class},
+        classes = {SshShellApplicationCustomAuthenticatorTest.class, SshShellPasswordConfigurationTest.class, SshShellSessionConfigurationTest.class},
         properties = {
                 "ssh.shell.port=2349",
                 "management.endpoints.web.exposure.include=*",
