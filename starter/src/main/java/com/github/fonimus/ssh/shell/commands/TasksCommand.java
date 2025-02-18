@@ -28,6 +28,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.TaskRejectedException;
+import org.springframework.scheduling.SchedulingAwareRunnable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.scheduling.config.*;
@@ -354,7 +355,9 @@ public class TasksCommand extends AbstractCommand implements DisposableBean {
     }
 
     private static String getTaskName(Runnable runnable) {
-        if (runnable instanceof ScheduledMethodRunnable) {
+        if (runnable instanceof SchedulingAwareRunnable sar) {
+            return sar.toString();
+        } else if (runnable instanceof ScheduledMethodRunnable) {
             Method method = ((ScheduledMethodRunnable) runnable).getMethod();
             return method.getDeclaringClass().getName() + "." + method.getName();
         } else {
