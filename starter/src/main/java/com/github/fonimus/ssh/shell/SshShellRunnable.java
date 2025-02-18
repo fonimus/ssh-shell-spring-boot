@@ -157,7 +157,7 @@ public class SshShellRunnable
 
                 SSH_THREAD_CONTEXT.set(new SshContext(this, terminal, reader, authentication));
                 shellListenerService.onSessionStarted(session);
-                new InteractiveShellRunner(reader, promptProvider, shell, new DefaultShellContext()).run(null);
+                new InteractiveShellRunner(reader, promptProvider, shell, new DefaultShellContext()).run((String[]) null);
                 shellListenerService.onSessionStopped(session);
                 LOGGER.debug("{}: closing", session);
                 quit(0);

@@ -49,7 +49,7 @@ public class ScriptCommandTest {
 
     @BeforeEach
     @SneakyThrows
-    void setUp() {
+    void setUp() throws Exception {
         shell = mock(ExtendedShell.class);
         Parser parser = mock(Parser.class);
         sshHelper = mock(SshShellHelper.class);
