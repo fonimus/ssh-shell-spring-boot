@@ -22,6 +22,8 @@ import org.jline.terminal.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.PrintWriter;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -51,6 +53,10 @@ class SystemCommandTest extends AbstractShellHelperTest {
         for (SystemCommand.ThreadColumn tc : SystemCommand.ThreadColumn.values()) {
             assertNotNull(command.threads(SystemCommand.ThreadAction.list, tc, true, true, null));
         }
+        // Hint: We have to override the PrintWriterAccess otherwise Thread.printStackTrace() will fail with:
+        // java.lang.NullPointerException: Cannot enter synchronized block because "lock" is null
+        writer = new PrintWriter(PrintWriter.nullWriter()); //Hint: mock(PrintWriter.class); fails in Throwable.printStackTrace()
+        when(ter.writer()).thenReturn(writer);
         assertNotNull(command.threads(SystemCommand.ThreadAction.dump, SystemCommand.ThreadColumn.name, true, true,
                 Thread.currentThread().getId()));
         assertThrows(IllegalArgumentException.class,

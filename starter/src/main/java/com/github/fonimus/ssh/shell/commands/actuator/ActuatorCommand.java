@@ -36,6 +36,7 @@ import org.springframework.boot.actuate.logging.LoggersEndpoint;
 import org.springframework.boot.actuate.management.ThreadDumpEndpoint;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.boot.actuate.scheduling.ScheduledTasksEndpoint;
+import org.springframework.boot.actuate.session.SessionsDescriptor;
 import org.springframework.boot.actuate.session.SessionsEndpoint;
 import org.springframework.boot.actuate.web.exchanges.HttpExchangesEndpoint;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
@@ -407,7 +408,7 @@ public class ActuatorCommand extends AbstractCommand {
      */
     @ShellMethod(key = "sessions", value = "Display sessions endpoint.")
     @ShellMethodAvailability("sessionsAvailability")
-    public SessionsEndpoint.SessionsDescriptor sessions() {
+    public SessionsDescriptor sessions() {
         return applicationContext.getBean(SessionsEndpoint.class).sessionsForUsername(null);
     }
 

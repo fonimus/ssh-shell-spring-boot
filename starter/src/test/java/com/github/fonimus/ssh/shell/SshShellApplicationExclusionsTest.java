@@ -16,6 +16,8 @@
 
 package com.github.fonimus.ssh.shell;
 
+import com.github.fonimus.ssh.shell.conf.SshShellPasswordConfigurationTest;
+import com.github.fonimus.ssh.shell.conf.SshShellSessionConfigurationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,8 +26,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes =
-        SshShellApplicationExclusionsTest.class, properties = {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE,
+        classes = {SshShellApplicationExclusionsTest.class, SshShellSessionConfigurationTest.class},
+        properties = {
         "ssh.shell.port=2344",
         "ssh.shell.commands.actuator.excludes[0]=info",
         "ssh.shell.commands.actuator.excludes[1]=beans",

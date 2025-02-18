@@ -36,15 +36,14 @@ public class ExtendedInteractiveShellRunner extends InteractiveShellRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public boolean run(String[] args) throws Exception {
+        if (args == null || args.length == 0) {
+            return false;
+        }
         shellContext.setInteractionMode(InteractionMode.INTERACTIVE);
         InputProvider inputProvider = new SshShellInputProvider(lineReader, promptProvider);
         shell.run(inputProvider);
-    }
-
-    @Override
-    public boolean canRun(ApplicationArguments args) {
-        return false;
+        return true;
     }
 
     public static class SshShellInputProvider
